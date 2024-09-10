@@ -17,6 +17,10 @@ int main() {
 	cout.precision(7);
 	setlocale(0, "RUSSIAN");
 
+	cout << setiosflags(ios::left) << setw(20)
+	<< "Задание:\n322, 321 x ^ 8 + 32, 432 x ^ 7 - x\n9, 09 x ^ 6 + 6543, 3 x ^ 3 - 0, 2132 x\n" <<
+	"Автор: Редкокаша Роман Юрьевич\tВерсия : 1.1.1\nГруппа : 4352\nДаты : начало : 04.09.2024 - конец : потом\n";
+	
 	double X;
 	cout << setiosflags(ios::left) << setw(20)
 		<< "Введите X: ";
