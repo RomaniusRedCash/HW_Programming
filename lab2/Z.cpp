@@ -13,6 +13,7 @@
 
 */
 #include "iostream"
+#include "iomanip"
 
 using namespace std;
 
@@ -24,9 +25,15 @@ int main() {
 	cout << "  | /________\\____ >x\n";
 	cout << "-b|/ a      c \\\n\n";
 	cout << "Автор: Редкокаша Роман Юрьевич\tВерсия: 1.1\tГруппа: 4352\nДаты: начало: 25.09.2024 - конец:потом\n";
-	cout << "Введите параметры\n a, b, c, где c > a != 0, b != 0: ";
+	cout << "Введите параметры\n a, b, c, где c > a != 0, b > 0: ";
 	float a, b, c;
-	cin >> a >> b >> c;
+	bool F = false;
+	while (!F) {
+		cin >> a >> b >> c;
+		if (c > a && a != 0 && b > 0) {	F = true; }
+		else { cout << "Не удовлетворяет условию!\n"; }
+	}
+
 	//1.16 0.74 3.32 93.38
 	float x;
 	cout << "Введите x: ";
