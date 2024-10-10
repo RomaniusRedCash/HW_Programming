@@ -9,8 +9,7 @@
 * 
 Автор: Редкокаша Роман Юрьевич				  Версия: 2.1
 * Группа: 4352
-* Даты: начало: 25.09.2024 - конец:потом
-
+* Даты: начало: 25.09.2024 - конец: 10.10.2024
 */
 #include "iostream"
 #include "iomanip"
@@ -19,34 +18,55 @@ using namespace std;
 
 int main() {
 	setlocale(0, "RUSSIAN");
+	cout.setf(ios::fixed);
+	cout.precision(7);
 	cout << "Задание: Составить программу, определяющую для заданного значения x значение y по периодическому фрагменту, который представлен на рис.R2(a)\n";
 	cout << "  ^ y\n";
 	cout << " b|  ________\n";
 	cout << "  | /________\\____ >x\n";
 	cout << "-b|/ a      c \\\n\n";
-	cout << "Автор: Редкокаша Роман Юрьевич\tВерсия: 1.1\tГруппа: 4352\nДаты: начало: 25.09.2024 - конец:потом\n";
-	cout << "Введите параметры\n a, b, c, где c > a != 0, b > 0: ";
+	cout << "Автор: Редкокаша Роман Юрьевич\tВерсия: 1.1\tГруппа: 4352\nДаты: начало: 25.09.2024 - конец: потом\n";
+	cout << "Введите параметры\n a, b, c, где c >= a, по модулю, не превышающие значения 3,4E+19 по модулю: ";
 	float a, b, c;
-	bool F = false;
-	while (!F) {
+	while (true) {
 		cin >> a >> b >> c;
-		if (c > a && a != 0 && b > 0) {	F = true; }
+		a = abs(a); c = abs(c);
+		if (c >= a) { break; }
 		else { cout << "Не удовлетворяет условию!\n"; }
 	}
-
 	//1.16 0.74 3.32 93.38
 	float x;
-	cout << "Введите x: ";
+	cout << "Введите x, не превышающие значения 3,4E+38 по модулю: ";
 	cin >> x;
 	x = abs(x);
-	float T = a + c;
-	float d = fmod(x, T);
-	cout << "y = ";
-	if (d < a || d > c) { //y = 2b/a * x - b 
-		if (d < c) { cout << 2 * b * d / a - b; } 
-		else { cout << -(2 * b * (d - c) / a - b); }
+
+	cout << "Для a = " << a << ", b = " << b << ", c = " << c << ",\t x = " << x << ": y = ";
+
+	float d = fmod(x, a + c);
+	if (d >= a && d <= c || c == 0 && x == 0) {	cout << b; }
+	else {
+		if (a==0) { cout << "неопределенно значение"; }
+		else{
+			if (d < c) { cout << 2 * b * d / a - b; }
+			else { cout << -(2 * b * (d - c) / a - b); }
+		}
 	}
-	else { cout << b; }
 
 	return 0;
 }
+
+/*
+	if (a == 0) {
+		if (c != 0 || x == 0) cout << b;
+		else { cout << "неопределенно значение"; }
+	}
+	else {
+		float T = a + c;
+		float d = fmod(x, T);
+		if (d < a || d > c) { //y = 2b/a * x - b
+			if (d < c) { cout << 2 * b * d / a - b; }
+			else { cout << -(2 * b * (d - c) / a - b); }
+		}
+		else { cout << b; }
+	}
+	*/
