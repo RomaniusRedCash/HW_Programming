@@ -1,0 +1,73 @@
+/*я—»√ћјя –”“ќ…я—»√ћј
+* Задание:
+* Даны две последовательности значений a1 ≤ a2 ≤... ≤ an и b1 ≤ b2 ≤ ... ≤ bm.
+* Сформировать из них последовательность значений с1 ≤ с2 ≤ ... ≤ сn+m.
+* Автор: Редкокаша Роман Юрьевич				  Версия: 3.1
+* Группа: 4352
+* Даты: начало: 10.10.2024 - конец: 10.10.2024
+*/
+#include "iostream"
+#include "fstream"
+
+using namespace std;
+
+int main() {
+	setlocale(LC_ALL, "RUSSIAN");
+
+	fstream Fi[]{ fstream("A.txt", ios::in), fstream("B.txt", ios::in) }, Fo("C.txt", ios::out), Ferror("log.txt", ios::out);
+	int Size[2]{ 0, 0 }, Real_Size[2]{ 0, 0 };
+	int** Array = new int*[2];
+	
+	for (int i = 0; i < 2; i++) {
+		if (!Fi[i].is_open()) {
+			cout << "Файл " << char('A' + i) << ".txt не помещён в корневой католог программы." << endl;
+			Ferror << "Файл " << char('A' + i) << ".txt не помещён в корневой католог программы." << endl;
+			continue;
+		}
+		Fi[i] >> Size[i];
+		Size[i] = abs(Size[i]);
+		int X;
+		while (!Fi[i].eof()) {
+			Fi[i] >> X;
+			Real_Size[i]++;
+		}
+		Fi[i].clear();
+		Fi[i].seekg(0, ios::beg);
+
+		Array[i] = new int[1000];
+
+		cout << "Файл " << char('A' + i) << ".txt: " << endl;
+		for (int ii = 0; !Fi[i].eof(); ii++) {
+			Fi[i] >> X;
+			Array[i][ii] = X;
+			cout << Array[i][ii] << endl;
+		}
+		if (Size[i] > Real_Size[i]) {
+			cout << "Требуемая длинна больше файла" << endl;
+			Ferror << "Требуемая длинна больше файла" << endl;
+			return 0;
+		}
+	}
+
+	int Choose = 0;
+	int i[2]{ 0,0 }, MinS = min(Real_Size[0], Real_Size[1]), MaxS = max(Real_Size[0], Real_Size[1]);
+
+	for (; i[Choose] < Size[Choose]; i[Choose]++) {
+		Choose = (Array[0][i[0]] < Array[1][i[1]]) ? 0 : 1;
+		Fo << Array[Choose][i[Choose]];
+		cout << Array[Choose][i[Choose]] << endl;
+	}
+
+	Choose = (Choose == 1) ? 0 : 1;
+
+	for (; i[Choose] < Size[Choose]; i[Choose]++) {
+		Fo << Array[Choose][i[Choose]];
+		cout << Array[Choose][i[Choose]] << endl;
+	}
+
+	for (int i = 0; i < 2; i++)
+		delete[] Array[i];
+	delete[] Array;
+
+	return 0;
+}
