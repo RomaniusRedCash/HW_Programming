@@ -77,14 +77,14 @@ int main() {
 
 	for (; Iter[Choose] < Size[Choose]; Iter[Choose]++) {
 		Choose = (Array[0][Iter[0]] < Array[1][Iter[1]]) ? 0 : 1;
-		Fo << Array[Choose][Iter[Choose]];
+		Fo << Array[Choose][Iter[Choose]] << endl;
 		cout << Array[Choose][Iter[Choose]] << endl;
 	}
 
 	Choose = (Choose == 1) ? 0 : 1;
 
 	for (; Iter[Choose] < Size[Choose]; Iter[Choose]++) {
-		Fo << Array[Choose][Iter[Choose]];
+		Fo << Array[Choose][Iter[Choose]] << endl;
 		cout << Array[Choose][Iter[Choose]] << endl;
 	}
 
