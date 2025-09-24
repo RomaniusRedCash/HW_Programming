@@ -1,74 +1,17 @@
 #include "Menu.h"
 
-
-
-const Sost& Menu::GetSost() {
-	return sost;
-}
+const Sost& Menu::GetSost() {	return sost;	}
 
 void Menu::ThrowErr(const char* Err) {
 	std::cout << "\n\t" << Err << std::endl;
 	throw Err;
 }
 
-//bool Menu::AnalizIn() {
-//	GetXSF();
-//	if (XSF == "exit") {
-//		sost = Exit;
-//		return true;
-//	}
-//	//std::cout << XSF << std::endl;
-//	if (XSF == "help") {
-//		std::cout <<
-//			"\nhelp - this page" <<
-//			"\nshow - show content" <<
-//			"\nfilter - find route" <<
-//			"\nmake - read you file and analize it"  <<
-//			"\nexit - off"  <<
-//			std::endl;
-//		sost = Help;
-//		return true;
-//	}
-//	if (XSF == "show") {
-//		std::cout << "\nMar - show all routs\nPoints/Spos/Times - show list of points/transports/times" << std::endl;
-//		GetXSF();
-//		sost = Show;
-//	}
-//
-//	if (sost == Select || XSF == "filter") {
-//		Sort();
-//		return true;
-//	}
-//
-//	if (XSF == "make") {
-//		sost = Make;
-//		MakeMarsh();
-//		sost = Main;
-//		return true;
-//	}
-//
-//	if (sost == Show) {
-//		if (XSF == "Mar")
-//			ShowMarshs();
-//		else if (XSF == "Points")
-//			ShowObj(AlfPoints);
-//		else if (XSF == "Spos")
-//			ShowObj(AlfSpos);
-//		else if (XSF == "Times")
-//			ShowObj(AlfTimes);
-//		return true;
-//	}
-//	
-//	std::cout << "Input is not correct" << std::endl;
-//	return false;
-//}
-
 bool Menu::AnalizIn() {
 	GetXSF();
 
 	if (XSF == "help") {
 		sost = Help;
-		return true;
 	}
 	else if (XSF == "exit") {
 		sost = Exit;
@@ -150,7 +93,6 @@ bool Menu::Read() {
 		FI.seekg(-1, std::ios::cur);
 		Object* MarshObj = GetMarsh();
 		IsErr(!MarshObj);
-		//std::cout << MarshObj->name << std::endl;
 		while (FI.get(C) && C != '<') {
 			FI.seekg(-1, std::ios::cur);
 			Object* PointObj = GetObjFromF(AlfPoints);
@@ -161,20 +103,11 @@ bool Menu::Read() {
 			IsErr(!TimeObj);
 
 			Location* Loc = new Location(PointObj, SposObj, TimeObj);
-			//Loc->point = PointObj;
-			//Loc->spos = SposObj;
-			//Loc->time = TimeObj;
 			MarshObj->sub->Add(Loc);
 
 			PointObj->sub->Add(MarshObj);
 			SposObj->sub->Add(MarshObj);
 			TimeObj->sub->Add(MarshObj);
-
-
-
-			//std::cout << PointObj->name << std::endl;
-			//std::cout << SposObj->name << std::endl;
-			//std::cout << TimeObj->name << std::endl;
 		}
 		FI.seekg(-1, std::ios::cur);
 		IsErr(!IsClose());
@@ -187,6 +120,7 @@ void Menu::ProtAll() {
 	if (Marshs.SetCStart()) do {
 		Marshs.GetC()->data->name.Prot(FProt);
 		Object* Obj = static_cast<Object*>(Marshs.GetC()->data);
+		FProt << "\t\\/\\/" << std::endl;
 		if (Obj->sub->SetCStart()) do {
 			Location* Loc = static_cast<Location*>(Obj->sub->GetC()->data);
 			FProt << '\t';
@@ -195,23 +129,34 @@ void Menu::ProtAll() {
 			Loc->spos->name.Prot(FProt);
 			FProt << '\t';
 			Loc->time->name.Prot(FProt);
-			FProt << '\n';
+			FProt << "\t\\/\\/\\/" << std::endl;
 		} while (Obj->sub->Next());
+		FProt << "\tnullptr\n\\/\\/\\/" << std::endl;
 	} while (Marshs.Next());
+	FProt << "nullptr" << std::endl;
 
-	//FProt << "\nPoints:" << std::endl;
-	//ProtSO(Points);
-	//FProt << "\nSpos:" << std::endl;
-	//ProtSO(Spos);
-	//FProt << "\nTimes:" << std::endl;
-	//ProtSO(Times);
+	FProt << "\nPoints:" << std::endl;
+	ProtSO(AlfPoints);
+	FProt << "\nSpos:" << std::endl;
+	ProtSO(AlfSpos);
+	FProt << "\nTimes:" << std::endl;
+	ProtSO(AlfTimes);
 	
 }
 void Menu::ProtSO(SetOfObj& SO) {
 	if (SO.SetCStart()) do {
+		Object* AL = static_cast<Object*>(SO.GetC()->data);
 		FProt << '\t';
 		SO.GetC()->data->name.Prot(FProt);
+		FProt << "\t\t\\/\\/" << std::endl;
+		if (AL->sub->SetCStart()) do {
+			FProt << "\t\t";
+			AL->sub->GetC()->data->name.Prot(FProt);
+			FProt << "\t\t\\/\\/\\/" << std::endl;
+		} while (AL->sub->Next());
+		FProt << "\t\tnullptr\n\t\\/\\/\\/" << std::endl;
 	} while (SO.Next());
+	FProt << "\tnullptr" << std::endl;
 }
 void Menu::GetXSF() {
 	XSF.Clear();
@@ -224,30 +169,27 @@ Object* Menu::GetMarsh() {
 	SkipSpace();
 	FI.get(C);
 	if (IsErr(C != '<')) return nullptr;
-	while (FI.get(C) && C != '>' && C != '\n') {
+	while (FI.get(C) && C != '>' && C != '\n')
 		XSF.PushEnd(C);
-	}
 	if (IsErr(C != '>')) return nullptr;
 	Object* pMarsh = new Object(XSF, new ListDel);
-	//pMarsh->name = XSF;
 	return static_cast<Object*>(Marshs.Add(pMarsh)->data);
 }
 
 Object* Menu::GetObjFromF(SetOfObj& Alf) {
 	XSF.Clear();
 	SkipSpace();
-	//if(IsErr(C != '<')) return nullptr;
-	while (FI.get(C) && C != '/' && C != '\n') {
+	while (FI.get(C) && C != '/' && C != '\n')
 		XSF.PushEnd(C);
-	}
-	//if (IsErr(C!='/')) return nullptr;
 	return InpObj(Alf);
 }
 
 Object* Menu::InpObj(SetOfObj& Alf) {
 	Object* Obj = new Object(XSF, new ListOfObj);
-	AlfList* AL = static_cast<AlfList*>(Alf.Add(new AlfList(XSF[0]))->data);
-	return static_cast<Object*>(AL->Add(Obj)->data);
+	XSetForm AN = XSetForm(XSF[0]);
+	Object* AL = new Object(AN, new SetOfObj);
+	AL = static_cast<Object*>(Alf.Add(AL)->data);
+	return static_cast<Object*>(AL->sub->Add(Obj)->data);
 }
 
 void Menu::SkipSpace() {
@@ -273,17 +215,6 @@ bool Menu::IsErr(const bool& b) {
 }
 
 void Menu::ShowMarshs() {
-	//std::cout << "Routs:" << std::endl;
-	//size_t Id = 0, SubId = 0;
-	//if(Marshs.SetCStart()) do {
-	//	std::cout << Id++ << "\t" << Marshs.GetC().name << ':' << std::endl;
-	//	if(Marshs.GetC().subs.SetCStart()) do {
-	//		Location& Loc = Marshs.GetC().subs.GetC();
-	//		std::cout << SubId++ << "\t" << Loc.point->name << " - " <<
-	//			Loc.spos->name << " - " <<
-	//			Loc.time->name << std::endl;
-	//	} while (Marshs.GetC().subs.Next());
-	//} while (Marshs.Next());
 	size_t IdMar = 0;
 	if (Marshs.SetCStart()) do {
 		std::cout << IdMar++ << ": " << Marshs.GetC()->data->name << std::endl;
@@ -302,15 +233,11 @@ void Menu::ShowObj(SetOfObj& SO) {
 	size_t Id = 0;
 	if (SO.SetCStart()) do {
 		std::cout << SO.GetC()->data->name << ':' << std::endl;
-		AlfList* AL = static_cast<AlfList*>(SO.GetC()->data);
-		if (AL->SetCStart()) do {
-			std::cout << '\t' << Id++ << ": " << AL->GetC()->data->name << std::endl;
-		} while (AL->Next() && AL->IsNotEnd());
+		Object* AL = static_cast<Object*>(SO.GetC()->data);
+		if (AL->sub->SetCStart()) do {
+			std::cout << '\t' << Id++ << ": " << AL->sub->GetC()->data->name << std::endl;
+		} while (AL->sub->Next());
 	} while (SO.Next());
-
-	//if (SO.SetCStart()) do {
-	//	std::cout << Id++ << ": " << SO.GetC()->name << std::endl;
-	//} while (SO.Next());
 }
 
 void Menu::Sort() {
@@ -336,8 +263,9 @@ void Menu::Find(ListOfObj& TSO, SetOfObj& Alf) {
 		GetXSF();
 		if (!XSF.GetSize()) return;
 		XSetForm AN(XSF[0]);
-		AlfList* AL = static_cast<AlfList*>(Alf.Find(AN)->data);
-		Conteiner* Obj = AL->Find(XSF);
+		Conteiner* Obj = nullptr;
+		if (Conteiner* PO = Alf.Find(AN))
+			Obj = static_cast<Object*>(PO->data)->sub->Find(XSF);
 		if (Obj) TSO.Add(Obj->data);
 		else std::cout << "Incorrect data is not using." << std::endl;
 	}
@@ -368,7 +296,6 @@ void Menu::MakeMarsh() {
 		std::cout << "\nRout already exists!" << std::endl;
 		return;
 	}
-	//pMarsh->name = XSF;
 	TM = static_cast<Object*>(Marshs.Add(TM)->data);
 	std::cout << "\nWrite - point/transport/time" << std::endl;
 	do {
@@ -398,21 +325,15 @@ void Menu::MakeMarsh() {
 		}
 		TT= InpObj(AlfTimes);
 
-
 		Location* Loc = new Location(TP, TS, TT);
-
-
 		TM->sub->Add(Loc);
 
 		TP->sub->Add(TM);
 		TS->sub->Add(TM);
 		TT->sub->Add(TM);
-
-
 	} while (C != '!');
 	
 	std::fstream FO("Inp.txt", std::ios::app);
-	
 	if (TM->sub->SetCStart()) {
 		FO << "\n<" << TM->name << '>' << std::endl;
 		do {
@@ -425,5 +346,4 @@ void Menu::MakeMarsh() {
 		ProtAll();
 	}
 	FO.close();
-
 }

@@ -72,7 +72,7 @@ class ProtListOfObj {
 protected:
 	Conteiner* start = nullptr, * recur = nullptr, * cur = nullptr;
 public:
-	ProtListOfObj();
+	//ProtListOfObj();
 	//virtual ListOfObj* clone();
 	virtual Conteiner* Add(ProtObject* Obj);
 	virtual Conteiner* Find(XSetForm& XSF);
@@ -89,16 +89,7 @@ public:
 	virtual ~ListOfObj() override;
 };
 
-class AlfList : public ProtObject, public ProtListOfObj {
-	Conteiner* last = nullptr;
-public:
-	AlfList(const char& Name);
-	Conteiner* Add(ProtObject* Obj) override;
-	//Conteiner* Add(Conteiner* Obj);
-	Conteiner* Find(XSetForm& XSF) override;
-	bool IsNotEnd();
-	~AlfList();
-};
+
 
 class ListDel : public ListOfObj {
 public:
@@ -110,6 +101,18 @@ public:
 	virtual Conteiner* Add(ProtObject* Obj) override;
 	//SetOfObj* clone() override;
 	//~SetOfObj() override;
+};
+
+
+class AlfList : public ProtObject, public SetOfObj {
+	//Conteiner* last = nullptr;
+public:
+	AlfList(const char& Name);
+	//Conteiner* Add(ProtObject* Obj) override;
+	//Conteiner* Add(Conteiner* Obj);
+	//Conteiner* Find(XSetForm& XSF) override;
+	//bool IsNotEnd();
+	~AlfList();
 };
 
 struct Object : public ProtObject {
@@ -125,7 +128,7 @@ struct Location : public ProtObject {
 	Object* point = nullptr, * spos = nullptr, * time = nullptr;
 	Location(Object* point, Object* spos, Object* time);
 	//Location* next = nullptr;
-	~Location() override;
+	//~Location() override;
 };
 
 //class MarshList : public ListOfObj {

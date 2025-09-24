@@ -322,11 +322,11 @@ Location::Location(Object* point, Object* spos, Object* time) : point(point), sp
 }
 
 Location::~Location() {
-	//std::cout << NEW-- << "DelL" << NEW << std::endl;
-	FProt << "Delete " << this << ' '
-		<< point->name << ' '
-		<< spos->name << ' '
-		<< time->name << std::endl;
+	////std::cout << NEW-- << "DelL" << NEW << std::endl;
+	//FProt << "Delete " << this << ' '
+	//	<< point->name << ' '
+	//	<< spos->name << ' '
+	//	<< time->name << std::endl;
 }
 
 ListDel::~ListDel() {
@@ -346,31 +346,13 @@ AlfList::AlfList(const char& Name) {
 }
 
 Conteiner* AlfList::Add(ProtObject* Obj) {
-	Conteiner* TD = new Conteiner(Obj);
-	FProt << "To " << this << " add " << TD << " Con " << TD->data->name << std::endl;
-	if (!SetCStart()) {
-		start = TD;
-		last = start;
-		return SetCStart();
+	if (!last && !start)
+		return last = start = new Conteiner(Obj);
+	if (last->data->name < Obj->name) {
+		last->next = new Conteiner(Obj);
+		return last = last->next;
 	}
-	if (Obj->name < start->data->name) {
-		TD->next = start;
-		start = TD;
-		return SetCStart();
-	}
-	while (cur->data->name < Obj->name && Next());
-	if (!cur) {
-		recur->next = TD;
-		return last = cur = TD;
-	}
-	if (Obj->name < cur->data->name) {
-		recur->next = TD;
-		TD->next = cur;
-		return cur = TD;
-	}
-	delete TD;
-	delete Obj;
-	return cur;
+	return SetOfObj::Add(Obj);
 }
 //
 //Conteiner* AlfList::Add(Conteiner* Obj) {
@@ -405,13 +387,13 @@ bool AlfList::IsNotEnd() {
 }
 
 AlfList::~AlfList() {
-	SetCStart();
-	Next();
-	while (recur) {
-		delete recur->data;
-		delete recur;
-		Next();
-	}
+	//SetCStart();
+	//Next();
+	//while (recur) {
+	//	delete recur->data;
+	//	delete recur;
+	//	Next();
+	//}
 }
 
 Conteiner::Conteiner(ProtObject* Data) : data(Data) {
