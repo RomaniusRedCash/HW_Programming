@@ -1,7 +1,17 @@
 #include <iostream>
 
-template<typename T>
-void PrintBit(const T& Data) {
+void PrintBit(const unsigned char& Data) {
+	std::cout << Data << ": ";
+	unsigned char Mask = 1;
+	Mask <<= sizeof(Data) * 8 - 1;
+	while (Mask) {
+		std::cout << bool(Data & Mask);
+		Mask >>= 1;
+	}
+	std::cout << std::endl;
+}
+
+void PrintBit(const double& Data) {
 	std::cout << Data << ": ";
 	size_t Mask = 1;
 	size_t* Sub = (size_t*)&Data;
@@ -25,8 +35,27 @@ void InPar(const T& Data, size_t& Raz, size_t& Kol) {
 	}
 }
 
-template<typename T>
-void Remake(T& Data) {
+void Remake(unsigned char& Data) {
+	size_t Raz, Kol;
+	InPar(Data, Raz, Kol);
+	PrintBit(Data);
+	unsigned char Mask = 1;
+	size_t Zeros = Kol;
+	Mask <<= Raz - 1;
+	for (size_t i = 0; i < Kol; i++) {
+		Zeros -= bool(Data & Mask);
+		Data &= ~Mask;
+		Mask >>= 1;
+	}
+	Mask = 1 << Raz - Zeros - 1;
+	for (size_t i = 0; i < Kol - Zeros; i++) {
+		Data += Mask;
+		Mask >>= 1;
+	}
+	PrintBit(Data);
+}
+
+void Remake(double& Data) {
 	size_t Raz, Kol;
 	InPar(Data, Raz, Kol);
 	PrintBit(Data);
@@ -39,7 +68,7 @@ void Remake(T& Data) {
 		*Sub &= ~Mask;
 		Mask >>= 1;
 	}
-	Mask = 1 << Raz - Zeros - 1;
+	Mask = size_t(1) << Raz - Zeros - 1;
 	for (size_t i = 0; i < Kol - Zeros; i++) {
 		*Sub += Mask;
 		Mask >>= 1;
