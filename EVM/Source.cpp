@@ -16,12 +16,12 @@ void PrintBit(const T& Data) {
 template<typename T>
 void InPar(const T& Data, size_t& Raz, size_t& Kol) {
 	Raz = 0; Kol = 0;
-	std::cout << "Ðàçðÿäîâ: " << sizeof(Data) * 8 << std::endl;
-	std::cout << "Ââåäèòå ñòàðøèé ðàçðÿä è êîëëè÷åñòâî äëÿ ñäâèãà:" << std::endl;
+	std::cout << "Ð Ð°Ð·Ñ€ÑÐ´Ð¾Ð²: " << sizeof(Data) * 8 << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ ÑÑ‚Ð°Ñ€ÑˆÐ¸Ð¹ Ñ€Ð°Ð·Ñ€ÑÐ´ Ð¸ ÐºÐ¾Ð»Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð´Ð»Ñ ÑÐ´Ð²Ð¸Ð³Ð°:" << std::endl;
 	while (!(std::cin >> Raz >> Kol) || Raz > sizeof(Data) * 8 || Raz < 2 || Kol < 2 || Raz < Kol) {
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		std::cout << "Äàííûå íå êîðåêòíû, ïîïðîáóéòå åù¸ ðàç:" << std::endl;
+		std::cout << "Ð”Ð°Ð½Ð½Ñ‹Ðµ Ð½Ðµ ÐºÐ¾Ñ€ÐµÐºÑ‚Ð½Ñ‹, Ð¿Ð¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ ÐµÑ‰Ñ‘ Ñ€Ð°Ð·:" << std::endl;
 	}
 }
 
@@ -50,11 +50,11 @@ void Remake(T& Data) {
 int main() {
 	setlocale(LC_ALL, "RUSSIAN");
 	unsigned char C;
-	std::cout << "Ââåäèòå äàííûå òèïà unsigned char:\t" << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ñ‚Ð¸Ð¿Ð° unsigned char:\t" << std::endl;
 	std::cin >> C;
 	Remake(C);
 	double D;
-	std::cout << "Ââåäèòå äàííûå òèïà double:\t" << std::endl;
+	std::cout << "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ñ‚Ð¸Ð¿Ð° double:\t" << std::endl;
 	std::cin >> D;
 	Remake(D);
 	return 0;
