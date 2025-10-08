@@ -12,7 +12,7 @@ template<typename T>
 void Choosing(std::vector<T>& V) {
 	for (typename std::vector<T>::iterator i = V.begin(); i != V.end(); i++) {
 		typename std::vector<T>::iterator pMin = i;
-		for (typename std::vector<T>::iterator j = i; j != V.end(); j++)
+		for (typename std::vector<T>::iterator j = i + 1; j != V.end(); j++)
 			if (*pMin > *j)	pMin = j;
 		Swap(*pMin, *i);
 	}
@@ -29,7 +29,7 @@ void Insertering(std::vector<T>& V) {
 
 int main() {
 	std::vector<int> Sempl{ 0, 12, -234, 1478, 332, -34534, 87 };
-	Insertering(Sempl);
+	Choosing(Sempl);
 	for (int& i : Sempl) std::cout << i << ' ';
 	return 0;
 }
