@@ -26,47 +26,40 @@ void scroll(int direction, char lines, char l_row, char l_col, char r_row, char 
 }
 
 
-void delay_seconds(double seconds)
-{
-  
-    int ticks = (int)(seconds * 18.2);
-    delay(ticks * 55); 
-}
+
 
 int main(void)
 {
     int x1 = 25, y1 = 10, x2 = 55, y2 = 20; 
     double T = 0.2;                          
-    int S = 3;                               
-    
-    int bg, fg;                             
-    char buffer[80];                        
+    int S = 3;
     
     clrscr();
     window(x1, y1, x2, y2);
 	
 	//scroll(ENTIRE, 0, y1-1, x1-1, y2+1, x2+1, get_color_attr(15, 15));
-	scroll(ENTIRE, 0, y1-2, x1-2, y2, x2, 15 << 4);
 	
 	
 	
 	
-    for(bg = 0; bg < 16; bg++) {
-		scroll(DOWN, 0, y1-1, x1-1, y2-1, x2-1, bg << 4);
-        for(fg = 0; fg < 16; fg++) {
+    for(int fg = 0; fg < 16; fg++) {
+        for(int bg = 0; bg < 16; bg++) {
             if(fg == bg) continue;
-			
+            scroll(ENTIRE, 0, y1-2, x1-2, y2, x2, fg << 4);
+
+            scroll(DOWN, 0, y1-1, x1-1, y2-1, x2-1, bg << 4);
+
             textbackground(bg);
             textcolor(fg);
             cprintf("\rBG:%2d FG:%2d", bg, fg);
-            delay_seconds(T);
+            delay(T*360);
         }
     }
 
 	
 	
-    for(bg = 0; bg < 16; bg++) {
-        for(fg = 0; fg < 16; fg++) {
+    for(int bg = 0; bg < 16; bg++) {
+        for(int fg = 0; fg < 16; fg++) {
             if(fg == bg) continue;
 			scroll(DOWN, S, y1-1, x1-1, y2-1, x2-1, bg << 4);
 			
@@ -75,7 +68,7 @@ int main(void)
             cprintf("\rBG:%2d FG:%2d", bg, fg);
 			//putch('\r');
 			//putch('Z');
-            delay_seconds(T);
+            delay(T*360);
         }
     }
     
