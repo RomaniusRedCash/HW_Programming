@@ -1,6 +1,50 @@
 #include <iostream>
 #include <vector>
 
+
+
+
+template<typename T>
+void Merge(std::vector<T>& V, typename std::vector<T>::iterator& left, typename std::vector<T>::iterator& right){
+	std::vector<T> Vleft = {V.begin() + left, V.begin() + (right + left) / 2};
+	std::vector<T> Vright = {V.begin() + (right + left) / 2, V.begin() + right};
+	size_t j = 0, l =0;
+	for (typename std::vector<T> i = V.begin() + left; i < V.begin() + right; i++) {
+		if (Vleft[j] <= Vright[l]) *i = Vleft[j++];
+		else *i = Vright[l++];
+	}
+
+
+
+
+}
+
+template<typename T>
+void MergeSort(std::vector<T>& V, typename std::vector<T>::iterator& left, typename std::vector<T>::iterator& right){
+	if (right - left <= 1) return;
+	MergSort(V, left, (right + left) / 2);
+	MergSort(V, (right + left) / 2 + 1, right);
+
+	return Merge(V, left,right);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 template<typename T>
 void Swap(T& X, T& Y) {
 	T Temp = X;

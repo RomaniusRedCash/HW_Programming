@@ -129,7 +129,7 @@ int main(void) {
 	graph_error_code = graphresult(); if( graph_error_code != grOk) {closegraph(); return graph_error_code;}
 
 
-	outtextxy(10, 10, "sin^3(x)*cos^2(x)");
+	outtextxy(10, 10, "y = sin^3(x)-cos^2(x)");
 
 	sprintf(buffer, "%s%.2f%s%.2f", "Max = ", Max, "Min = ", Min);
 
