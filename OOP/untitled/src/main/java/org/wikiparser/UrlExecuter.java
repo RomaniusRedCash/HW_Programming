@@ -4,15 +4,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class UrlExecuter {
-    public static String execute (JsonObject json_object, Integer num) {
+    private String url;
+    public void execute (JsonObject jsonObject, Integer num) {
 
-        JsonArray json_array = json_object.getAsJsonObject("query").getAsJsonArray("search");
+        JsonArray jsonArray = jsonObject.getAsJsonObject("query").getAsJsonArray("search");
 
-        if (num >= json_array.size()) {
+        if (num >= jsonArray.size()) {
             throw new IllegalArgumentException("Index " + num + " out of bounds");
         }
 
-        Integer page_id = json_array.get(num).getAsJsonObject().get("pageid").getAsInt();
-        return "https://ru.wikipedia.org/w/index.php?curid=" + page_id;
+        Integer page_id = jsonArray.get(num).getAsJsonObject().get("pageid").getAsInt();
+        url = "https://ru.wikipedia.org/w/index.php?curid=" + page_id;
     }
+    public String getUrl() {return url;}
 }

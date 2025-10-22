@@ -16,9 +16,13 @@ import java.net.URLEncoder;
 
 
 public class Requester {
-    public static JsonObject request(String url_string, String req_string) throws URISyntaxException, IOException, InterruptedException {
-        req_string = URLEncoder.encode(req_string, "UTF-8");
-        final HttpURLConnection con = (HttpURLConnection) new URL(url_string + req_string).openConnection();
+    private JsonObject jsonObject;
+
+
+
+    public void request(String urlString, String reqString) throws URISyntaxException, IOException, InterruptedException {
+        reqString = URLEncoder.encode(reqString, "UTF-8");
+        final HttpURLConnection con = (HttpURLConnection) new URL(urlString + reqString).openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("Accept", "application/json");
         con.setRequestProperty("User-Agent", "WikiParserBot/1.0 (https://example.com; contact@example.com)");
@@ -33,7 +37,8 @@ public class Requester {
             content.append(inputLine);
         }
         in.close();
-            return JsonParser.parseString(content.toString()).getAsJsonObject();
-
+        jsonObject = JsonParser.parseString(content.toString()).getAsJsonObject();
     }
+
+    public JsonObject getJsonObject() {return jsonObject;}
 }

@@ -13,11 +13,11 @@ public class UserInterface {
         return scanner.nextLine();
     }
 
-    public static void outJson(JsonObject json_object) {
+    public static void outJson(JsonObject jsonObject) {
 
         System.out.println("Найдено:");
 
-        JsonArray json_array = json_object.getAsJsonObject("query").getAsJsonArray("search");
+        JsonArray json_array = jsonObject.getAsJsonObject("query").getAsJsonArray("search");
 
         for (Integer i = 0; i < json_array.size(); i++) {
             System.out.println(i + ": " + json_array.get(i).getAsJsonObject().get("title").getAsString());

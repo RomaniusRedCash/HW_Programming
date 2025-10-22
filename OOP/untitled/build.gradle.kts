@@ -1,10 +1,11 @@
 plugins {
     id("java")
-    id("application")  // ← добавляем этот плагин
+    id("application")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 application {
-    mainClass.set("org.wikiparser.Main")  // укажите ваш главный класс
+    mainClass.set("org.wikiparser.Main")
     applicationDefaultJvmArgs = listOf("-Dfile.encoding=UTF-8")
 }
 
@@ -37,4 +38,14 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Test> {
     systemProperty("file.encoding", "UTF-8")
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    // This explicitly sets the Main-Class attribute in the manifest
+    // It inherits the mainClass setting from the 'application' block.
+    // Ensure the output file is named nicely.
+    archiveFileName.set("wiki-parser-standalone.jar")
+
+    // Note: When setting task properties in Kotlin DSL, you often need to use '.set()'
+    // for property accessors, or use the assignment operator '='.
 }

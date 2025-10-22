@@ -1,25 +1,23 @@
 package org.wikiparser;
 
-import com.google.gson.JsonObject;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class Main {
+    private static final Requester requester = new Requester();
+    private static final UrlExecuter executer = new UrlExecuter();
+
     public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
         System.setOut(new java.io.PrintStream(System.out, true, "UTF-8"));
         System.setProperty("console.encoding", "UTF-8");
 
+        requester.request("https://ru.wikipedia.org/w/api.php?action=query&list=search&utf8=&format=json&srsearch=" , UserInterface.getReq());
 
-        String req_serch = UserInterface.getReq();
+        UserInterface.outJson(requester.getJsonObject());
 
-        JsonObject json_object = Requester.request("https://ru.wikipedia.org/w/api.php?action=query&list=search&utf8=&format=json&srsearch=" , req_serch);
-        UserInterface.outJson(json_object);
+        executer.execute(requester.getJsonObject(), UserInterface.getId());
 
-        Integer id = UserInterface.getId();
-
-        String url = UrlExecuter.execute(json_object, id);
-        java.awt.Desktop.getDesktop().browse(new URI(url));
+        java.awt.Desktop.getDesktop().browse(new URI(executer.getUrl()));
     }
 }
