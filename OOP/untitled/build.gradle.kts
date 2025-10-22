@@ -41,11 +41,5 @@ tasks.withType<Test> {
 }
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
-    // This explicitly sets the Main-Class attribute in the manifest
-    // It inherits the mainClass setting from the 'application' block.
-    // Ensure the output file is named nicely.
     archiveFileName.set("wiki-parser-standalone.jar")
-
-    // Note: When setting task properties in Kotlin DSL, you often need to use '.set()'
-    // for property accessors, or use the assignment operator '='.
 }
