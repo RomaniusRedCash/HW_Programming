@@ -18,6 +18,6 @@ public class Main {
 
         executer.execute(requester.getJsonObject(), UserInterface.getId());
 
-        java.awt.Desktop.getDesktop().browse(new URI(executer.getUrl()));
+        Browser.open(executer.getUrl());
     }
 }
