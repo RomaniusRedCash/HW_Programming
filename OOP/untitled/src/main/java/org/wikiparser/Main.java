@@ -1,7 +1,6 @@
 package org.wikiparser;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
 public class Main {
@@ -16,7 +15,9 @@ public class Main {
 
         UserInterface.outJson(requester.getJsonObject());
 
-        executer.execute(requester.getJsonObject(), UserInterface.getId());
+        while(!executer.execute(requester.getJsonObject(), UserInterface.getId())){
+            System.out.println("Данные не верны!");
+        };
 
         Browser.open(executer.getUrl());
     }

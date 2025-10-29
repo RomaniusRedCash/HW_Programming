@@ -26,6 +26,10 @@ public class UserInterface {
 
     public static Integer getId() {
         System.out.println("Введите искомый id: ");
+        if (!scanner.hasNextInt()){
+            scanner.next();
+            return -1;
+        }
         return scanner.nextInt();
     }
 }

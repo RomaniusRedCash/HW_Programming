@@ -1,6 +1,7 @@
 package org.wikiparser;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 
@@ -8,10 +9,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import java.io.InputStreamReader;
+import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 
 
 
@@ -22,22 +30,27 @@ public class Requester {
 
     public void request(String urlString, String reqString) throws URISyntaxException, IOException, InterruptedException {
         reqString = URLEncoder.encode(reqString, "UTF-8");
-        final HttpURLConnection con = (HttpURLConnection) new URL(urlString + reqString).openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Accept", "application/json");
-        con.setRequestProperty("User-Agent", "WikiParserBot/1.0 (https://example.com; contact@example.com)");
-        con.setConnectTimeout(5000);
-        con.setReadTimeout(5000);
-
-
-        final BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        final StringBuilder content = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(urlString + reqString)).header("Content-Type", "application/json").header("User-Agent", "WikiParser/1.0").GET().timeout(Duration.ofSeconds(20)).build();
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            Integer statusCode = response.statusCode();
+            if (statusCode != 200) {
+                throw new IOException("HTTP error: " + statusCode + " - " + response.body());
+            }
+        } catch (IOException e) {
+            throw e;
         }
-        in.close();
-        jsonObject = JsonParser.parseString(content.toString()).getAsJsonObject();
+
+        try{
+            jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+        }
+        catch (JsonParseException e){
+            throw e;
+        }
+
+
     }
 
     public JsonObject getJsonObject() {return jsonObject;}
