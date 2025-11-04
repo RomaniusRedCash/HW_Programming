@@ -9,7 +9,7 @@ char buffer[50];
 
 
 double fun (double x){
-	return pow(sin(x), 3)-pow(cos(x), 2);
+	return pow(sin(x), 2)-pow(cos(x), 3);
 }
 
 void Draw(const viewporttype& W, double cfrom, double cto){
@@ -114,8 +114,8 @@ int main(void) {
 
 	settextstyle(0, HORIZ_DIR, 1);
 	outtextxy(0,CenterY+10, "pi/2");
-	outtextxy(Win1.right-30, CenterY+10, "8pi");
-	Draw(Win1, M_PI/2, 8*M_PI);
+	outtextxy(Win1.right-30, CenterY+10, "5pi");
+	Draw(Win1, M_PI/2, 5*M_PI);
 
 
 
@@ -129,7 +129,7 @@ int main(void) {
 	graph_error_code = graphresult(); if( graph_error_code != grOk) {closegraph(); return graph_error_code;}
 
 
-	outtextxy(10, 10, "y = sin^3(x)-cos^2(x)");
+	outtextxy(10, 10, "y = sin^2(x)-cos^3(x)");
 
 	sprintf(buffer, "%s%.2f%s%.2f", "Max = ", Max, "Min = ", Min);
 
