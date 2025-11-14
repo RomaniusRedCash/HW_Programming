@@ -2,15 +2,20 @@ package org.wikiparser;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import java.util.Scanner;
 
 public class UserInterface {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static String getReq() {
-        System.out.println("Введите запрос: ");
-        return scanner.nextLine();
+        String input;
+        do {
+            System.out.println("Введите запрос: ");
+            input = scanner.nextLine().trim();
+            if (input.isEmpty())
+                System.out.println("Ввод некорректен!");
+        } while (input.isEmpty());
+        return input;
     }
 
     public static void outJson(JsonObject jsonObject) {
