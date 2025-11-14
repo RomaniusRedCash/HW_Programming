@@ -28,19 +28,11 @@ void hide_cursor() {
 }
 
 int get_key(){
-    union REGS r;
-    r.h.ah = 0x00;
-    int86(0x16, &r, &r);
-    if  (r.h.al == 0)
-        return r.h.ah;
-    else return r.h.al;
+    return getch();
 }
 
 int is_key(){
-    union REGS r;
-    r.h.ah = 0x01;
-    int86(0x16, &r, &r);
-    return !(r.x.flags & 1<<6);
+    return kbhit();
 }
 
 enum {UP_MOVE,DOWN_MOVE,STOP_MOVE};
