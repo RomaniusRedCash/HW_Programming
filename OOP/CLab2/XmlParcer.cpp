@@ -26,7 +26,8 @@ XmlParcer::XmlParcer(const std::string& FName, Dater& dater)
 	buffer.reserve(25);
 	// setlocale(LC_ALL, "ru_RU");
 	file.open(FName, std::ios::in | std::ios::binary);
-	file.imbue(std::locale("C.UTF-8"));
+	// file.imbue(std::locale("C.UTF-8"));
+	file.imbue(std::locale("ru_RU.UTF-8"));
 
 	if (!file.is_open()) throw "Error file open";
 	if (!xmlValidate(XML::XML_STR)) throw "ERROR XML PARCE";
