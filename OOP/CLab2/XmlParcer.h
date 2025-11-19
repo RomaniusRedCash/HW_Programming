@@ -1,14 +1,14 @@
 #pragma once
 
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+// #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 //#define _SILENCE_LOCALE_EMPTY_DEPRECATION_WARNING
 
 #include <fstream>
 #include <string>
+#include <vector>
 #include <locale>
 #include <codecvt>
 
-#include "XmlTablica.h"
 #include "Dater.h"
 
 namespace XML {
@@ -29,7 +29,7 @@ class XmlParcer
 	void readStr();
 	bool xmlValidate(const wchar_t* expected);
 public:
-	XmlParcer(const std::wstring& FName, Dater& dater);
+	XmlParcer(const std::string& FName, Dater& dater);
 	~XmlParcer();
 };
 

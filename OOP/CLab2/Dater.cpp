@@ -1,33 +1,54 @@
 #include "Dater.h"
 
-void house::add(const int& floors) {
+void house::add(IData* parent, const int& floors) {
+    this->parent = parent;
     data[floors]++;
 }
 
-std::vector<int> house::printRepeating(const int& i)
-{
-    for
+void house::printRepeating(std::wostream& os){
+    for (cur = data.begin(); cur != data.end(); cur++){
+        if (cur->second <= 1) continue;
+        parent->printNow(os);
+        os << cur->first << L" встречается " << cur->second << L" раз;" << std::endl;
+    }
+
+}
+
+void Street::add(IData* parent, const int& house, const int& floors) {
+    this->parent = parent;
+    data[house].add(this, floors);
+}
+
+void Street::printRepeating(std::wostream& os){
+    for (cur = data.begin(); cur != data.end(); cur++)
+        cur->second.printRepeating(os);
 }
 
 
-void Street::add(const int& house, const int& floors) {
-    data[house].add(floors);
-}
-
-//HM<int, house> City::operator[] (const std::wstring& city) { return subData[city]; }
-
-//City Dater::operator[](const std::wstring& city) {
-//    return data[city];
-//}
-
-void City::add(const std::wstring& street, const int& house, const int& floors) {
-    data[street].add(house, floors);
+void City::add(IData* parent, const std::wstring& street, const int& house, const int& floors) {
+    this->parent = parent;
+    data[street].add(this, house, floors);
     floorsMap[floors]++;
 }
 
-void Dater::add(const std::wstring& city, const std::wstring& street, const int& house, const int& floors) {
-    data[city].add(street, house, floors);
+void City::printRepeating(std::wostream& os){
+    for (cur = data.begin(); cur != data.end(); cur++)
+        cur->second.printRepeating(os);
 }
+
+void Dater::add(const std::wstring& city, const std::wstring& street, const int& house, const int& floors) {
+    data[city].add(this, street, house, floors);
+}
+
+void Dater::printRepeating(std::wostream& os) {
+    for (cur = data.begin(); cur != data.end(); cur++)
+        cur->second.printRepeating(os);
+}
+
+void Dater::printNow(std::wostream& os) {
+    return;
+}
+
 
 
 #undef HM

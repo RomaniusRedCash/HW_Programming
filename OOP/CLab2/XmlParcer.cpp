@@ -10,12 +10,10 @@ void XmlParcer::readStr()
 		throw "ERROR: Unterminated string";
 }
 
-bool XmlParcer::xmlValidate(const wchar_t* expected)
-{
+bool XmlParcer::xmlValidate(const wchar_t* expected) {
 	std::wstreampos tempPos = file.tellg();
 	const size_t len = wcslen(expected);
 	buffer.resize(len);
-	wchar_t C;
 	file.read(&buffer.front(), len);
 
 	if (buffer == expected) return true;
@@ -23,22 +21,20 @@ bool XmlParcer::xmlValidate(const wchar_t* expected)
 	return false;
 }
 
-XmlParcer::XmlParcer(const std::wstring& FName, Dater& dater)
+XmlParcer::XmlParcer(const std::string& FName, Dater& dater)
 {
 	buffer.reserve(25);
-	setlocale(LC_ALL, "ru_RU");
+	// setlocale(LC_ALL, "ru_RU");
 	file.open(FName, std::ios::in | std::ios::binary);
-	file.imbue(std::locale("ru_RU.UTF-8"));
+	file.imbue(std::locale("C.UTF-8"));
 
 	if (!file.is_open()) throw "Error file open";
 	if (!xmlValidate(XML::XML_STR)) throw "ERROR XML PARCE";
 	if (!xmlValidate(XML::VERSION_STR)) throw "ERROR XML PARCE";
 	readStr();
-	//xmlT.version = buffer;
 
 	if (!xmlValidate(XML::ENCOD_STR)) throw "ERROR XML PARCE";
 	readStr();
-	//xmlT.coding = buffer;
 
 	if (!xmlValidate(XML::END_XML_STR)) throw "ERROR XML PARCE";
 	if (!xmlValidate(XML::ROOT_STR)) throw "ERROR XML PARCE";
@@ -61,7 +57,7 @@ XmlParcer::XmlParcer(const std::wstring& FName, Dater& dater)
 		if (!xmlValidate(XML::END_ITEM_STR)) throw "ERROR XML PARCE";
 
 		dater.add(vS[0], vS[1], std::stoi(vS[2]), std::stoi(vS[3]));
-		
+
 		if (file.fail()) throw "ERROR XML PARCE";
 	}
 	file.close();
