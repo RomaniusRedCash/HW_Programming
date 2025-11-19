@@ -8,6 +8,7 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
+#include <sstream>
 
 #include "Dater.h"
 
@@ -28,6 +29,7 @@ class XmlParcer
 	std::wfstream file;
 	void readStr();
 	bool xmlValidate(const wchar_t* expected);
+
 public:
 	XmlParcer(const std::string& FName, Dater& dater);
 	~XmlParcer();

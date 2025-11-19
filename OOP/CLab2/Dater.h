@@ -26,7 +26,7 @@ public:
 		parent->printNow(os);
 		// os <<L"PRINT"<<std::endl;
 		if (cur == data.end()) cur = data.begin();
-		os << cur->first << ' ';
+		os << cur->first << L' ';
 	};
 };
 
