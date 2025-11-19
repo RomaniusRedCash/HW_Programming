@@ -11,4 +11,7 @@ int main() {
 	Dater dater;
 	XmlParcer(pathToFile, dater);
 	dater.printRepeating(std::wcout);
+	dater.printFloors(std::wcout);
+
+
 }

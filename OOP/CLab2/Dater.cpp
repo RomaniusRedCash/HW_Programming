@@ -36,6 +36,12 @@ void City::printRepeating(std::wostream& os){
         cur->second.printRepeating(os);
 }
 
+void City::printFloors(std::wostream& os) const {
+    for(const std::pair<const int, int>& i : floorsMap){
+        os << L"\tДомов с этажами " << i.first<< L' ' << i.second << L" штук;"<<std::endl;
+    }
+}
+
 void Dater::add(const std::wstring& city, const std::wstring& street, const int& house, const int& floors) {
     data[city].add(this, street, house, floors);
 }
@@ -49,7 +55,12 @@ void Dater::printNow(std::wostream& os) {
     return;
 }
 
-
+void Dater::printFloors(std::wostream& os) const{
+    for (const std::pair<const std::wstring, City>& i : data){
+        os << i.first << L':' << std::endl;
+        i.second.printFloors(os);
+    }
+}
 
 #undef HM
 

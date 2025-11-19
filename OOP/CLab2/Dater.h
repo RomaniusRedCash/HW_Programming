@@ -20,6 +20,7 @@ protected:
 	typename HM<T1, T2>::iterator cur;
 	IData* parent;
 public:
+	T2& operator[](const T1& i) {return data[i];}
 	virtual void printRepeating(std::wostream& os) = 0;
 	void printNow(std::wostream& os){
 		parent->printNow(os);
@@ -47,6 +48,7 @@ class City : public DataBase<std::wstring, Street> {
 public:
 	void add(IData* parent, const std::wstring& street, const int& house, const int& floors);
 	void printRepeating(std::wostream& os) override;
+	void printFloors(std::wostream& os) const;
 };
 
 class Dater : public DataBase<std::wstring, City> {
@@ -55,5 +57,6 @@ public:
 	void add(const std::wstring& city, const std::wstring& street, const int& house, const int& floors);
 	void printRepeating(std::wostream& os) override;
 	void printNow(std::wostream& os) override;
+	void printFloors(std::wostream& os) const;
 };
 
