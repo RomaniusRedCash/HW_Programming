@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17  -Wall -Wextra -O3
 TARGET = CLab2
-SRCS = Main.cpp Dater.cpp XmlParcer.cpp
+SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)
 
 $(TARGET): $(OBJS)

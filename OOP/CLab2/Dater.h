@@ -8,8 +8,8 @@
 
 class IData{
 public:
-	virtual void printRepeating(std::wostream& os) = 0;
-	virtual void printNow(std::wostream& os) = 0;
+	virtual void printRepeating(std::ostream& os) = 0;
+	virtual void printNow(std::ostream& os) = 0;
 
 };
 
@@ -21,42 +21,42 @@ protected:
 	IData* parent;
 public:
 	T2& operator[](const T1& i) {return data[i];}
-	virtual void printRepeating(std::wostream& os) = 0;
-	void printNow(std::wostream& os){
+	virtual void printRepeating(std::ostream& os) = 0;
+	void printNow(std::ostream& os){
 		parent->printNow(os);
-		// os <<L"PRINT"<<std::endl;
+		// os <<"PRINT"<<std::endl;
 		if (cur == data.end()) cur = data.begin();
-		os << cur->first << L' ';
+		os << cur->first << ' ';
 	};
 };
 
 class house : public DataBase<int, int> {
 public:
 	void add(IData* parent, const int& floors);
-	void printRepeating(std::wostream& os) override;
+	void printRepeating(std::ostream& os) override;
 };
 
 
 class Street : public DataBase<int, house> {
 public:
 	void add(IData* parent, const int& house, const int& floors);
-	void printRepeating(std::wostream& os) override;
+	void printRepeating(std::ostream& os) override;
 };
 
-class City : public DataBase<std::wstring, Street> {
+class City : public DataBase<std::string, Street> {
 	HM<int, int> floorsMap;
 public:
-	void add(IData* parent, const std::wstring& street, const int& house, const int& floors);
-	void printRepeating(std::wostream& os) override;
-	void printFloors(std::wostream& os) const;
+	void add(IData* parent, const std::string& street, const int& house, const int& floors);
+	void printRepeating(std::ostream& os) override;
+	void printFloors(std::ostream& os) const;
 };
 
-class Dater : public DataBase<std::wstring, City> {
+class Dater : public DataBase<std::string, City> {
 private:
 public:
-	void add(const std::wstring& city, const std::wstring& street, const int& house, const int& floors);
-	void printRepeating(std::wostream& os) override;
-	void printNow(std::wostream& os) override;
-	void printFloors(std::wostream& os) const;
+	void add(const std::string& city, const std::string& street, const int& house, const int& floors);
+	void printRepeating(std::ostream& os) override;
+	void printNow(std::ostream& os) override;
+	void printFloors(std::ostream& os) const;
 };
 
