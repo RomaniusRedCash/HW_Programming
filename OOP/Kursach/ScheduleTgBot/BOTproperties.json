@@ -1,0 +1,21 @@
+{
+  "admins": [
+    "RomaniusRedCash"
+  ],
+  "getUpdates": {
+    "method": "getUpdates",
+    "allowed_updates": [
+      "message",
+      "callback_query"
+    ]
+  },
+  "messages": {
+    "text_only": {
+      "method": "sendMessage"
+    },
+    "/start": {
+      "method": "sendMessage",
+      "text": "Введите /reg [номер вашей группы]"
+    }
+  }
+}
