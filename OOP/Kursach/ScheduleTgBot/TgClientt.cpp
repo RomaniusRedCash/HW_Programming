@@ -6,7 +6,7 @@ json::array TgClient::getUpdates() {
     Req.as_object()["offset"] = lastMes + 1;
     mesArr = someRequest(http::verb::get, Req).at("result").as_array();
     if (!mesArr.empty())
-        lastMes = mesArr.back().at("update_id").as_int64();
+        lastMes = mesArr.back().at_as_int("update_id");
     return mesArr;
 }
 
@@ -21,7 +21,7 @@ void TgClient::sendMessage(const int64_t userId, json::value& data) {
     someRequest(http::verb::post, data);
 }
 
-void TgClient::sendMessageTextOnly(const int64_t userId, const char* data) {
+void TgClient::sendMessageTextOnly(const int64_t userId, const std::string& data) {
     json::value sendJson = prop.at("messages").at("text_only");
     sendJson.as_object()["text"] = data;
     sendMessage(userId, sendJson);

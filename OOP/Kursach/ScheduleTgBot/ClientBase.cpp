@@ -54,7 +54,6 @@ json::value ClientBase::someRequest(const http::verb& method, const json::value&
         http::read(*sslStream, buffer, res);
 
         json::value JvOut(json::parse(beast::buffers_to_string(res.body().data())));
-
         return JvOut;
     }
     catch (const boost::system::system_error& e) {
@@ -70,6 +69,6 @@ ClientBase::ClientBase(const char* url, const json::value& prop) : resolver(ioc)
 
 ClientBase::~ClientBase() {
 	disconnectServer();
-    std::cout << "Client " << clientName << " off" << std::endl;
+    std::cout << "Connect with " << url << " off" << std::endl;
     //loger("Client " + clientName + " off");
 }

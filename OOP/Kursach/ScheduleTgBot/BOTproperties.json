@@ -11,7 +11,8 @@
   },
   "messages": {
     "text_only": {
-      "method": "sendMessage"
+      "method": "sendMessage",
+      "parse_mode" :  "HTML"
     },
     "day":{
       "method": "sendMessage",
@@ -21,37 +22,37 @@
           [
             {
               "text": "Понедельник",
-              "callback_data": "0"
+              "callback_data": "MON"
             },
             {
               "text": "Вторник", 
-              "callback_data": "1"
+              "callback_data": "TUE"
             }
           ],
           [
             {
               "text": "Среда",
-              "callback_data": "2"
+              "callback_data": "WED"
             },
             {
               "text": "Четверг",
-              "callback_data": "3"
+              "callback_data": "THU"
             }
           ],
           [
             {
               "text": "Пятница",
-              "callback_data": "4"
+              "callback_data": "FRI"
             },
             {
               "text": "Суббота",
-              "callback_data": "5"
+              "callback_data": "SAT"
             }
           ],
           [
             {
-              "text" : "Воскресенье",
-              "callback_data" : "6"
+              "text": "Воскресенье",
+              "callback_data": "SUN"
             }
           ]
         ]
@@ -72,9 +73,13 @@
     }
   },
   "commands": {
-    "near_lesson" : "Следующая пара",
-    "tommorow" : "Занятия завтра",
-    "all" : "Все занятия",
-    "day" : "День"
+    "near_lesson": "Следующая пара",
+    "tommorow": "Занятия завтра",
+    "all": "Все занятия",
+    "day": "День",
+    "/start": "/start"
+  },
+  "etu_request": {
+    "method": "/api/mobile/schedule?joinWeeks=true"
   }
 }

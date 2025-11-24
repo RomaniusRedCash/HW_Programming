@@ -1,7 +1,7 @@
 #pragma once
 
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
+//#include "boost/property_tree/ptree.hpp"
+//#include "boost/property_tree/json_parser.hpp"
 
 #include "Header.h"
 #include "ClientBase.h"
@@ -23,6 +23,6 @@ public:
 	json::array getUpdates();
 	json::value someRequest(const http::verb& method, const json::value& jsonValue) override;
 	void sendMessage(const int64_t userId, json::value& data);
-	void sendMessageTextOnly(const int64_t userId, const char* data);
+	void sendMessageTextOnly(const int64_t userId, const std::string& data);
 	~TgClient() override;
 };

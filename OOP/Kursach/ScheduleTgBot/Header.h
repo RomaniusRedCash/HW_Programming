@@ -34,6 +34,8 @@
 #include <thread>
 #include <cctype>
 #include <charconv>
+#include <ctime>
+
 //#include <cstdlib>
 //#include <filesystem>
 
