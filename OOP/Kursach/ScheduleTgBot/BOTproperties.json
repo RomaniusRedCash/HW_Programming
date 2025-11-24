@@ -13,9 +13,68 @@
     "text_only": {
       "method": "sendMessage"
     },
+    "day":{
+      "method": "sendMessage",
+      "text": "Выберите день недели",
+      "reply_markup": {
+        "inline_keyboard": [
+          [
+            {
+              "text": "Понедельник",
+              "callback_data": "0"
+            },
+            {
+              "text": "Вторник", 
+              "callback_data": "1"
+            }
+          ],
+          [
+            {
+              "text": "Среда",
+              "callback_data": "2"
+            },
+            {
+              "text": "Четверг",
+              "callback_data": "3"
+            }
+          ],
+          [
+            {
+              "text": "Пятница",
+              "callback_data": "4"
+            },
+            {
+              "text": "Суббота",
+              "callback_data": "5"
+            }
+          ],
+          [
+            {
+              "text" : "Воскресенье",
+              "callback_data" : "6"
+            }
+          ]
+        ]
+      }
+    },
     "/start": {
       "method": "sendMessage",
       "text": "Введите /reg [номер вашей группы]"
+    },
+    "success": {
+      "method": "sendMessage",
+      "text": "Группа выбрана.",
+      "reply_markup": {
+        "keyboard": [["Следующая пара","Занятия завтра"], ["Все занятия", "День"]],
+        "one_time_keyboard": false,
+        "resize_keyboard": true
+      }
     }
+  },
+  "commands": {
+    "near_lesson" : "Следующая пара",
+    "tommorow" : "Занятия завтра",
+    "all" : "Все занятия",
+    "day" : "День"
   }
 }

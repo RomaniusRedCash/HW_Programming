@@ -20,6 +20,6 @@ protected:
 	void disconnectServer();
 	virtual json::value someRequest(const http::verb& method, const json::value& jsonRequest);
 public:
-	ClientBase(const const char* url, const json::value& prop);
+	ClientBase(const char* url, const json::value& prop);
 	virtual ~ClientBase();
 };
