@@ -3,9 +3,10 @@ BOOST_LIBS = -lboost_json -lssl -lcrypto
 TARGET = my_program
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
+CXXFLAGS = -std=c++23  -Wall -Wextra -O3
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(TARGET) $(BOOST_LIBS)
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET) $(BOOST_LIBS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

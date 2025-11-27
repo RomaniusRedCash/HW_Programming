@@ -63,7 +63,7 @@ json::value ClientBase::someRequest(const http::verb& method, const json::value&
     }
 }
 
-ClientBase::ClientBase(const char* url, const json::value& prop) : resolver(ioc), url(url), prop(prop) {
+ClientBase::ClientBase(const char* url, const json::value& prop) : url(url), resolver(ioc), prop(prop) {
     connectServer();
 }
 

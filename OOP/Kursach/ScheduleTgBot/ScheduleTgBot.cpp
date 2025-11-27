@@ -6,7 +6,7 @@ void ScheduleTgBot::makeCommandFromMes(){
 	{"all", command::all}, {"day", command::day}, {"/start", command::start}
 	};
 	json::value commandJson = propBot.at("commands");
-	for (const std::pair<std::string, char>& i : tempMap) {
+	for (const std::pair<const std::string, char>& i : tempMap) {
 		commandMap[commandJson.at_as_str(i.first)] = i.second;
 	}
 }
@@ -45,7 +45,7 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 
 
 	if (mesText.find(command::REG) == 0 && mesText.size() >= 4 + strlen(command::REG)) {
-		int result;
+		int result = 0;
 		std::from_chars_result res = std::from_chars(mesText.data() + strlen(command::REG), mesText.data() + mesText.size(), result);
 		if (res.ec != std::errc::invalid_argument) {
 			usersGroup[idUser] = result;
@@ -96,11 +96,11 @@ std::string ScheduleTgBot::mesMakeForOneLesson(const json::value& lessonJson) {
 		ss << "\t\t\t\t" << lessonJson.at_as_str("teacher") << '\n';
 	if (strlen(lessonJson.at_as_str("second_teacher")) > 0)
 		ss << "\t\t\t\t" << lessonJson.at_as_str("second_teacher") << '\n';
-	ss << "\t\t\t\t" << lessonJson.at_as_str("start_time") << '-' << lessonJson.at_as_str("end_time");
+	ss << "\t\t\t\t" << lessonJson.at_as_str("start_time") << '-' << lessonJson.at_as_str("end_time") << "\t\t\t\t";
 	if (strlen(lessonJson.at_as_str("room")) > 0)
-		ss << "\t\t\t\t" << lessonJson.at_as_str("room") << " - ";
+		ss << lessonJson.at_as_str("room") << " -";
 	if (strlen(lessonJson.at_as_str("form")) > 0)
-		ss << lessonJson.at_as_str("form") << '\n';
+		ss << ' ' << lessonJson.at_as_str("form") << '\n';
 	return ss.str();
 }
 
@@ -146,7 +146,7 @@ ScheduleTgBot::~ScheduleTgBot() {
 	if (fileSave.is_open()) {
 		size_t size = usersGroup.size();
 		fileSave.write(reinterpret_cast<const char*>(&size), sizeof(size));
-		for (const std::pair<int64_t, uint16_t>& i : usersGroup) {
+		for (const std::pair<const int64_t, uint16_t>& i : usersGroup) {
 			fileSave.write(reinterpret_cast<const char*>(&i.first), sizeof(i.first));
 			fileSave.write(reinterpret_cast<const char*>(&i.second), sizeof(i.second));
 		}

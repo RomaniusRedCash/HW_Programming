@@ -1,9 +1,5 @@
 #include "EtuClient.h"
 
-
-
-
-
 //json::value EtuClient::someRequest(const http::verb& method, const json::value& jsonValue) {
 //	return json::value();
 //}
@@ -18,12 +14,15 @@ json::value EtuClient::getNearLesson(const uint16_t& idGroup) {
 	for (const json::value& i : nowLessonArr)
 		if (i.at_as_int("start_time_seconds") > nowSec || i.at_as_int("end_time_seconds") > nowSec)
 			return i;
+	return json::value();
 }
 
 json::value EtuClient::getTommorow(const uint16_t& idGroup) {
 	json::array tommorowLesson;
 	int nowDay = Time::getNowDay();
-	while (tommorowLesson.empty()) {
+	char days= 0;
+	while (tommorowLesson.empty() && days < 8) {
+		days++;
 		nowDay = (nowDay + 1) % 7;
 		tommorowLesson = getDay(idGroup, Time::getDayByNum(nowDay)).at(std::to_string(nowDay)).at("lessons").as_array();
 	}
@@ -53,8 +52,5 @@ EtuClient::EtuClient(const json::value& prop) : ClientBase(URL_SERVER, prop) {
 EtuClient::~EtuClient()
 {
 }
-
-
-
 
 #undef URL_SERVER

@@ -1,13 +1,13 @@
 #include "Time.h"
 
-const int Time::getNowDay() {
+int Time::getNowDay() {
     std::chrono::time_point nowDay = floor<std::chrono::days>(std::chrono::system_clock::now());
 
     std::chrono::weekday wd(nowDay);
     return wd.c_encoding();
 }
 
-const int Time::getNumByDay(const std::string& day) {
+int Time::getNumByDay(const std::string& day) {
     return std::find(daysArr.begin(), daysArr.end(), day) - daysArr.begin();
 }
 
