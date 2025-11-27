@@ -14,34 +14,35 @@ int main() {
 		if (pathToFile == "stop") break;
 		Dater dater;
 		if (pathToFile.size() > 4) {
-			if (pathToFile.compare(pathToFile.size() - 4, 4, ".xml") == 0)
+			if (pathToFile.compare(pathToFile.size() - 4, 4, ".xml") == 0) {
 				try {
-				Timer timer(std::cout);
-				XmlParcer Parcer(pathToFile, dater);
+					Timer timer(std::cout);
+					XmlParcer Parcer(pathToFile, dater);
+				}
+				catch (const ParcerException& e) {
+					std::cout << e.getMessage() << std::endl;
+				}
 			}
-			catch (const ParcerException& e) {
-				std::cout << e.getMessage() << std::endl;
-			}
-			else if (pathToFile.compare(pathToFile.size() - 4, 4, ".csv") == 0)
+			else if (pathToFile.compare(pathToFile.size() - 4, 4, ".csv") == 0) {
 				try {
-				Timer timer(std::cout);
-				CsvParcer Parcer(pathToFile, dater);
+					Timer timer(std::cout);
+					CsvParcer Parcer(pathToFile, dater);
+				}
+				catch (const ParcerException& e) {
+					std::cout << e.getMessage() << std::endl;
+				}
 			}
-			catch (const ParcerException& e) {
-				std::cout << e.getMessage() << std::endl;
-			}
-			else std::cout << "Ввод некорректен!" << std::endl;
-		}
+			std::cout << "Повторяющиеся строки:" << std::endl;
+			dater.printRepeating(std::cout);
 
-		std::cout << "Повторяющиеся строки:" << std::endl;
-		dater.printRepeating(std::cout);
-		
-		std::cout << "Этажей в городах:" << std::endl;
-		dater.printFloors(std::cout);
-		
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
+			std::cout << "Этажей в городах:" << std::endl;
+			dater.printFloors(std::cout);
+
+			std::cout << std::endl;
+			std::cout << std::endl;
+			std::cout << std::endl;
+		}
+		else std::cout << "Ввод некорректен!" << std::endl;
 	}
 	
 }
