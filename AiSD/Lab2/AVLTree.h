@@ -10,7 +10,7 @@ class AVLTree : public Tree {
 	void bigLeftRotate(Node* node) override;
 public:
 	bool insert(Node* newNode) override;
-	virtual void del(const size_t& key) override;
+	bool del(Node* node) override;
 
 };
 

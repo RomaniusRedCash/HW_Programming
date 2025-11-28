@@ -95,19 +95,26 @@ bool Tree::insert(Node* newNode) {
     return true;
 }
 
-void Tree::del(const size_t& key) {
-    Node* deletingNode = find(key);
-    if (!deletingNode) return;
-    *deletingNode->edge = nullptr;
-    if (!deletingNode->leftSub)
-        *deletingNode->edge = deletingNode->rightSub;
-    else if (!deletingNode->rightSub)
-        *deletingNode->edge = deletingNode->leftSub;
-    else {
-        Node* tempNode = findMax(deletingNode->rightSub);
-        *deletingNode->edge = tempNode;
+bool Tree::del(const size_t& key) {
+    del(find(key));
+}
+
+bool Tree::del(Node* node) {
+    if (!node) return;
+    if (!node->parent) {
+        delete node;
+        return;
     }
-    delete deletingNode;
+    if (!node->leftSub)
+        node->parent->addSub(node->rightSub);
+    else if (!node->rightSub)
+        node->parent->addSub(node->leftSub);
+    else {
+        Node* tempNode = findMax(node->leftSub);
+        node->parent->addSub(tempNode);
+        tempNode->addSub(node);
+    }
+    delete node;
 }
 
 Node* Tree::findMax() {

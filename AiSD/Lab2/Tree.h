@@ -23,7 +23,8 @@ protected:
 public:
     Node* find(const size_t& key);
     virtual bool insert(Node* newNode);
-    virtual void del(const size_t& key);
+    bool del(const size_t& key);
+    virtual bool del(Node* node);
     Node* findMax();
     Node* findMin();
     std::stringstream preOrder();
