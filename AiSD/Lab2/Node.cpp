@@ -1,6 +1,6 @@
 #include "Node.h"
 
-void Node::addSub(Node*& node) {
+void Node::addSub(Node* node) {
     if (!node) return;
     node->parent = this;
     if (node->key < this->key) {

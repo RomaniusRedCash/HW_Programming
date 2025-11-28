@@ -16,9 +16,13 @@ protected:
     void inOrder(Node*& node, std::stringstream& ss);
     void postOrder(Node*& node, std::stringstream& ss);
     //void levelOrder(Node*& node, std::stringstream& ss);
+    virtual void rightRotate(Node* node);
+    virtual void bigRightRotate(Node* node);
+    virtual void leftRotate(Node* node);
+    virtual void bigLeftRotate(Node* node);
 public:
     Node* find(const size_t& key);
-    virtual void insert(const size_t& key);
+    virtual bool insert(Node* newNode);
     virtual void del(const size_t& key);
     Node* findMax();
     Node* findMin();

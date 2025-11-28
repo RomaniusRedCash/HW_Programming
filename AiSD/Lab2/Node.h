@@ -8,13 +8,15 @@ public:
     Node** edge = nullptr;
     size_t key;
     Node(const size_t& key) : key(key) {}
-    virtual void addSub(Node*& node);
+    virtual void addSub(Node* node);
     //void dellSub(Node*& node);
-    ~Node();
+    virtual ~Node();
 };
 
 class AVLNode : public Node {
-    int blanceFactor = 0;
+public:
+    int8_t balanceFactor = 0;
+    AVLNode(const size_t& key) : Node(key) {}
 };
 
 namespace rb {
@@ -25,4 +27,5 @@ namespace rb {
 
 class RBNode : public Node {
     char color = rb::red;
+    RBNode(const size_t& key) : Node(key) {}
 };

@@ -38,6 +38,34 @@ void Tree::postOrder(Node*& node, std::stringstream& ss) {
     }
 }
 
+void Tree::rightRotate(Node* node) {
+    Node* rootNew = node->leftSub;
+    Node* leftNew = rootNew->rightSub;
+    if (node->parent) node->parent->addSub(rootNew);
+    rootNew->addSub(node);
+    node->addSub(leftNew);
+}
+
+void Tree::bigRightRotate(Node* node) {
+    leftRotate(node->leftSub);
+    rightRotate(node);
+}
+
+void Tree::leftRotate(Node* node) {
+    Node* rootNew = node->rightSub;
+    Node* rightNew = rootNew->leftSub;
+    if (node->parent) node->parent->addSub(rootNew);
+    //rootNew->parent = node->parent;
+    //rootNew->edge = node->edge;
+    rootNew->addSub(node);
+    node->addSub(rightNew);
+}
+
+void Tree::bigLeftRotate(Node* node) {
+    rightRotate(node->leftSub);
+    leftRotate(node);
+}
+
 Node* Tree::find(const size_t& key) {
     Node* cur = root;
     while (cur) {
@@ -48,16 +76,23 @@ Node* Tree::find(const size_t& key) {
     return nullptr;
 }
 
-void Tree::insert(const size_t& key) {
+bool Tree::insert(Node* newNode) {
+    if (!root) {
+        root = newNode;
+        return true;
+    }
     Node* cur = root;
-    if (!cur) return;
     while (cur) {
-        if (key < cur->key && cur->leftSub) cur = cur->leftSub;
-        else if (key > cur->key && cur->rightSub) cur = cur->rightSub;
+        if (newNode->key < cur->key && cur->leftSub) cur = cur->leftSub;
+        else if (newNode->key > cur->key && cur->rightSub) cur = cur->rightSub;
         else break;
     }
-    if (cur->key == key) return;
-    cur->addSub(new Node(key));
+    if (cur->key == newNode->key) {
+        delete newNode;
+        return false;
+    }
+    cur->addSub(newNode);
+    return true;
 }
 
 void Tree::del(const size_t& key) {
