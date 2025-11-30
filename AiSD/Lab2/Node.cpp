@@ -1,31 +1,83 @@
 #include "Node.h"
 
+void Node::clearParent() {
+    edge = nullptr;
+    parent = nullptr;
+}
+
 void Node::addSub(Node* node) {
     if (!node) return;
     node->parent = this;
-    if (node->key < this->key) {
-        node->edge = &leftSub;
-        leftSub = node;
-    }
-    else if (node->key > this->key) {
-        node->edge = &rightSub;
-        rightSub = node;
-    }
+    if (node->key < this->key)
+        setLeftSub(node);
+    else if (node->key > this->key)
+        setRightSub(node);
     else delete node;
 }
 
-//void Node::dellSub(Node*& node) {
-//    if (node->key < this->key) {
-//        // delete node->leftSub;
-//        node->leftSub = nullptr;
-//    }
-//    else if (node->key > this->key) {
-//        // delete node->rightSub;
-//        node->rightSub = nullptr;
-//    }
-//}
+void Node::setLeftSub(Node* node) {
+    makeChild(node, &leftSub);
+}
 
-Node::~Node() {
-    //if (edge)
-    //    *edge = nullptr;
+void Node::setRightSub(Node* node) {
+    makeChild(node, &rightSub);
+}
+
+void Node::makeChild(Node* node, Node** subTree) {
+    *subTree = node;
+    if (!node) return;
+    node->edge = subTree;
+    node->parent = this;
+}
+
+std::string Node::printData() {
+    return std::to_string(key);
+}
+
+Node::operator bool() const {
+    return this;
+}
+
+void AVLNode::copyData(Node* node) {
+    AVLNode* avlNode = static_cast<AVLNode*>(node);
+    key = avlNode->key;
+}
+
+void RBNode::copyData(Node* node) {
+    RBNode* rbNode = static_cast<RBNode*>(node);
+    key = rbNode->key;
+}
+
+std::string RBNode::printData() {
+    std::stringstream ss;
+    ss << '(';
+    switch (color) {
+    case red:
+        ss << "red: ";
+        break;
+    case black:
+        ss << "black: ";
+        break;
+    default:
+        break;
+    }
+    ss << key << ')';
+    return ss.str();
+}
+
+bool RBNode::setColor(const node_color& newColor) {
+    color = newColor; return true;
+}
+
+std::string PseudoRBNode::printData() {
+    return "*";
+}
+
+PseudoRBNode::operator bool() const {
+    return false;
+}
+
+bool PseudoRBNode::setColor(const node_color& newColor) {
+    if (newColor != color) return false;
+    else return true;
 }

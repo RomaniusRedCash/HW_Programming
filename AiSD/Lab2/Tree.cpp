@@ -1,22 +1,22 @@
 #include "Tree.h"
 
 Node* Tree::findMax(Node*& node) {
-    if (!node) return nullptr;
+    if (!node || !*node) return nullptr;
     Node* cur = node;
-    while (cur->rightSub) cur = cur->rightSub;
+    while (cur->rightSub && *cur->rightSub) cur = cur->rightSub;
     return cur;
 }
 
 Node* Tree::findMin(Node*& node) {
-    if (!node) return nullptr;
+    if (!node || *node) return nullptr;
     Node* cur = node;
-    while (cur->leftSub) cur = cur->leftSub;
+    while (cur->leftSub && *cur->leftSub) cur = cur->leftSub;
     return cur;
 }
 
 void Tree::preOrder(Node*& node, std::stringstream& ss) {
     if (node) {
-        ss << node->key;
+        ss << node->printData() << ' ';
         preOrder(node->leftSub, ss);
         preOrder(node->rightSub, ss);
     }
@@ -25,7 +25,7 @@ void Tree::preOrder(Node*& node, std::stringstream& ss) {
 void Tree::inOrder(Node*& node, std::stringstream& ss) {
     if (node) {
         inOrder(node->leftSub, ss);
-        ss << node->key;
+        ss << node->printData() << ' ';
         inOrder(node->rightSub, ss);
     }
 }
@@ -34,16 +34,18 @@ void Tree::postOrder(Node*& node, std::stringstream& ss) {
     if (node) {
         postOrder(node->leftSub, ss);
         postOrder(node->rightSub, ss);
-        ss << node->key;
+        ss << node->printData() << ' ';
     }
 }
 
 void Tree::rightRotate(Node* node) {
     Node* rootNew = node->leftSub;
+    if (root == node) root = rootNew;
     Node* leftNew = rootNew->rightSub;
-    if (node->parent) node->parent->addSub(rootNew);
-    rootNew->addSub(node);
-    node->addSub(leftNew);
+    if (node->parent) node->parent->makeChild(rootNew, node->edge);
+    else rootNew->parent = nullptr;
+    rootNew->setRightSub(node);
+    node->setLeftSub(leftNew);
 }
 
 void Tree::bigRightRotate(Node* node) {
@@ -53,16 +55,16 @@ void Tree::bigRightRotate(Node* node) {
 
 void Tree::leftRotate(Node* node) {
     Node* rootNew = node->rightSub;
+    if (root == node) root = rootNew;
     Node* rightNew = rootNew->leftSub;
-    if (node->parent) node->parent->addSub(rootNew);
-    //rootNew->parent = node->parent;
-    //rootNew->edge = node->edge;
-    rootNew->addSub(node);
-    node->addSub(rightNew);
+    if (node->parent) node->parent->makeChild(rootNew, node->edge);
+    else rootNew->parent = nullptr;
+    rootNew->setLeftSub(node);
+    node->setRightSub(rightNew);
 }
 
 void Tree::bigLeftRotate(Node* node) {
-    rightRotate(node->leftSub);
+    rightRotate(node->rightSub);
     leftRotate(node);
 }
 
@@ -79,12 +81,13 @@ Node* Tree::find(const size_t& key) {
 bool Tree::insert(Node* newNode) {
     if (!root) {
         root = newNode;
+        balancing(newNode);
         return true;
     }
     Node* cur = root;
     while (cur) {
-        if (newNode->key < cur->key && cur->leftSub) cur = cur->leftSub;
-        else if (newNode->key > cur->key && cur->rightSub) cur = cur->rightSub;
+        if (cur->leftSub && *cur->leftSub && newNode->key < cur->key) cur = cur->leftSub;
+        else if (cur->rightSub && *cur->rightSub && newNode->key > cur->key) cur = cur->rightSub;
         else break;
     }
     if (cur->key == newNode->key) {
@@ -92,29 +95,59 @@ bool Tree::insert(Node* newNode) {
         return false;
     }
     cur->addSub(newNode);
+
+    balancing(newNode);
     return true;
 }
 
+bool Tree::insert(const size_t& key) {
+    return insert(new Node(key));
+}
+
 bool Tree::del(const size_t& key) {
-    del(find(key));
+    return del(find(key));
 }
 
 bool Tree::del(Node* node) {
-    if (!node) return;
-    if (!node->parent) {
+    if (!node) return false;
+    Node* tempNode = nullptr;
+    if (!node->leftSub || !*node->leftSub) {
+        tempNode = node->rightSub;
+        delBalancing(node);
+        if (node->parent)
+            node->parent->makeChild(tempNode, node->edge);
+        else tempNode->clearParent();
+        if (root == node) root = tempNode;
         delete node;
-        return;
+        return true;
     }
-    if (!node->leftSub)
-        node->parent->addSub(node->rightSub);
-    else if (!node->rightSub)
-        node->parent->addSub(node->leftSub);
-    else {
-        Node* tempNode = findMax(node->leftSub);
-        node->parent->addSub(tempNode);
-        tempNode->addSub(node);
+    tempNode = findMax(node->leftSub);
+    flip(node, tempNode);
+    del(tempNode);
+}
+
+void Tree::flip(Node* node1, Node* node2) {
+    Node tempNode(148);
+    tempNode.copyData(node1);
+    node1->copyData(node2);
+    node2->copyData(&tempNode);
+}
+
+void Tree::clear() {
+    std::queue<Node*> queueOfNodes;
+    queueOfNodes.push(root);
+
+    while (!queueOfNodes.empty()) {
+        Node* cur = queueOfNodes.front();
+
+        if (cur && *cur) {
+            queueOfNodes.push(cur->leftSub);
+            queueOfNodes.push(cur->rightSub);
+            delete cur;
+        }
+        queueOfNodes.pop();
     }
-    delete node;
+    root = nullptr;
 }
 
 Node* Tree::findMax() {
@@ -125,53 +158,78 @@ Node* Tree::findMin() {
     return findMin(root);
 }
 
-std::stringstream Tree::preOrder() {
+std::string Tree::preOrder() {
     std::stringstream ss;
     preOrder(root, ss);
-    return ss;
+    return ss.str();
 }
 
-std::stringstream Tree::inOrder() {
+std::string Tree::inOrder() {
     std::stringstream ss;
     inOrder(root, ss);
-    return ss;
+    return ss.str();
 }
 
-std::stringstream Tree::postOrder() {
+std::string Tree::postOrder() {
     std::stringstream ss;
     postOrder(root, ss);
-    return ss;
+    return ss.str();
 }
 
-std::stringstream Tree::levelOrder() {
+std::string Tree::levelOrder() {
     std::stringstream ss;
+
     std::queue<Node*> queueOfNodes;
     queueOfNodes.push(root);
 
+    std::queue<size_t> queueOfLvl;
+    queueOfLvl.push(1);
+
+    size_t lvl = 0;
+    while (!queueOfNodes.empty()) {
+        Node* cur = queueOfNodes.front();
+        size_t& nowLvl = queueOfLvl.front();
+        if (cur) {
+            if (nowLvl != lvl) {
+                ss << '\n' << nowLvl << ": ";
+                lvl = nowLvl;
+            }
+            ss << cur->printData() << ' ';
+            queueOfNodes.push(cur->leftSub);
+            queueOfNodes.push(cur->rightSub);
+            queueOfLvl.push(nowLvl + 1);
+            queueOfLvl.push(nowLvl + 1);
+        }
+        queueOfNodes.pop();
+        queueOfLvl.pop();
+    }
+    return ss.str();
+}
+
+size_t Tree::getHeight() {
+    std::queue<Node*> queueOfNodes;
+    queueOfNodes.push(root);
+
+    std::queue<size_t> queueOfLvl;
+    queueOfLvl.push(1);
+
+    size_t lvl = 0;
     while (!queueOfNodes.empty()) {
         Node* cur = queueOfNodes.front();
         if (cur) {
-            ss << cur->key;
+            lvl = queueOfLvl.front();
             queueOfNodes.push(cur->leftSub);
             queueOfNodes.push(cur->rightSub);
+            queueOfLvl.push(lvl + 1);
+            queueOfLvl.push(lvl + 1);
         }
         queueOfNodes.pop();
+        queueOfLvl.pop();
     }
-    return ss;
+    return lvl;
 }
 
 Tree::~Tree() {
-    std::queue<Node*> queueOfNodes;
-    queueOfNodes.push(root);
-
-    while (!queueOfNodes.empty()) {
-        Node* cur = queueOfNodes.front();
-        if (cur) {
-            queueOfNodes.push(cur->leftSub);
-            queueOfNodes.push(cur->rightSub);
-        }
-        queueOfNodes.pop();
-        delete cur;
-    }
+    clear();
 }
 

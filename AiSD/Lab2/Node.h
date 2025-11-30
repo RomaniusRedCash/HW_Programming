@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <sstream>
+
 class Node {
 public:
     Node* leftSub = nullptr;
@@ -7,25 +10,53 @@ public:
     Node* parent = nullptr;
     Node** edge = nullptr;
     size_t key;
+
     Node(const size_t& key) : key(key) {}
-    virtual void addSub(Node* node);
-    //void dellSub(Node*& node);
-    virtual ~Node();
+
+    void clearParent();
+    void addSub(Node* node);
+    void setLeftSub(Node* node);
+    void setRightSub(Node* node);
+    void makeChild(Node* node, Node** subTree);
+
+    virtual void copyData(Node* node) {}
+    virtual std::string printData();
+
+    virtual operator bool() const;
+
+    virtual ~Node() {}
 };
 
 class AVLNode : public Node {
 public:
-    int8_t balanceFactor = 0;
+    char balanceFactor = 0;
+
     AVLNode(const size_t& key) : Node(key) {}
+    void copyData(Node* node) override;
 };
 
-namespace rb {
-    enum : char {
-        red, black
-    };
+enum node_color : char {
+    red, black
 };
 
 class RBNode : public Node {
-    char color = rb::red;
+public:
+    node_color color = node_color::red;
+
     RBNode(const size_t& key) : Node(key) {}
+
+    void copyData(Node* node) override;
+    std::string printData() override;
+
+    virtual bool setColor(const node_color& newColor);
+};
+
+class PseudoRBNode : public RBNode {
+public:
+    PseudoRBNode(const size_t& key) : RBNode(key) { color = node_color::black; }
+
+    std::string printData() override;
+    operator bool() const override;
+
+    bool setColor(const node_color& newColor) override;
 };
