@@ -36,18 +36,18 @@ void RBTree::balancing(Node* node) {
                 leftRotate(parentNode);
                 parentNode = static_cast<RBNode*>(cur);
             }
-            rightRotate(grandParentNode);
             grandParentNode->setColor(red);
             parentNode->setColor(black);
+            rightRotate(grandParentNode);
         }
         else {
             if (cur == parentNode->leftSub) {
                 rightRotate(parentNode);
                 parentNode = static_cast<RBNode*>(cur);
             }
-            leftRotate(grandParentNode);
             grandParentNode->setColor(red);
             parentNode->setColor(black);
+            leftRotate(grandParentNode);
         }
         break;
     }
@@ -59,85 +59,85 @@ void RBTree::delBalancing(Node* node) {
     if (node == root) return;
     RBNode* cur = static_cast<RBNode*>(node);
     if (cur->color == red)
-        return;
-    RBNode* childRBNode = static_cast<RBNode*>(cur->leftSub);
+        return; // т. к. красный если не в конце всегда имеет чёрные под ноды - мы перемещаемся в низ подереву.
+    RBNode* childRBNode = static_cast<RBNode*>(cur->rightSub);
     if (childRBNode->color == red) {
         childRBNode->setColor(black);
         return;
-    }/*
-    childRBNode = static_cast<RBNode*>(cur->rightSub);
-    if (childRBNode->color == red) {
-        childRBNode->setColor(black);
-        return;
-    }*/
+    }
 
-    RBNode* parentRBNode = static_cast<RBNode*>(cur->parent);
-    bool isLeft = cur == parentRBNode->leftSub;
-    RBNode* brotherRBNode;
-    if (isLeft)
-        brotherRBNode = static_cast<RBNode*>(parentRBNode->rightSub);
-    else 
-        brotherRBNode = static_cast<RBNode*>(parentRBNode->leftSub);
-
-    if (brotherRBNode->color == red) { // case 1
-        if (isLeft) {
-            leftRotate(parentRBNode);
+    while (cur->parent) {
+        RBNode* parentRBNode = static_cast<RBNode*>(cur->parent);
+        bool isLeft = cur == parentRBNode->leftSub;
+        RBNode* brotherRBNode;
+        if (isLeft)
             brotherRBNode = static_cast<RBNode*>(parentRBNode->rightSub);
+        else
+            brotherRBNode = static_cast<RBNode*>(parentRBNode->leftSub);
+
+        if (brotherRBNode->color == red) { // case 1
+            parentRBNode->setColor(red);
+            brotherRBNode->setColor(black);
+            if (isLeft) {
+                leftRotate(parentRBNode);
+                brotherRBNode = static_cast<RBNode*>(parentRBNode->rightSub);
+            }
+            else {
+                rightRotate(parentRBNode);
+                brotherRBNode = static_cast<RBNode*>(parentRBNode->leftSub);
+            }
+        }
+
+        // барт не красный 100%
+
+        RBNode* leftCusineRBNode = static_cast<RBNode*>(brotherRBNode->leftSub);
+        RBNode* rightCusineRBNode = static_cast<RBNode*>(brotherRBNode->rightSub);
+
+        if (leftCusineRBNode->color == black && rightCusineRBNode->color == black) { // case 2
+            brotherRBNode->setColor(red);
+            if (parentRBNode->color == red) {
+                parentRBNode->setColor(black);
+                return;
+            }
+            else {
+                cur = parentRBNode;
+                continue;
+            }
+        }
+        if (isLeft) {
+            if (leftCusineRBNode->color == red) {
+                brotherRBNode->setColor(red);
+                leftCusineRBNode->setColor(black);
+                rightRotate(brotherRBNode);
+                brotherRBNode = static_cast<RBNode*>(parentRBNode->rightSub);
+                leftCusineRBNode = static_cast<RBNode*>(brotherRBNode->leftSub);
+                rightCusineRBNode = static_cast<RBNode*>(brotherRBNode->rightSub);
+            }
+            if (rightCusineRBNode->color == red) { // case 4
+                brotherRBNode->setColor(parentRBNode->color);
+                rightCusineRBNode->setColor(black);
+                parentRBNode->setColor(black);
+                leftRotate(parentRBNode);
+                return;
+            }
         }
         else {
-            brotherRBNode = static_cast<RBNode*>(parentRBNode->leftSub);
-            rightRotate(parentRBNode);
-        }
-        parentRBNode->setColor(red);
-        static_cast<RBNode*>(parentRBNode->parent)->setColor(black);
-    }
+            if (rightCusineRBNode->color == red) { // case 3
+                leftRotate(brotherRBNode);
+                brotherRBNode->setColor(red);
+                rightCusineRBNode->setColor(black);
+                brotherRBNode = static_cast<RBNode*>(parentRBNode->leftSub);
+                leftCusineRBNode = static_cast<RBNode*>(brotherRBNode->leftSub);
+                rightCusineRBNode = static_cast<RBNode*>(brotherRBNode->rightSub);
+            }
 
-    // барт не красный 100%
-
-    RBNode* leftCusineRBNode = static_cast<RBNode*>(brotherRBNode->leftSub);
-    RBNode* rightCusineRBNode = static_cast<RBNode*>(brotherRBNode->rightSub);
-
-    if (leftCusineRBNode->color == black && rightCusineRBNode->color == black) { // case 2
-        brotherRBNode->setColor(red);
-        if (parentRBNode->color == red) {
-            parentRBNode->setColor(black);
-            return;
-        }
-        else return delBalancing(parentRBNode);
-    }
-    if (isLeft){
-        if (leftCusineRBNode->color == red) {
-            rightRotate(brotherRBNode);
-            brotherRBNode->setColor(red);
-            leftCusineRBNode->setColor(black);
-            brotherRBNode = static_cast<RBNode*>(parentRBNode->rightSub);
-            leftCusineRBNode = static_cast<RBNode*>(brotherRBNode->leftSub);
-            rightCusineRBNode = static_cast<RBNode*>(brotherRBNode->rightSub);
-        }
-        if (rightCusineRBNode->color == red) { // case 4
-            leftRotate(parentRBNode);
-            brotherRBNode->setColor(parentRBNode->color);
-            parentRBNode->setColor(black);
-            rightCusineRBNode->setColor(black);
-            return;
-        }
-    }
-    else {
-        if (rightCusineRBNode->color == red) { // case 3
-            leftRotate(brotherRBNode);
-            brotherRBNode->setColor(red);
-            rightCusineRBNode->setColor(black);
-            brotherRBNode = static_cast<RBNode*>(parentRBNode->leftSub);
-            leftCusineRBNode = static_cast<RBNode*>(brotherRBNode->leftSub);
-            rightCusineRBNode = static_cast<RBNode*>(brotherRBNode->rightSub);
-        }
-
-        if (leftCusineRBNode->color == red) { // case 4
-            rightRotate(parentRBNode);
-            brotherRBNode->setColor(parentRBNode->color);
-            parentRBNode->setColor(black);
-            leftCusineRBNode->setColor(black);
-            return;
+            if (leftCusineRBNode->color == red) { // case 4
+                brotherRBNode->setColor(parentRBNode->color);
+                leftCusineRBNode->setColor(black);
+                parentRBNode->setColor(black);
+                rightRotate(parentRBNode);
+                return;
+            }
         }
     }
 }

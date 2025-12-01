@@ -31,6 +31,8 @@ class AVLNode : public Node {
 public:
     char balanceFactor = 0;
 
+    std::string printData() override;
+
     AVLNode(const size_t& key) : Node(key) {}
     void copyData(Node* node) override;
 };

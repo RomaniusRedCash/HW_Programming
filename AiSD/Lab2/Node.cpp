@@ -38,6 +38,12 @@ Node::operator bool() const {
     return this;
 }
 
+std::string AVLNode::printData() {
+    std::stringstream ss;
+    ss << '(' << int(balanceFactor) << ':' << key << ')';
+    return ss.str();
+}
+
 void AVLNode::copyData(Node* node) {
     AVLNode* avlNode = static_cast<AVLNode*>(node);
     key = avlNode->key;

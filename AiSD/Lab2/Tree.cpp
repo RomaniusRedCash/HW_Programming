@@ -189,17 +189,18 @@ std::string Tree::levelOrder() {
     while (!queueOfNodes.empty()) {
         Node* cur = queueOfNodes.front();
         size_t& nowLvl = queueOfLvl.front();
+        if (nowLvl != lvl) {
+            ss << '\n' << nowLvl << ": ";
+            lvl = nowLvl;
+        }
         if (cur) {
-            if (nowLvl != lvl) {
-                ss << '\n' << nowLvl << ": ";
-                lvl = nowLvl;
-            }
             ss << cur->printData() << ' ';
             queueOfNodes.push(cur->leftSub);
             queueOfNodes.push(cur->rightSub);
             queueOfLvl.push(nowLvl + 1);
             queueOfLvl.push(nowLvl + 1);
         }
+        else ss << "null ";
         queueOfNodes.pop();
         queueOfLvl.pop();
     }
