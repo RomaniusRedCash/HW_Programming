@@ -113,7 +113,7 @@ bool Tree::del(const size_t& key) {
 bool Tree::del(Node* node) {
     if (!node) return false;
     Node* tempNode = nullptr;
-    if (node->leftSub && *node->leftSub) {
+    while (node->leftSub && *node->leftSub) {
         tempNode = findMax(node->leftSub);
         flip(node, tempNode);
         node = tempNode;
