@@ -23,9 +23,9 @@ n(1) = 1;
 line = n;
 subN = n(2:end);
 subN = [1,subN];
-log2_n = log2(subN+1);
+log2_n = log2(subN);
 Up144log2_n = 1.44*log2(subN);
-Up2log2_n = 2*log2(subN+1);
+Up2log2_n = 2*log2(subN);
 
 t = tiledlayout(2, 3);
 t.TileSpacing = 'compact';
