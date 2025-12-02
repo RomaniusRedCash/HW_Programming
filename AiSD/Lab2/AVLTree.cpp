@@ -1,19 +1,19 @@
 #include "AVLTree.h"
 
-void AVLTree::reBalancing(Node* root) {
-    AVLNode* avlRoot = static_cast<AVLNode*>(root);
-    if (std::abs(avlRoot->balanceFactor) <= 1) return;
+Node* AVLTree::reBalancing(Node* node) {
+    AVLNode* avlRoot = static_cast<AVLNode*>(node);
+    if (std::abs(avlRoot->balanceFactor) <= 1) return avlRoot;
     if (avlRoot->balanceFactor > 1) {
         if (static_cast<AVLNode*>(avlRoot->leftSub)->balanceFactor >= 0)
-            rightRotate(avlRoot);
+            return rightRotate(avlRoot);
         else
-            bigRightRotate(avlRoot);
+            return bigRightRotate(avlRoot);
     }
     else {
         if (static_cast<AVLNode*>(avlRoot->rightSub)->balanceFactor <= 0)
-            leftRotate(avlRoot);
+            return leftRotate(avlRoot);
         else
-            bigLeftRotate(avlRoot);
+            return bigLeftRotate(avlRoot);
     }
 }
 
@@ -39,47 +39,49 @@ void AVLTree::delBalancing(Node* node) {
     do {
         AVLNode* tempNode = static_cast<AVLNode*>(cur->parent);
 
-        if (cur == tempNode->leftSub)
+        if (cur == tempNode->leftSub) 
             tempNode->balanceFactor--;
         else
             tempNode->balanceFactor++;
         cur = tempNode;
+        if (std::abs(cur->balanceFactor) > 1)
+            cur = static_cast<AVLNode*>(reBalancing(cur));
     } while (cur->parent && std::abs(cur->balanceFactor) != 1);
-    reBalancing(cur);
 }
 
-void AVLTree::rightRotate(Node* node) {
+Node* AVLTree::rightRotate(Node* node) {
     static_cast<AVLNode*>(node)->balanceFactor = 0;
     static_cast<AVLNode*>(node->leftSub)->balanceFactor = 0;
-    Tree::rightRotate(node);
+    return Tree::rightRotate(node);
 }
 
-void AVLTree::bigRightRotate(Node* node) {
+Node* AVLTree::bigRightRotate(Node* node) {
     char oldbalanceC = static_cast<AVLNode*>(node->leftSub->rightSub)->balanceFactor;
     AVLNode* B = static_cast<AVLNode*>(node->leftSub);
-    Tree::bigRightRotate(node);
-    if (oldbalanceC > 0) {
+    Node* C = Tree::bigRightRotate(node);
+    if (oldbalanceC > 0) 
         static_cast<AVLNode*>(node)->balanceFactor = -1;
-    } if (oldbalanceC < 0) {
+    if (oldbalanceC < 0) 
         B->balanceFactor = 1;
-    }
+    return C;
 }
 
-void AVLTree::leftRotate(Node* node) {
+Node* AVLTree::leftRotate(Node* node) {
     static_cast<AVLNode*>(node)->balanceFactor = 0;
     static_cast<AVLNode*>(node->rightSub)->balanceFactor = 0;
-    Tree::leftRotate(node);
+    return Tree::leftRotate(node);
 }
 
-void AVLTree::bigLeftRotate(Node* node) {
+Node* AVLTree::bigLeftRotate(Node* node) {
     int8_t oldbalanceC = static_cast<AVLNode*>(node->rightSub->leftSub)->balanceFactor;
     AVLNode* B = static_cast<AVLNode*>(node->rightSub);
-    Tree::bigLeftRotate(node);
-    if (oldbalanceC < 0) {
+    Node* C = Tree::bigLeftRotate(node);
+    if (oldbalanceC < 0) 
         static_cast<AVLNode*>(node)->balanceFactor = 1;
-    } if (oldbalanceC > 0) {
+    if (oldbalanceC > 0) 
         B->balanceFactor = -1;
-    }
+    
+    return C;
 }
 
 bool AVLTree::insert(Node* newNode) {

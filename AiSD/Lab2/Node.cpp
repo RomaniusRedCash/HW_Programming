@@ -30,6 +30,10 @@ void Node::makeChild(Node* node, Node** subTree) {
     node->parent = this;
 }
 
+void Node::copyData(Node* node) {
+    key = node->key;
+}
+
 std::string Node::printData() {
     return std::to_string(key);
 }
@@ -42,16 +46,6 @@ std::string AVLNode::printData() {
     std::stringstream ss;
     ss << '(' << int(balanceFactor) << ':' << key << ')';
     return ss.str();
-}
-
-void AVLNode::copyData(Node* node) {
-    AVLNode* avlNode = static_cast<AVLNode*>(node);
-    key = avlNode->key;
-}
-
-void RBNode::copyData(Node* node) {
-    RBNode* rbNode = static_cast<RBNode*>(node);
-    key = rbNode->key;
 }
 
 std::string RBNode::printData() {

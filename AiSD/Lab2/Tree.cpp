@@ -38,7 +38,7 @@ void Tree::postOrder(Node*& node, std::stringstream& ss) {
     }
 }
 
-void Tree::rightRotate(Node* node) {
+Node* Tree::rightRotate(Node* node) {
     Node* rootNew = node->leftSub;
     if (root == node) root = rootNew;
     Node* leftNew = rootNew->rightSub;
@@ -46,14 +46,15 @@ void Tree::rightRotate(Node* node) {
     else rootNew->parent = nullptr;
     rootNew->setRightSub(node);
     node->setLeftSub(leftNew);
+    return rootNew;
 }
 
-void Tree::bigRightRotate(Node* node) {
+Node* Tree::bigRightRotate(Node* node) {
     leftRotate(node->leftSub);
-    rightRotate(node);
+    return rightRotate(node);
 }
 
-void Tree::leftRotate(Node* node) {
+Node* Tree::leftRotate(Node* node) {
     Node* rootNew = node->rightSub;
     if (root == node) root = rootNew;
     Node* rightNew = rootNew->leftSub;
@@ -61,11 +62,12 @@ void Tree::leftRotate(Node* node) {
     else rootNew->parent = nullptr;
     rootNew->setLeftSub(node);
     node->setRightSub(rightNew);
+    return rootNew;
 }
 
-void Tree::bigLeftRotate(Node* node) {
+Node* Tree::bigLeftRotate(Node* node) {
     rightRotate(node->rightSub);
-    leftRotate(node);
+    return leftRotate(node);
 }
 
 Node* Tree::find(const size_t& key) {
@@ -111,19 +113,19 @@ bool Tree::del(const size_t& key) {
 bool Tree::del(Node* node) {
     if (!node) return false;
     Node* tempNode = nullptr;
-    if (!node->leftSub || !*node->leftSub) {
-        tempNode = node->rightSub;
-        delBalancing(node);
-        if (node->parent)
-            node->parent->makeChild(tempNode, node->edge);
-        else tempNode->clearParent();
-        if (root == node) root = tempNode;
-        delete node;
-        return true;
+    if (node->leftSub && *node->leftSub) {
+        tempNode = findMax(node->leftSub);
+        flip(node, tempNode);
+        node = tempNode;
     }
-    tempNode = findMax(node->leftSub);
-    flip(node, tempNode);
-    del(tempNode);
+    tempNode = node->rightSub;
+    delBalancing(node);
+    if (node->parent)
+        node->parent->makeChild(tempNode, node->edge);
+    else if(tempNode) tempNode->clearParent();
+    if (root == node) root = tempNode;
+    delete node;
+    return true;
 }
 
 void Tree::flip(Node* node1, Node* node2) {

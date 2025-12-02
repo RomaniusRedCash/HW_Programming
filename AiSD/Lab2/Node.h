@@ -19,7 +19,7 @@ public:
     void setRightSub(Node* node);
     void makeChild(Node* node, Node** subTree);
 
-    virtual void copyData(Node* node) {}
+    void copyData(Node* node);
     virtual std::string printData();
 
     virtual operator bool() const;
@@ -34,7 +34,6 @@ public:
     std::string printData() override;
 
     AVLNode(const size_t& key) : Node(key) {}
-    void copyData(Node* node) override;
 };
 
 enum node_color : char {
@@ -47,7 +46,6 @@ public:
 
     RBNode(const size_t& key) : Node(key) {}
 
-    void copyData(Node* node) override;
     std::string printData() override;
 
     virtual bool setColor(const node_color& newColor);

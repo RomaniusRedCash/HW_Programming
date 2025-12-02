@@ -17,14 +17,14 @@ protected:
     void inOrder(Node*& node, std::stringstream& ss);
     void postOrder(Node*& node, std::stringstream& ss);
 
-    virtual void reBalancing(Node* root) { return; };
+    virtual Node* reBalancing(Node* root) { return nullptr; };
     virtual void balancing(Node* node) { return; };
     virtual void delBalancing(Node* node) { return; };
 
-    virtual void rightRotate(Node* node);
-    virtual void bigRightRotate(Node* node);
-    virtual void leftRotate(Node* node);
-    virtual void bigLeftRotate(Node* node);
+    virtual Node* rightRotate(Node* node);
+    virtual Node* bigRightRotate(Node* node);
+    virtual Node* leftRotate(Node* node);
+    virtual Node* bigLeftRotate(Node* node);
 
     virtual bool del(Node* node);
 
