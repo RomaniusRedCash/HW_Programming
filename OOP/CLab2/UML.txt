@@ -50,7 +50,7 @@ abstract class DataBase<T1, T2> {
   {abstract} + printRepeating(os: ostream&): void
 }
 
-class house {
+class House {
   + add(parent: IData*, floors: const int&): void
   + printRepeating(os: ostream&): void
 }
@@ -76,7 +76,7 @@ class Dater {
 
 ' Иерархия наследования для Data
 IData <|.. DataBase
-DataBase <|-- house
+DataBase <|-- House
 DataBase <|-- Street
 DataBase <|-- City
 DataBase <|-- Dater
