@@ -31,7 +31,7 @@ int main() {
 				catch (const ParcerException& e) {
 					std::cout << e.getMessage() << std::endl;
 				}
-			}
+			} else continue;
 			std::cout << "Повторяющиеся строки:" << std::endl;
 			dater.printRepeating(std::cout);
 
