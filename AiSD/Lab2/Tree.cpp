@@ -202,7 +202,6 @@ std::string Tree::levelOrder() {
             queueOfLvl.push(nowLvl + 1);
             queueOfLvl.push(nowLvl + 1);
         }
-        else ss << "null ";
         queueOfNodes.pop();
         queueOfLvl.pop();
     }

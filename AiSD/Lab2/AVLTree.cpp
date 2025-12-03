@@ -50,37 +50,62 @@ void AVLTree::delBalancing(Node* node) {
 }
 
 Node* AVLTree::rightRotate(Node* node) {
-    static_cast<AVLNode*>(node)->balanceFactor = 0;
-    static_cast<AVLNode*>(node->leftSub)->balanceFactor = 0;
+    AVLNode* A = static_cast<AVLNode*>(node);
+    AVLNode* B = static_cast<AVLNode*>(A->leftSub);
+    if (A->balanceFactor == 2 && B->balanceFactor == 0) {
+        A->balanceFactor = 1;
+        B->balanceFactor = -1;
+    }
+    else {
+        A->balanceFactor = 0;
+        B->balanceFactor = 0;
+    }
     return Tree::rightRotate(node);
 }
 
 Node* AVLTree::bigRightRotate(Node* node) {
-    char oldbalanceC = static_cast<AVLNode*>(node->leftSub->rightSub)->balanceFactor;
-    AVLNode* B = static_cast<AVLNode*>(node->leftSub);
-    Node* C = Tree::bigRightRotate(node);
-    if (oldbalanceC > 0) 
-        static_cast<AVLNode*>(node)->balanceFactor = -1;
-    if (oldbalanceC < 0) 
+    AVLNode* A = static_cast<AVLNode*>(node);
+    AVLNode* B = static_cast<AVLNode*>(A->leftSub);
+    AVLNode* C = static_cast<AVLNode*>(B->rightSub);
+    char oldbalanceC = C->balanceFactor;
+    Tree::bigRightRotate(node);
+    A->balanceFactor = 0;
+    B->balanceFactor = 0;
+    C->balanceFactor = 0;
+    if (oldbalanceC > 0)
+        A->balanceFactor = -1;
+    else if (oldbalanceC < 0)
         B->balanceFactor = 1;
     return C;
 }
 
 Node* AVLTree::leftRotate(Node* node) {
-    static_cast<AVLNode*>(node)->balanceFactor = 0;
-    static_cast<AVLNode*>(node->rightSub)->balanceFactor = 0;
+    AVLNode* A = static_cast<AVLNode*>(node);
+    AVLNode* B = static_cast<AVLNode*>(A->rightSub);
+    if (A->balanceFactor == -2 && B->balanceFactor == 0) {
+        A->balanceFactor = -1;
+        B->balanceFactor = 1;
+    }
+    else {
+        A->balanceFactor = 0;
+        B->balanceFactor = 0;
+    }
     return Tree::leftRotate(node);
 }
 
 Node* AVLTree::bigLeftRotate(Node* node) {
-    int8_t oldbalanceC = static_cast<AVLNode*>(node->rightSub->leftSub)->balanceFactor;
-    AVLNode* B = static_cast<AVLNode*>(node->rightSub);
-    Node* C = Tree::bigLeftRotate(node);
-    if (oldbalanceC < 0) 
-        static_cast<AVLNode*>(node)->balanceFactor = 1;
+    AVLNode* A = static_cast<AVLNode*>(node);
+    AVLNode* B = static_cast<AVLNode*>(A->rightSub);
+    AVLNode* C = static_cast<AVLNode*>(B->leftSub);
+    char oldbalanceC = C->balanceFactor;
+    Tree::bigLeftRotate(node);
+    A->balanceFactor = 0;
+    B->balanceFactor = 0;
+    C->balanceFactor = 0;
     if (oldbalanceC > 0) 
         B->balanceFactor = -1;
-    
+    if (oldbalanceC < 0) 
+        A->balanceFactor = 1;
     return C;
 }
 
