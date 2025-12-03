@@ -1,11 +1,11 @@
 #include "Dater.h"
 
-void house::add(IData* parent, const int& floors) {
+void House::add(IData* parent, const int& floors) {
     this->parent = parent;
     data[floors]++;
 }
 
-void house::printRepeating(std::ostream& os){
+void House::printRepeating(std::ostream& os){
     for (cur = data.begin(); cur != data.end(); cur++){
         if (cur->second <= 1) continue;
         parent->printNow(os);

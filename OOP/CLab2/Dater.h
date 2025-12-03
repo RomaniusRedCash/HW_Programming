@@ -30,14 +30,14 @@ public:
 	};
 };
 
-class house : public DataBase<int, int> {
+class House : public DataBase<int, int> {
 public:
 	void add(IData* parent, const int& floors);
 	void printRepeating(std::ostream& os) override;
 };
 
 
-class Street : public DataBase<int, house> {
+class Street : public DataBase<int, House> {
 public:
 	void add(IData* parent, const int& house, const int& floors);
 	void printRepeating(std::ostream& os) override;
