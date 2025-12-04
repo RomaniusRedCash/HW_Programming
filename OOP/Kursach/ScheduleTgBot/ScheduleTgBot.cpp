@@ -15,15 +15,26 @@ void ScheduleTgBot::makeCommandFromMes(){
 void ScheduleTgBot::processMes(const json::value& jsonMes) {
 	std::string mesText = jsonMes.at_as_str("text");
 	int64_t idUser = jsonMes.at("from").at_as_int("id");
+	const uint16_t& group = usersGroup[idUser];
+	json::value lessonJson;
 
 	if(commandMap.count(mesText) != 0){
 		switch (commandMap[mesText]) {
 		case command::near_lesson:
-			
+
+			lessonJson = etuClient->getNearLesson(group);
+			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
+			tgClient->sendMessageTextOnly(idUser, mesMakeForOneLesson(lessonJson));
+
+
 			return;
 			break;
 		case command::tommorow:
-			
+
+			lessonJson = etuClient->getTommorow(group);
+			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
+			tgClient->sendMessageTextOnly(idUser, mesMakeForDay(lessonJson));
+
 			return;
 			break;
 		case command::all:
@@ -41,6 +52,7 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 		default:
 			break;
 		}
+		return tgClient->sendMessageTextOnly(idUser, "Неверные данные группы или команда.");
 	}
 
 
@@ -59,7 +71,7 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 
 void ScheduleTgBot::processCallBack(const json::value& jsonMes) {
 	int64_t idUser = jsonMes.at("from").at_as_int("id");
-	const short& group = usersGroup[idUser];
+	const uint16_t& group = usersGroup[idUser];
 	std::string day = jsonMes.at_as_str("data");
 	json::value lessons = etuClient->getDay(group, day);
 	if (lessons.is_object() && lessons.get_object().empty()) return tgClient->sendMessageTextOnly(idUser, "Неверные данные группы.");

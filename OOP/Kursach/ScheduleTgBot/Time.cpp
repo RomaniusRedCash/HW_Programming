@@ -4,7 +4,7 @@ int Time::getNowDay() {
     std::chrono::time_point nowDay = floor<std::chrono::days>(std::chrono::system_clock::now());
 
     std::chrono::weekday wd(nowDay);
-    return wd.c_encoding();
+    return wd.iso_encoding() -1;
 }
 
 int Time::getNumByDay(const std::string& day) {
@@ -16,8 +16,8 @@ const std::string& Time::getDayByNum(const int& day) {
 }
 
 std::chrono::seconds Time::getNowSeconds() {
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    std::chrono::system_clock::time_point nowDay = floor<std::chrono::days>(now);
+    std::chrono::system_clock::time_point now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
+    std::chrono::system_clock::time_point nowDay = std::chrono::floor<std::chrono::days>(now);
 
     return duration_cast<std::chrono::seconds>(now - nowDay);;
 }

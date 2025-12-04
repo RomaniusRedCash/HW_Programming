@@ -10,21 +10,20 @@ json::value EtuClient::getNearLesson(const uint16_t& idGroup) {
 	//json::array nowLesson = getDay(idGroup, Time::getDayByNum(day)).at(std::to_string(day)).at("lessons").as_array();
 	json::value nowLesson = getDay(idGroup, Time::getDayByNum(day));
 	if (nowLesson.as_object().empty()) return nowLesson;
-	json::array nowLessonArr = nowLesson.at(std::to_string(day)).at("lessons").as_array();
+	json::array nowLessonArr = nowLesson.at("lessons").as_array();
 	for (const json::value& i : nowLessonArr)
-		if (i.at_as_int("start_time_seconds") > nowSec || i.at_as_int("end_time_seconds") > nowSec)
+		if (i.at_as_int("start_time_seconds") > nowSec && i.at_as_int("end_time_seconds") > nowSec)
 			return i;
 	return json::value();
 }
 
 json::value EtuClient::getTommorow(const uint16_t& idGroup) {
-	json::array tommorowLesson;
-	int nowDay = Time::getNowDay();
+	json::value tommorowLesson;
+	int nowDay = Time::getNowDay() + 1;
 	char days= 0;
-	while (tommorowLesson.empty() && days < 8) {
+	while (tommorowLesson.as_object().empty() && days < 7) {
+		tommorowLesson = getDay(idGroup, Time::getDayByNum((nowDay + days) % 7)).at("lessons");
 		days++;
-		nowDay = (nowDay + 1) % 7;
-		tommorowLesson = getDay(idGroup, Time::getDayByNum(nowDay)).at(std::to_string(nowDay)).at("lessons").as_array();
 	}
 	return tommorowLesson;
 }
