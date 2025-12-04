@@ -38,7 +38,9 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 			return;
 			break;
 		case command::all:
-			
+			lessonJson = etuClient->getAll(group);
+			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
+			tgClient->sendMessageTextOnly(idUser, mesMakeForAll(lessonJson));
 			return;
 			break;
 		case command::day:
@@ -92,27 +94,40 @@ std::string ScheduleTgBot::getEnv(const char* nameEnv) {
 	return env;
 }
 
+std::string ScheduleTgBot::mesMakeForAll(const json::value& lessonsJson) {
+	std::stringstream ss;
+	for (int i = 0; i < 7; i++) {
+		ss << mesMakeForDay(lessonsJson.at(std::to_string(i)));
+	}
+	return ss.str();
+}
+
 std::string ScheduleTgBot::mesMakeForDay(const json::value& lessonsJson) {
 	std::stringstream ss;
-	ss << "<b>" << lessonsJson.at_as_str("name") << "</b>\n";
+	ss << "<b><u>" << lessonsJson.at_as_str("name") << "</u></b>\n";
 	json::array lessonsJsonArray = lessonsJson.at("lessons").as_array();
 	for (const json::value& i : lessonsJsonArray)
-		ss << mesMakeForOneLesson(i) << "\n\n";
+		ss << mesMakeForOneLesson(i);
+	ss << "\n\n";
 	return ss.str();
 }
 
 std::string ScheduleTgBot::mesMakeForOneLesson(const json::value& lessonJson) {
 	std::stringstream ss;
-	ss << "\t\t" << lessonJson.at_as_str("name") << '\n';
+	ss << "   <b>" << lessonJson.at_as_str("name") << "</b>\n";
+	ss << "      " << lessonJson.at_as_str("subjectType");
+	if (std::string(lessonJson.at_as_str("week")) != "3")
+		ss << "   " << "<i>неделя " << lessonJson.at_as_str("week") << "</i>";
+	ss << '\n';
 	if (strlen(lessonJson.at_as_str("teacher")) > 0)
-		ss << "\t\t\t\t" << lessonJson.at_as_str("teacher") << '\n';
+		ss << "      " << lessonJson.at_as_str("teacher") << '\n';
 	if (strlen(lessonJson.at_as_str("second_teacher")) > 0)
-		ss << "\t\t\t\t" << lessonJson.at_as_str("second_teacher") << '\n';
-	ss << "\t\t\t\t" << lessonJson.at_as_str("start_time") << '-' << lessonJson.at_as_str("end_time") << "\t\t\t\t";
+		ss << "      " << lessonJson.at_as_str("second_teacher") << '\n';
+	ss << "       " << lessonJson.at_as_str("start_time") << '-' << lessonJson.at_as_str("end_time") << "   ";
 	if (strlen(lessonJson.at_as_str("room")) > 0)
-		ss << lessonJson.at_as_str("room") << " -";
+		ss << "       " << lessonJson.at_as_str("room") << " - ";
 	if (strlen(lessonJson.at_as_str("form")) > 0)
-		ss << ' ' << lessonJson.at_as_str("form") << '\n';
+		ss << lessonJson.at_as_str("form") << '\n';
 	return ss.str();
 }
 

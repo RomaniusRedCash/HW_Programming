@@ -33,7 +33,8 @@ class ScheduleTgBot {
 	void processMes(const json::value& jsonMes);
 	void processCallBack(const json::value& jsonMes);
 	std::string getEnv(const char* nameEnv);
-	std::string mesMakeForDay(const json::value& lessonsJsonArray);
+	std::string mesMakeForAll(const json::value& lessonsJson);
+	std::string mesMakeForDay(const json::value& lessonsJson);
 	std::string mesMakeForOneLesson(const json::value& lessonJson);
 public:
 	ScheduleTgBot();

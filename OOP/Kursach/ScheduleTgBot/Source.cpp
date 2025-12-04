@@ -2,6 +2,7 @@
 
 
 int main() {
+	setlocale(LC_ALL, "ru_RU.UTF-8");
 	ScheduleTgBot bot;
 	std::string command = "null";
 	std::thread cinThr([&command] { while (command != "stop") std::cin >> command; });

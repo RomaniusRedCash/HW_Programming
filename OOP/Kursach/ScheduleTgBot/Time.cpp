@@ -4,7 +4,7 @@ int Time::getNowDay() {
     std::chrono::time_point nowDay = floor<std::chrono::days>(std::chrono::system_clock::now());
 
     std::chrono::weekday wd(nowDay);
-    return wd.iso_encoding() -1;
+    return wd.iso_encoding() - 1;
 }
 
 int Time::getNumByDay(const std::string& day) {
