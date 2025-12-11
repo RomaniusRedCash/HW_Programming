@@ -5,35 +5,35 @@ hide empty members
 skinparam classAttributeIconSize 0
 
 ' Исключения (Exception Hierarchy)
-class ParcerException {
-  - message: string
-  + getMessage(): const string&
-}
+'class ParcerException {
+'  - message: string
+'  + getMessage(): const string&
+'}
 
-class TabNotOpen {
-}
+'class TabNotOpen {
+'}
 
-class XmlExItem {
-  + XmlExItem(name: const string&)
-}
+'class XmlExItem {
+'  + XmlExItem(name: const string&)
+'}
 
-class XmlValidate {
-  + XmlValidate(xmlStr: const string&)
-}
+'class XmlValidate {
+'  + XmlValidate(xmlStr: const string&)
+'}
 
-class XmlNotOpen {
-  + XmlNotOpen(path: const string&)
-}
+'class XmlNotOpen {
+'  + XmlNotOpen(path: const string&)
+'}
 
-class CsvNotOpen {
-  + CsvNotOpen(path: const string&)
-}
+'class CsvNotOpen {
+'  + CsvNotOpen(path: const string&)
+'}
 
-ParcerException <|-- TabNotOpen
-TabNotOpen <|-- XmlNotOpen
-TabNotOpen <|-- CsvNotOpen
-ParcerException <|-- XmlExItem
-ParcerException <|-- XmlValidate
+'ParcerException <|-- TabNotOpen
+'TabNotOpen <|-- XmlNotOpen
+'TabNotOpen <|-- CsvNotOpen
+'ParcerException <|-- XmlExItem
+'ParcerException <|-- XmlValidate
 
 ' Интерфейс и иерархия данных
 interface IData {
@@ -50,24 +50,24 @@ abstract class DataBase<T1, T2> {
   {abstract} + printRepeating(os: ostream&): void
 }
 
-class House {
+class House<int, int> {
   + add(parent: IData*, floors: const int&): void
   + printRepeating(os: ostream&): void
 }
 
-class Street {
+class Street<string, House> {
   + add(parent: IData*, house: const int&, floors: const int&): void
   + printRepeating(os: ostream&): void
 }
 
-class City {
+class City<string, Street> {
   - floorsMap: HM<int, int>
   + add(parent: IData*, street: const string&, house: const int&, floors: const int&): void
   + printRepeating(os: ostream&): void
   + printFloors(os: ostream&) const: void
 }
 
-class Dater {
+class Dater<string, City> {
   + add(city: const string&, street: const string&, house: const int&, floors: const int&): void
   + printRepeating(os: ostream&): void
   + printNow(os: ostream&): void
@@ -99,9 +99,9 @@ class XmlParcer {
   + XmlParcer(FName: const string&, dater: Dater&)
 }
 
-class XmlFastParcer {
-  + XmlFastParcer(FName: const string&, dater: Dater&)
-}
+'class XmlFastParcer {
+'  + XmlFastParcer(FName: const string&, dater: Dater&)
+'}
 
 class CsvParcer {
   - sepors: string = "\";\\r"
@@ -111,16 +111,16 @@ class CsvParcer {
 
 ' Иерархия наследования парсеров
 Parcer <|-- XmlParcer
-Parcer <|-- XmlFastParcer
+'Parcer <|-- XmlFastParcer
 Parcer <|-- CsvParcer
 
 ' Вспомогательный класс
-class Timer {
-  - startTime: chrono::high_resolution_clock::time_point
-  - s: ostream&
-  + Timer(s: ostream&)
-  + ~Timer()
-}
+'class Timer {
+'  - startTime: chrono::high_resolution_clock::time_point
+'  - s: ostream&
+'  + Timer(s: ostream&)
+'  + ~Timer()
+'}
 
 ' Main и зависимости
 class Main {
@@ -128,23 +128,31 @@ class Main {
 }
 
 ' Ассоциации и зависимости
-XmlParcer --> XmlException : throws
-CsvParcer --> CsvException : throws
+'XmlParcer --> XmlException : throws
+'CsvParcer --> CsvException : throws
 
 XmlParcer --> Dater : uses
-XmlFastParcer --> Dater : uses
+'XmlFastParcer --> Dater : uses
 CsvParcer --> Dater : uses
 
 Main --> XmlParcer : creates
 Main --> CsvParcer : creates
-Main --> Timer : creates
+'Main --> Timer : creates
 Main --> Dater : creates
 
 Parcer --> Dater : calls addDater()
 
 ' Зависимости исключений
-XmlException --> ParcerException
-CsvException --> ParcerException
+'XmlException --> ParcerException
+'CsvException --> ParcerException
+
+
+Street *-- House : in map
+City *-- Street : in map
+Dater *-- City : in map
+
+
+
 
 ' Дополнительные заметки
 note top of Parcer
@@ -155,21 +163,21 @@ note top of DataBase
   Шаблонный класс данных с map<T1,T2>
 end note
 
-note right of Dater
+note bottom of Dater
   Корневой класс данных:
   - Хранит города и количество домов с одинаковыми этажами
   - Служит тригером для вывода данных из други подклассов
 end note
 
-note left of XmlParcer
+note top of XmlParcer
   Парсит, проверяя структуру XML
 end note
 
-note left of XmlFastParcer
-  Упрощенный парсер, без валидации XML
-end note
+'note top of XmlFastParcer
+'  Упрощенный парсер, без валидации XML
+'end note
 
-note right of CsvParcer
+note top of CsvParcer
   Парсит CSV
 end note
 
