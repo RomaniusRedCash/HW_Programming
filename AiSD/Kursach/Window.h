@@ -1,27 +1,35 @@
 #pragma once
 
-#include <ncurses.h>
+#include "Header.h"
 
 class Window {
 protected:
-    int sizeY, sizeX;
+    //WINDOW* parent;
+    std::vector<Window*> vW;
     int posY = 0, posX = 0;
+    bool isBox = false;
     bool isHide = false;
-    WINDOW* win = nullptr;
+
+    virtual void createWin();
 public:
-    Window(const int& sizeY, const int& sizeX);
+    WINDOW* win = nullptr;
+
+    Window(const int& sizeY, const int& sizeX, WINDOW* parent = nullptr);
+    void addSub(Window* win);
 
     void move(const int& y, const int& x);
-
-    virtual void upDate();
-    void hide();
-
-    void show();
-
+    void moveCenter();
     void moveCenter(const int& maxY, const int& maxX);
 
-    const int& getSizeY(){return sizeY;}
-    const int& getSizeX(){return sizeX;}
+    void setBox(const bool& isBox);
+    void upDate();
+    void hide();
+    void show();
+
+    const int& getSizeY(){return win->_maxy;}
+    const int& getSizeX(){return win->_maxx;}
+    const int& getPosY(){return posY;}
+    const int& getPosX(){return posX;}
 
     virtual ~Window();
 };

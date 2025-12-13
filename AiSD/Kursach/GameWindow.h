@@ -1,18 +1,17 @@
 #pragma once
 
-#include <deque>
-#include <vector>
-
 #include "Window.h"
+#include "SubWindowGame.h"
 
-struct HanoyNode {
-    bool isColor;
-    uint8_t size;
-};
+
 
 class GameWindow : public Window {
-    const std::vector<std::vector<HanoyNode>>& vHanoys;
+    void createWin() override;
+    StatisticWindow* wFinish = nullptr;
+    void addSidebar(Window* w);
 public:
-    GameWindow(const int& sizeY, const int& sizeX, const std::vector<std::vector<HanoyNode>>& vHanoys);
-    void upDate() override;
+    GameWindow(const int& sizeY, const int& sizeX, WINDOW* parent = nullptr);
+    ~GameWindow();
 };
+
+

@@ -1,62 +1,113 @@
-#include <ncurses.h>
-#include <cstring>
-#include <vector>
-#include <chrono>
-#include <thread>
-
 #include "GameWindow.h"
+#include "InputHandler.h"
+#include "ScreenHandler.h"
+#include "MenuHandler.h"
 
-#define SMALL_W "viewport is very small."
+//==============================================================================================
 
-int winY = 20, winX = 50;
+const uint8_t maxNode = 11;
+uint8_t numNode = 1;
+uint8_t MaxNumNode = 5;
+const int winY = 17, winX = maxNode * 4 + 7;
+const uint8_t fps = 24;
+Sost nowSost = game;
+
+std::vector<std::vector<HanoyNode>> vHanoys(4);
+int hod = 0;
+
+size_t FrameRate::frame = 1;
+std::vector<std::function<void(void)>> FrameRate::vTriger;
+
+InputHandler inpH;
+MenuHandler* wSetting;
+//std::vector<std::string>
+
+//==============================================================================================
+
+void makeTower();
+//void useKey();
+bool isComplete();
+
+//==============================================================================================
 
 int main(){
     initscr();
     refresh();
-
+    start_color();
     cbreak();
     noecho();
     keypad(stdscr, true);
-    curs_set(false);
+    resize_term(winY, winX);
 
-    // printw("_123456789_123456789_123456789_123456789_%d", std::strlen("_123456789_123456789_123456789_123456789_"));
+    init_pair(1, COLOR_BLUE, COLOR_BLACK);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
 
-    std::vector<std::vector<HanoyNode>> vHanoys;
-    vHanoys.resize(4, std::vector<HanoyNode>(12));
-    for (int8_t i = 1; i <= 5; i++){
-        vHanoys[0][10-i*2] = {0, i * 2 + 1};
-        vHanoys[0][10-i*2+1] = {1, i * 2 + 1};
+    std::thread inputTh([] {inpH.init(); });
+    
+    for (std::vector<HanoyNode>& i : vHanoys) {
+        i.reserve(numNode * 2);
     }
+    makeTower();
 
-    // Window win(winY, winX);
-    GameWindow win(winY, winX, vHanoys);
+    Window wMain(winY, winX);
+    wSetting = new MenuHandler(winY, winX, wMain.win);
+    wSetting->hide();
+    wSetting->moveCenter(winY, winX);
+    GameWindow* wGame = new GameWindow(winY, winX, wMain.win);
+    //GameWindow wGame(winY, winX);
+    wGame->moveCenter(winY, winX);
 
-    int maxY, maxX;
-    getmaxyx(stdscr, maxY, maxX);
-    win.moveCenter(maxY,maxX);
+    //FrameRate::addTriger(&useKey);
+    FrameRate::addTriger([] {if(isComplete()) nowSost = finish; });
 
-    while(true){
-        if (wgetch(stdscr) == KEY_RESIZE){
-            getmaxyx(stdscr, maxY, maxX);
-            if (maxY < win.getSizeY() || maxX < win.getSizeX()) {
-                win.hide();
-                clear();
-                int posX = maxX/2-std::strlen(SMALL_W)/2;
-                posX = posX>0?posX:0;
-                mvprintw(maxY/2,posX,SMALL_W);
-            } else {
-                clear();
-                refresh();
+    //ScreenHandler scrH(wGame);
+    ScreenHandler scrH(wMain);
+    scrH.addGameWin(wGame);
+    scrH.addSettingWin(wSetting);
+    FrameRate::addTriger([&scrH] {scrH.upDate(); });
 
-                win.moveCenter(maxY,maxX);
-                win.show();
-                refresh();
-            }
-        }
-        refresh();
+
+    FrameRate::newRate();
+    //std::thread scrTh([&scrH] {scrH.init(); });
+
+    while (!quit) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        
+
     }
-    getch();
+
+
+
+
+
+    inputTh.join();
+    //scrTh.join();
+
     endwin();
     return 0;
+}
+
+//==============================================================================================
+
+void makeTower() {
+    for (std::vector<HanoyNode>& i : vHanoys)
+        i.clear();
+    for (uint8_t i = 0; i < numNode; i++) {
+        vHanoys[0].emplace_back((numNode - i) * 2 + 1, 1);
+        vHanoys[0].emplace_back((numNode - i) * 2 + 1, 2);
+    }
+}
+
+//void useKey() {
+//    int ch = inpH.getCh();
+//    
+//}
+
+bool isComplete() {
+    if (nowSost != game) return false;
+    if (!vHanoys[0].empty() || !vHanoys[1].empty() || vHanoys[2].size() < numNode || vHanoys[3].size() < numNode) return false;
+    for (uint8_t i = 2; i < vHanoys.size(); i++)
+        for (uint8_t j = 0; j < vHanoys[i].size() - 1; j++)
+            if (vHanoys[i][j].color != i - 1 || vHanoys[i][j].size - vHanoys[i][j + 1].size != 2) return false;
+    return true;
 }
