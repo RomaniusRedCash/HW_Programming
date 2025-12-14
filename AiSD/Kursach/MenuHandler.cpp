@@ -16,6 +16,8 @@ MenuHandler::MenuHandler(const int& sizeY, const int& sizeX, WINDOW* parent) : W
 	wMain = new OptionsWindow(sizeY, sizeX-2, win);
 	wMain->addOption("Resume");
 	wMain->addOption("Change num of node");
+	wMain->addOption("Restart");
+	wMain->addOption("Auto solve");
 	wMain->addOption("Quit");
 	wMain->init();
 	//wMain->move(2,1);

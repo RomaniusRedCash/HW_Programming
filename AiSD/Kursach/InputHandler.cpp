@@ -44,7 +44,7 @@ void InputHandler::useMain() {
 }
 
 void InputHandler::useKeyGame() {
-    if (ch >= '1' && ch <= '4') horizontalPos = ch - '1';
+    if (ch >= '1' && ch <= '4') gamePos = ch - '1';
     switch (ch)
     {
     case KEY_LEFT:
@@ -64,10 +64,12 @@ void InputHandler::useKeyGame() {
             break;
         }
         if (gamePos != selectGamePos) {
-            if (!vHanoys[gamePos].empty() && vHanoys[gamePos].back().size < vHanoys[selectGamePos].back().size) break;
-            vHanoys[gamePos].push_back(vHanoys[selectGamePos].back());
-            vHanoys[selectGamePos].pop_back();
-            hod++;
+            try {
+                moveFromTo(selectGamePos, gamePos);
+            }
+            catch (const HanErr& e) {
+                break;
+            }
         }
         selectGamePos = -1;
         break;
@@ -81,16 +83,26 @@ void InputHandler::useSetting() {
     {
     case KEY_ENTER:
     case '\n':
+        oldSost = nowSost;
+        //nowSost = Sost(wSetting->wMain->nowSelect());
         switch (wSetting->wMain->nowSelect())
         {
-        case 0:
+        case game:
             nowSost = game;
             break;
-        case 1:
+        case choose:
             oldSost = nowSost;
             nowSost = choose;
             break;
-        case 2:
+        case restart:
+            restartGame();
+            break;
+        case autoS:
+            restartGame();
+            FrameRate::newRate();
+            autoSolve(vHanoys.front().size(), 0, 3);
+            break;
+        case quit:
             nowSost = quit;
             break;
         default:
@@ -131,18 +143,17 @@ int InputHandler::getCh() {
 }
 
 void InputHandler::init() {
-    nodelay(stdscr, TRUE);
+    //nodelay(stdscr, TRUE);
     while (nowSost != quit) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(10));
         int chTemp = getch();
-        if (chTemp == ERR) continue;
+        //if (chTemp == ERR) continue;
         ch = chTemp;
         //FrameRate::frame++;
         useMain();
         switch (nowSost)
         {
         case game:
-        case finish:
             useKeyGame();
             break;
         case setting:
@@ -150,6 +161,10 @@ void InputHandler::init() {
             break;
         case choose:
             useChoose();
+            break;
+        case restart:
+            break;
+        case autoS:
             break;
         case quit:
             break;

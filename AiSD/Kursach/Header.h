@@ -17,18 +17,22 @@ struct HanoyNode {
 };
 
 enum Sost : int8_t {
-    game, setting, choose, quit, restart, finish
+    game, choose, restart, autoS, quit, setting, finish
 };
 
 class InputHandler;
 class MenuHandler;
 
-extern uint8_t MaxNumNode;
-extern uint8_t numNode;
+extern uint8_t numNode, maxNowNode;
+extern const uint8_t MaxNumNode, maxNode;
 extern std::vector<std::vector<HanoyNode>> vHanoys;
 extern Sost nowSost;
 extern int hod;
-extern const uint8_t maxNode;
 extern InputHandler inpH;
 extern MenuHandler* wSetting;
 
+void moveFromTo(const uint8_t& from, const uint8_t& to);
+void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to);
+
+class HanErr {
+};
