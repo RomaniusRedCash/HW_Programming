@@ -46,7 +46,7 @@ void Window::upDate(){
 #ifdef __unix__
     wresize(win, sizeY, sizeX);
 #endif
-    wclear(win); 
+    wclear(win);
     createWin();
     for (Window* w : vW)
         w->upDate();

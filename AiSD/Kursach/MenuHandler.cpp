@@ -20,7 +20,6 @@ MenuHandler::MenuHandler(const int& sizeY, const int& sizeX, WINDOW* parent) : W
 	wMain->addOption("Auto solve");
 	wMain->addOption("Quit");
 	wMain->init();
-	//wMain->move(2,1);
 	wMain->moveCenter();
 
 	wChoose = new OptionsWindow(sizeY, sizeX-2, win);

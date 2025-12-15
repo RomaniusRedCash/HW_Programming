@@ -1,7 +1,8 @@
 #include "ScreenHandler.h"
 
 ScreenHandler::ScreenHandler(Window& win) : win(win) {
-
+	getmaxyx(stdscr, maxY, maxX);
+	win.moveCenter(maxY, maxX);
 }
 
 void ScreenHandler::addGameWin(Window* wGame) {
@@ -15,11 +16,6 @@ void ScreenHandler::addSettingWin(Window* wSetting) {
 }
 
 void ScreenHandler::upDate() {
-	//if (frame == FrameRate::frame) {
-	//	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	//	return;
-	//} 
-	//frame = FrameRate::frame;
 #ifdef _WIN32
 	resize_term(0, 0);
 #endif

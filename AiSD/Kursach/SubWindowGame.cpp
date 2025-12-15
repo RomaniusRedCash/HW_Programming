@@ -28,7 +28,7 @@ TowersWindow::TowersWindow(const int& sizeY, const int& sizeX, WINDOW* win) : Wi
 
 void TextWindow::createWin() {
     if (isSelect)
-        wbkgdset(win, A_BLINK);
+        wbkgdset(win, COLOR_PAIR(3));
     else
         wbkgdset(win, A_NORMAL);
     wclear(win);
@@ -52,8 +52,8 @@ void TextWindow::setSelect(const bool& isSelect) {
 void PosWindow::createWin() {
     for (uint8_t i = 0; i < vHanoys.size(); i++) {
         wattrset(win, A_NORMAL);
-        if (inpH.getGamePos() == i) wattrset(win, COLOR_PAIR(1));
-        else if (inpH.getSelectGamePos() == i) wattrset(win, COLOR_PAIR(1) | A_BLINK);
+        if (inpH.getGamePos() == i) wattrset(win, COLOR_PAIR(4));
+        else if (inpH.getSelectGamePos() == i) wattrset(win, COLOR_PAIR(5));
         for (uint8_t j = 0; j < sizeSel; j++)
             mvwaddch(win, 0, i * maxNode + i + 1 + maxNode / 2 - sizeSel / 2 + j, ACS_HLINE);
     }
@@ -92,7 +92,9 @@ void OptionsWindow::init() {
         delwin(win);
     }
     win = derwin(parent, vSetStr.size(), sizeX, 0 ,0);
-    moveCenter(getSizeY(), getSizeX());
+#ifdef __unix__
+    sizeY = vSetStr.size();
+#endif
 
     for (int i = 0; i < vSetStr.size(); i++) {
         TextWindow* wT = new TextWindow(1, getSizeX(), win);

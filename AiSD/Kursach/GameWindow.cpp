@@ -27,7 +27,12 @@ GameWindow::GameWindow(const int& sizeY, const int& sizeX, WINDOW* parent)
 
     TextWindow* wInstruction = new TextWindow(2, sizeX - 2, win);
     addSidebar(wInstruction);
+    std::string str;
+#ifdef _WIN32
     wInstruction->setText("←/→ or 1-4 - move, esc - menu.");
+#elif __unix__
+    wInstruction->setText("Arrow or 1-4 - move, esc - menu.");
+#endif
     wInstruction->setTextPosCenter();
 
     TowersWindow* wTower = new TowersWindow(11, sizeX - 2, win);

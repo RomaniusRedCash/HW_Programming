@@ -30,6 +30,7 @@ bool isComplete();
 //==============================================================================================
 
 int main(){
+    // setlocale(LC_ALL, "en_US.UTF-8");
     initscr();
     refresh();
     start_color();
@@ -38,10 +39,15 @@ int main(){
     keypad(stdscr, true);
 #ifdef _WIN32
     resize_term(winY, winX);
+#elif __unix__
+    set_escdelay(10);
 #endif
 
     init_pair(1, COLOR_BLUE, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
+    init_pair(3, COLOR_WHITE, 8);
+    init_pair(4, COLOR_GREEN, COLOR_BLACK);
+    init_pair(5, COLOR_GREEN, 8);
 
     for (std::vector<HanoyNode>& i : vHanoys) {
         i.reserve(numNode * 2);
