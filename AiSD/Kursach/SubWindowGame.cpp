@@ -86,7 +86,7 @@ OptionsWindow::OptionsWindow(const int& sizeY, const int& sizeX, WINDOW* win) : 
 void OptionsWindow::init() {
     WINDOW* parent = nullptr;
     if (win) {
-        parent = win->_parent;
+        parent = getParent();
         for (Window* w : vW) delete w;
         sizeX = getSizeX();
         delwin(win);

@@ -31,17 +31,18 @@ bool isComplete();
 
 int main(){
     initscr();
-    refresh();
     start_color();
     cbreak();
     noecho();
     keypad(stdscr, true);
+#ifdef _WIN32
     resize_term(winY, winX);
+#endif
 
     init_pair(1, COLOR_BLUE, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
 
-    std::thread inputTh([] {inpH.init(); });
+    // std::thread inputTh([] {});
 
     
     for (std::vector<HanoyNode>& i : vHanoys) {
@@ -50,7 +51,7 @@ int main(){
     makeTower();
 
 
-    Window wMain(winY, winX);
+    Window wMain(winY, winX,stdscr);
     wSetting = new MenuHandler(winY, winX, wMain.win);
     wSetting->hide();
     wSetting->moveCenter(winY, winX);
@@ -78,10 +79,10 @@ int main(){
 
 
     //autoSolve(vHanoys.front().size(), 0, 3);
-
+    inpH.init();
     while (!quit) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        
+
 
     }
 
@@ -89,7 +90,7 @@ int main(){
 
 
 
-    inputTh.join();
+    // inputTh.join();
     //scrTh.join();
 
     endwin();

@@ -4,11 +4,15 @@
 
 class Window {
 protected:
-    //WINDOW* parent;
     std::vector<Window*> vW;
     int posY = 0, posX = 0;
     bool isBox = false;
     bool isHide = false;
+
+#ifdef __unix__
+    WINDOW* parent;
+    int sizeY, sizeX;
+#endif
 
     virtual void createWin();
 public:
@@ -26,10 +30,13 @@ public:
     void hide();
     void show();
 
-    const int& getSizeY(){return win->_maxy;}
-    const int& getSizeX(){return win->_maxx;}
-    const int& getPosY(){return posY;}
-    const int& getPosX(){return posX;}
+    WINDOW* getParent();
+    WINDOW* getWin();
+
+    int getSizeY();
+    int getSizeX();
+    const int& getPosY();
+    const int& getPosX();
 
     virtual ~Window();
 };

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Window.h";
-#include "SubWindowGame.h";
-#include "FrameRate.h";
+#include "Window.h"
+#include "SubWindowGame.h"
+#include "FrameRate.h"
 
 #define SMALL_W "viewport is very small."
 

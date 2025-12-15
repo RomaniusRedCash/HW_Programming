@@ -143,11 +143,16 @@ int InputHandler::getCh() {
 }
 
 void InputHandler::init() {
-    //nodelay(stdscr, TRUE);
+#ifdef __unix__
+    // nodelay(stdscr, TRUE);
+#endif
     while (nowSost != quit) {
-        //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+#ifdef __unix__
+        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+#endif
         int chTemp = getch();
-        //if (chTemp == ERR) continue;
+        mvprintw(0,0,"%d",chTemp);
+        if (chTemp == ERR) continue;
         ch = chTemp;
         //FrameRate::frame++;
         useMain();

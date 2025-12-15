@@ -1,6 +1,11 @@
 #pragma once
 
+#ifdef __unix__
+#include <ncurses.h>
+#elif _WIN32
 #include <curses.h>
+#endif
+
 #include <cstring>
 #include <vector>
 #include <string>
