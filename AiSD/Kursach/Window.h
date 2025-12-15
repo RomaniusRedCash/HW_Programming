@@ -4,6 +4,7 @@
 
 class Window {
 protected:
+    WINDOW* win = nullptr;
     std::vector<Window*> vW;
     int posY = 0, posX = 0;
     bool isBox = false;
@@ -16,7 +17,6 @@ protected:
 
     virtual void createWin();
 public:
-    WINDOW* win = nullptr;
 
     Window(const int& sizeY, const int& sizeX, WINDOW* parent = nullptr);
     void addSub(Window* win);

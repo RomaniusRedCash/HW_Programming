@@ -23,7 +23,7 @@ MenuHandler::MenuHandler(const int& sizeY, const int& sizeX, WINDOW* parent) : W
 	wMain->moveCenter();
 
 	wChoose = new OptionsWindow(sizeY, sizeX-2, win);
-	for (uint8_t i = 1; i <= 5; i++)
+	for (uint8_t i = 1; i <= maxNumNode; i++)
 		wChoose->addOption(std::to_string(i));
 	wChoose->init();
 	wChoose->moveCenter();

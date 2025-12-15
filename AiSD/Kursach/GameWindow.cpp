@@ -35,7 +35,7 @@ GameWindow::GameWindow(const int& sizeY, const int& sizeX, WINDOW* parent)
 #endif
     wInstruction->setTextPosCenter();
 
-    TowersWindow* wTower = new TowersWindow(11, sizeX - 2, win);
+    TowersWindow* wTower = new TowersWindow(maxNumNode * 2 + 1, sizeX - 2, win);
     addSidebar(wTower);
 
     PosWindow* wPos = new PosWindow(1, sizeX - 2, win);

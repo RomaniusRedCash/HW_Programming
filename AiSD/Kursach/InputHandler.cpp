@@ -100,7 +100,7 @@ void InputHandler::useSetting() {
         case autoS:
             restartGame();
             FrameRate::newRate();
-            autoSolve(vHanoys.front().size(), 0, 3);
+            autoSolve(numNode, 0, 3, true);
             break;
         case quit:
             nowSost = quit;

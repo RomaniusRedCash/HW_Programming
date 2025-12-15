@@ -5,7 +5,7 @@ void TowersWindow::createWin() {
         wstandend(win);
         if (i > 1) wattrset(win, COLOR_PAIR(i - 1));
         int startX = i * maxNode + i + 1 + maxNode/2;
-        for (uint8_t j = 0; j < 11; j++) {
+        for (uint8_t j = 0; j < maxNumNode * 2 + 1; j++) {
             mvwaddch(win, getSizeY() - 1 - j, startX, ACS_BLOCK);
         }
         for (uint8_t j = 0; j < vHanoys[i].size(); j++) {

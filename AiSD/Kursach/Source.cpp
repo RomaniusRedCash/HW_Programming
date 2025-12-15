@@ -5,9 +5,9 @@
 
 //==============================================================================================
 
-uint8_t numNode = 4;
-const uint8_t MaxNumNode = 5, maxNode = MaxNumNode * 2 + 1;
-const int winY = 17, winX = maxNode * 4 + 7;
+uint8_t numNode = 5;
+const uint8_t maxNumNode = 5, maxNode = maxNumNode * 2 + 1;
+const int winY = maxNumNode * 2 + 7, winX = maxNode * 4 + 7;
 const uint8_t fps = 24;
 Sost nowSost = game;
 
@@ -55,10 +55,10 @@ int main(){
     makeTower();
 
     Window wMain(winY, winX);
-    wSetting = new MenuHandler(winY, winX, wMain.win);
+    wSetting = new MenuHandler(winY, winX, wMain.getWin());
     wSetting->hide();
     wSetting->moveCenter(winY, winX);
-    GameWindow* wGame = new GameWindow(winY, winX, wMain.win);
+    GameWindow* wGame = new GameWindow(winY, winX, wMain.getWin());
     wGame->moveCenter(winY, winX);
 
     FrameRate::addTriger([] {if(isComplete()) nowSost = finish; });
@@ -106,94 +106,98 @@ bool isComplete() {
 }
 
 void moveFromTo(const uint8_t& from, const uint8_t& to) {
-    if (!vHanoys[to].empty() && vHanoys[to].back().size < vHanoys[from].back().size) throw HanErr();
+    if (!vHanoys[to].empty() && vHanoys[to].back().size < vHanoys[from].back().size || to >= vHanoys.size()) throw HanErr();
     vHanoys[to].push_back(vHanoys[from].back());
     vHanoys[from].pop_back();
     hod++;
 }
 
 void moveAutoOne(const uint8_t& from, const uint8_t& to) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    //getch();
     moveFromTo(from, to);
     FrameRate::newRate();
 }
 
 
 void moveAutoPair(const uint8_t& from, const uint8_t& to) {
-    if (to == 3 && 
-        (vHanoys[from].back().size == getMaxNowNode()
-            || !vHanoys.back().empty()
-            && vHanoys.back().back().size - vHanoys[from].back().size == 2)) {
-        moveAutoOne(from, to - vHanoys[from].back().color % 2);
-        moveAutoOne(from, to - vHanoys[from].back().color % 2);
-        return;
-    }
     moveAutoOne(from, to);
     moveAutoOne(from, to);
 }
 
-void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to) {
-    uint8_t t1, t2;
+void moveAutoEndOne(const uint8_t& from) {
+    moveAutoOne(from, vHanoys.size() - 1 - vHanoys[from].back().color % 2);
+}
+
+void moveAutoEndPair(const uint8_t& from) {
+    moveAutoEndOne(from);
+    moveAutoEndOne(from);
+}
+
+
+void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const bool& isFinal) {
+    if (num == 0) return;
+    uint8_t t1, t2, t3;
     for (t1 = 0; t1 == from || t1 == to; ++t1 %= vHanoys.size());
     for (t2 = 0; t2 == from || t2 == to || t2 == t1; ++t2 %= vHanoys.size());
-
-    std::function<void()> fPre = [] {};
-    std::function<void()> fPost = [] {};
-
-    switch (num)
-    {
-    case 2:
-        break;
-    case 4:
-        fPre = [&from, &to, &t1, &t2, &num] {
-            moveAutoPair(from, t1);
-            };
-        
-        fPost = [&from, &to, &t1, &t2, &num] {
-            moveAutoPair(t1, to);
-            };
-        break;
-    case 6:
-        if (to == 3) { // то же самое, что и case 8?
-            fPre = [&from, &to, &t1, &t2, &num] {
-                autoSolve(num - 2, from, t1);
-                };
-            fPost = [&from, &to, &t1, &t2, &num] {
-                autoSolve(num - 2, t1, to);
-                };
+    //bool everyCan = ;
+    if (isFinal) {
+        switch (num)
+        {
+        case 1:
+            moveAutoEndPair(from);
+            break;
+        case 2:
+            autoSolve(1, from, t1, false);
+            autoSolve(1, from, to, isFinal);
+            autoSolve(1, t1, to, isFinal);
+            break;
+        default:
+            autoSolve(num - 2, from, t1, false);
+            t2 = vHanoys.size() - 1 - vHanoys[from][1].color % 2;
+            t3 = vHanoys.size() - t2 + 1;
+            moveAutoPair(from, t3);
+            moveAutoPair(from, t2);
+            autoSolve(1, t3, from, false);
+            moveAutoOne(t2, t3);
+            autoSolve(1, from, to, isFinal);
+            autoSolve(num - 2, t1, to, isFinal);
             break;
         }
-        fPre = [&from, &to, &t1, &t2, &num] {
-            moveAutoPair(from, t2);
-            moveAutoPair(from, t1);
-            };
-        fPost = [&from, &to, &t1, &t2, &num] {
-            moveAutoPair(t1, to);
-            moveAutoPair(t2, to);
-            };
-        break;
-    case 8:
-        fPre = [&from, &to, &t1, &t2, &num] {
-            autoSolve(num - 2, from, t1);
-            };
-        fPost = [&from, &to, &t1, &t2, &num] {
-            autoSolve(num - 2, t1, to);
-            };
-        break;
-    default:
-        fPre = [&from, &to, &t1, &t2, &num] {
-            autoSolve(num - 4, from, t2);
-            moveAutoPair(from, t1);
-            autoSolve(num - 4, t2, t1);
-            };
-        fPost = [&from, &to, &t1, &t2, &num] {
-            autoSolve(num - 2, t1, to);
-            };
-        break;
     }
-
-
-    fPre();
-    moveAutoPair(from, to);
-    fPost();
+    else
+        switch (num)
+        {
+        case 1:
+            moveAutoPair(from, to);
+            break;
+        default:
+            if (
+                (vHanoys[t1].empty() || vHanoys[t1].back().size > vHanoys[from].back().size) &&
+                (vHanoys[t2].empty() || vHanoys[t2].back().size > vHanoys[from].back().size)
+                )
+                switch (num)
+                {
+                case 4:
+                    autoSolve(num - 2, from, t1, isFinal);
+                    autoSolve(1, from, t2, isFinal);
+                    autoSolve(1, from, to, isFinal);
+                    autoSolve(1, t2, to, isFinal);
+                    autoSolve(num - 2, t1, to, isFinal);
+                    break;
+                default:
+                    autoSolve(num - 2, from, t2, isFinal);
+                    autoSolve(1, from, t1, isFinal);
+                    autoSolve(1, from, to, isFinal);
+                    autoSolve(1, t1, to, isFinal);
+                    autoSolve(num - 2, t2, to, isFinal);
+                    break;
+                }
+            else {
+                autoSolve(num - 1, from, t1, isFinal);
+                autoSolve(1, from, to, isFinal);
+                autoSolve(num - 1, t1, to, isFinal);
+            }
+            break;
+        }
 }

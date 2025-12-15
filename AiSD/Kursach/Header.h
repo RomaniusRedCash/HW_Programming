@@ -29,7 +29,7 @@ class InputHandler;
 class MenuHandler;
 
 extern uint8_t numNode, maxNowNode;
-extern const uint8_t MaxNumNode, maxNode;
+extern const uint8_t maxNumNode, maxNode;
 extern std::vector<std::vector<HanoyNode>> vHanoys;
 extern Sost nowSost;
 extern int hod;
@@ -37,7 +37,7 @@ extern InputHandler inpH;
 extern MenuHandler* wSetting;
 
 void moveFromTo(const uint8_t& from, const uint8_t& to);
-void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to);
+void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const bool& isFinal);
 
 class HanErr {
 };
