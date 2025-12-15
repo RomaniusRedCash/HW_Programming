@@ -36,6 +36,8 @@ extern int hod;
 extern InputHandler inpH;
 extern MenuHandler* wSetting;
 
+void makeTower();
+bool isComplete();
 void moveFromTo(const uint8_t& from, const uint8_t& to);
 void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const bool& isFinal);
 

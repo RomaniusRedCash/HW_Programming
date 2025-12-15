@@ -5,7 +5,7 @@
 
 //==============================================================================================
 
-uint8_t numNode = 5;
+uint8_t numNode = 1;
 const uint8_t maxNumNode = 5, maxNode = maxNumNode * 2 + 1;
 const int winY = maxNumNode * 2 + 7, winX = maxNode * 4 + 7;
 const uint8_t fps = 24;
@@ -19,13 +19,6 @@ std::vector<std::function<void(void)>> FrameRate::vTriger;
 
 InputHandler inpH;
 MenuHandler* wSetting;
-//std::vector<std::string>
-
-//==============================================================================================
-
-void makeTower();
-//void useKey();
-bool isComplete();
 
 //==============================================================================================
 
@@ -87,11 +80,6 @@ void makeTower() {
     }
 }
 
-//void useKey() {
-//    int ch = inpH.getCh();
-//    
-//}
-
 uint8_t getMaxNowNode() {
     return numNode * 2 + 1;
 }
@@ -104,6 +92,8 @@ bool isComplete() {
             if (vHanoys[i][j].color != i - 1 || vHanoys[i][j].size - vHanoys[i][j + 1].size != 2) return false;
     return true;
 }
+
+//==============================================================================================
 
 void moveFromTo(const uint8_t& from, const uint8_t& to) {
     if (!vHanoys[to].empty() && vHanoys[to].back().size < vHanoys[from].back().size || to >= vHanoys.size()) throw HanErr();
@@ -174,25 +164,14 @@ void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const
         default:
             if (
                 (vHanoys[t1].empty() || vHanoys[t1].back().size > vHanoys[from].back().size) &&
-                (vHanoys[t2].empty() || vHanoys[t2].back().size > vHanoys[from].back().size)
-                )
-                switch (num)
-                {
-                case 4:
-                    autoSolve(num - 2, from, t1, isFinal);
-                    autoSolve(1, from, t2, isFinal);
-                    autoSolve(1, from, to, isFinal);
-                    autoSolve(1, t2, to, isFinal);
-                    autoSolve(num - 2, t1, to, isFinal);
-                    break;
-                default:
-                    autoSolve(num - 2, from, t2, isFinal);
-                    autoSolve(1, from, t1, isFinal);
-                    autoSolve(1, from, to, isFinal);
-                    autoSolve(1, t1, to, isFinal);
-                    autoSolve(num - 2, t2, to, isFinal);
-                    break;
-                }
+                (vHanoys[t2].empty() || vHanoys[t2].back().size > (vHanoys[from].end() - num * 2 + 2)->size)
+                ) {
+                autoSolve(num - 2, from, t1, isFinal);
+                autoSolve(1, from, t2, isFinal);
+                autoSolve(1, from, to, isFinal);
+                autoSolve(1, t2, to, isFinal);
+                autoSolve(num - 2, t1, to, isFinal);
+            }
             else {
                 autoSolve(num - 1, from, t1, isFinal);
                 autoSolve(1, from, to, isFinal);
