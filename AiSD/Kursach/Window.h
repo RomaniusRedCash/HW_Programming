@@ -33,8 +33,8 @@ public:
     WINDOW* getParent();
     WINDOW* getWin();
 
-    int getSizeY();
-    int getSizeX();
+    const int& getSizeY();
+    const int& getSizeX();
     const int& getPosY();
     const int& getPosX();
 

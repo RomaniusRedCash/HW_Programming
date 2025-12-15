@@ -31,6 +31,7 @@ bool isComplete();
 
 int main(){
     initscr();
+    refresh();
     start_color();
     cbreak();
     noecho();
@@ -42,27 +43,20 @@ int main(){
     init_pair(1, COLOR_BLUE, COLOR_BLACK);
     init_pair(2, COLOR_RED, COLOR_BLACK);
 
-    // std::thread inputTh([] {});
-
-    
     for (std::vector<HanoyNode>& i : vHanoys) {
         i.reserve(numNode * 2);
     }
     makeTower();
 
-
-    Window wMain(winY, winX,stdscr);
+    Window wMain(winY, winX);
     wSetting = new MenuHandler(winY, winX, wMain.win);
     wSetting->hide();
     wSetting->moveCenter(winY, winX);
     GameWindow* wGame = new GameWindow(winY, winX, wMain.win);
-    //GameWindow wGame(winY, winX);
     wGame->moveCenter(winY, winX);
 
-    //FrameRate::addTriger(&useKey);
     FrameRate::addTriger([] {if(isComplete()) nowSost = finish; });
 
-    //ScreenHandler scrH(wGame);
     ScreenHandler scrH(wMain);
     scrH.addGameWin(wGame);
     scrH.addSettingWin(wSetting);
@@ -70,28 +64,7 @@ int main(){
 
 
     FrameRate::newRate();
-    //std::thread scrTh([&scrH] {scrH.init(); });
-
-
-
-
-
-
-
-    //autoSolve(vHanoys.front().size(), 0, 3);
     inpH.init();
-    while (!quit) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-
-    }
-
-
-
-
-
-    // inputTh.join();
-    //scrTh.join();
 
     endwin();
     return 0;

@@ -6,13 +6,11 @@ void Window::createWin() {
 }
 
 Window::Window(const int& sizeY, const int& sizeX, WINDOW* parent) {
-
 #ifdef __unix__
     this->parent = parent;
     this->sizeY = sizeY;
     this->sizeX = sizeX;
 #endif
-
     if (parent)
         win = derwin(parent, sizeY, sizeX, 0, 0);
     else win = newwin(sizeY, sizeX, 0, 0);
@@ -28,7 +26,6 @@ void Window::move(const int& y, const int& x){
     if (getParent())
         mvderwin(win, y, x);
     else mvwin(win, y, x);
-    upDate();
 }
 
 void Window::moveCenter() {
@@ -45,13 +42,11 @@ void Window::setBox(const bool& isBox) {
 }
 
 void Window::upDate(){
-    //std::this_thread::sleep_for(std::chrono::seconds(1));
-    if (isHide) return;
+    if (isHide) return; 
 #ifdef __unix__
     wresize(win, sizeY, sizeX);
 #endif
-    wclear(win);
-    // mvprintw(5,5,"nothide");
+    wclear(win); 
     createWin();
     for (Window* w : vW)
         w->upDate();
@@ -62,31 +57,35 @@ void Window::upDate(){
 
 void Window::hide(){
     isHide = true;
-    wclear(win);
 }
 
 void Window::show(){
     isHide = false;
 }
 
-WINDOW* Window::getParent(){
+WINDOW* Window::getParent() {
+#ifdef _WIN32
+    return win->_parent;
+#elif __unix__
     return parent;
+#endif
+
 }
-WINDOW* Window::getWin(){
+WINDOW* Window::getWin() {
     return win;
 }
 
-int Window::getSizeY() {
-#ifdef __WIN32__
+const int& Window::getSizeY() {
+#ifdef _WIN32
     return win->_maxy;
 #elif __unix__
     return sizeY;
 #endif
 }
 
-int Window::getSizeX() {
-#ifdef __WIN32__
-    return win->_maxy;
+const int& Window::getSizeX() {
+#ifdef _WIN32
+    return win->_maxx;
 #elif __unix__
     return sizeX;
 #endif
