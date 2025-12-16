@@ -146,8 +146,8 @@ void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const
             autoSolve(num - 2, from, t1, false);
             t2 = vHanoys.size() - 1 - vHanoys[from][1].color % 2;
             t3 = vHanoys.size() - t2 + 1;
-            moveAutoPair(from, t3);
-            moveAutoPair(from, t2);
+            autoSolve(1, from, t3, false);
+            autoSolve(1, from, t2, false);
             autoSolve(1, t3, from, false);
             moveAutoOne(t2, t3);
             autoSolve(1, from, to, isFinal);
@@ -163,8 +163,8 @@ void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const
             break;
         default:
             if (
-                (vHanoys[t1].empty() || vHanoys[t1].back().size > vHanoys[from].back().size) &&
-                (vHanoys[t2].empty() || vHanoys[t2].back().size > (vHanoys[from].end() - num * 2 + 2)->size)
+                (vHanoys[t1].empty() ||num - 2 == 0 || vHanoys[t1].back().size > (vHanoys[from].end() - (num - 2) * 2)->size) &&
+                (vHanoys[t2].empty() || vHanoys[t2].back().size > (vHanoys[from].end() - (num - 1) * 2)->size)
                 ) {
                 autoSolve(num - 2, from, t1, isFinal);
                 autoSolve(1, from, t2, isFinal);
