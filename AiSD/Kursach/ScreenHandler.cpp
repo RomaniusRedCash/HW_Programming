@@ -3,7 +3,9 @@
 ScreenHandler::ScreenHandler(Window& win) : win(win) {
 	getmaxyx(stdscr, maxY, maxX);
 	win.moveCenter(maxY, maxX);
+#ifdef __unix__
 	win.setAutoClear(false);
+#endif
 }
 
 void ScreenHandler::addGameWin(Window* wGame) {
