@@ -41,12 +41,17 @@ void Window::setBox(const bool& isBox) {
     if (isBox) box(win, 0, 0);
 }
 
+void Window::setAutoClear(const bool& isAutoClear) {
+    this->isAutoClear = isAutoClear;
+}
+
 void Window::upDate(){
     if (isHide) return; 
 #ifdef __unix__
     wresize(win, sizeY, sizeX);
+    move(posY, posX);
 #endif
-    wclear(win);
+    if (isAutoClear) wclear(win);
     createWin();
     for (Window* w : vW)
         w->upDate();

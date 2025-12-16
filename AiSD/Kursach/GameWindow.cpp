@@ -22,7 +22,7 @@ void GameWindow::addSidebar(Window* w) {
 
 GameWindow::GameWindow(const int& sizeY, const int& sizeX, WINDOW* parent)
     : Window(sizeY, sizeX, parent) {
-
+    setAutoClear(false);
     isBox = true;
 
     TextWindow* wInstruction = new TextWindow(2, sizeX - 2, win);

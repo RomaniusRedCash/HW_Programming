@@ -3,6 +3,7 @@
 ScreenHandler::ScreenHandler(Window& win) : win(win) {
 	getmaxyx(stdscr, maxY, maxX);
 	win.moveCenter(maxY, maxX);
+	win.setAutoClear(false);
 }
 
 void ScreenHandler::addGameWin(Window* wGame) {
@@ -19,8 +20,6 @@ void ScreenHandler::upDate() {
 #ifdef _WIN32
 	resize_term(0, 0);
 #endif
-	clear();
-	refresh();
 	switch (nowSost)
 	{
 	case setting:
@@ -34,6 +33,8 @@ void ScreenHandler::upDate() {
 		break;
 	}
 	if (inpH.getCh() == KEY_RESIZE) {
+		clear();
+		refresh();
 		getmaxyx(stdscr, maxY, maxX);
 		if (maxY < win.getSizeY() || maxX < win.getSizeX()) {
 			win.hide();

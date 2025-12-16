@@ -9,7 +9,7 @@ protected:
     int posY = 0, posX = 0;
     bool isBox = false;
     bool isHide = false;
-
+    bool isAutoClear = true;
 #ifdef __unix__
     WINDOW* parent;
     int sizeY, sizeX;
@@ -26,6 +26,7 @@ public:
     void moveCenter(const int& maxY, const int& maxX);
 
     void setBox(const bool& isBox);
+    void setAutoClear(const bool& isAutoClear);
     void upDate();
     void hide();
     void show();
