@@ -162,21 +162,11 @@ void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const
             moveAutoPair(from, to);
             break;
         default:
-            if (
-                (vHanoys[t1].empty() ||num - 2 == 0 || vHanoys[t1].back().size > (vHanoys[from].end() - (num - 2) * 2)->size) &&
-                (vHanoys[t2].empty() || vHanoys[t2].back().size > (vHanoys[from].end() - (num - 1) * 2)->size)
-                ) {
-                autoSolve(num - 2, from, t1, isFinal);
-                autoSolve(1, from, t2, isFinal);
-                autoSolve(1, from, to, isFinal);
-                autoSolve(1, t2, to, isFinal);
-                autoSolve(num - 2, t1, to, isFinal);
-            }
-            else {
-                autoSolve(num - 1, from, t1, isFinal);
-                autoSolve(1, from, to, isFinal);
-                autoSolve(num - 1, t1, to, isFinal);
-            }
+            autoSolve(num - 2, from, t1, isFinal);
+            autoSolve(1, from, t2, isFinal);
+            autoSolve(1, from, to, isFinal);
+            autoSolve(1, t2, to, isFinal);
+            autoSolve(num - 2, t1, to, isFinal);
             break;
         }
 }
