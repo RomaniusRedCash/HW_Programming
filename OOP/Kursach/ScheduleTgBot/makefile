@@ -1,6 +1,6 @@
 BOOST_LIBS = -lboost_json -lssl -lcrypto
 
-TARGET = my_program
+TARGET = exe
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 # CXXFLAGS = -std=c++23  -Wall -Wextra -O1

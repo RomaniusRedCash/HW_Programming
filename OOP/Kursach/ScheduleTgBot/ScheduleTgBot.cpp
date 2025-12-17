@@ -2,8 +2,8 @@
 
 void ScheduleTgBot::makeCommandFromMes(){
 	static const std::unordered_map<std::string, char> tempMap = {
-	{"near_lesson", command::near_lesson}, {"tommorow", command::tommorow},
-	{"all", command::all}, {"day", command::day}, {"/start", command::start}
+	{"near_lesson", command_bot::near_lesson}, {"tommorow", command_bot::tommorow},
+	{"all", command_bot::all},{"all1", command_bot::all1},{"all2", command_bot::all2}, {"day_of_week", command_bot::day_of_week}, {"/start", command_bot::start}
 	};
 	json::value commandJson = propBot.at("commands");
 	for (const std::pair<const std::string, char>& i : tempMap) {
@@ -20,7 +20,7 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 
 	if(commandMap.count(mesText) != 0){
 		switch (commandMap[mesText]) {
-		case command::near_lesson:
+		case command_bot::near_lesson:
 
 			lessonJson = etuClient->getNearLesson(group);
 			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
@@ -29,7 +29,7 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 
 			return;
 			break;
-		case command::tommorow:
+		case command_bot::tommorow:
 
 			lessonJson = etuClient->getTommorow(group);
 			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
@@ -37,17 +37,29 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 
 			return;
 			break;
-		case command::all:
+		case command_bot::all:
 			lessonJson = etuClient->getAll(group);
 			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
 			tgClient->sendMessageTextOnly(idUser, mesMakeForAll(lessonJson));
 			return;
 			break;
-		case command::day:
-			tgClient->sendMessage(idUser, propBot.at("messages").at("day"));
+		case command_bot::all1:
+			lessonJson = etuClient->getAll(group);
+			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
+			tgClient->sendMessageTextOnly(idUser, mesMakeForAll(lessonJson, "1"));
 			return;
 			break;
-		case command::start:
+		case command_bot::all2:
+			lessonJson = etuClient->getAll(group);
+			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
+			tgClient->sendMessageTextOnly(idUser, mesMakeForAll(lessonJson, "2"));
+			return;
+			break;
+		case command_bot::day_of_week:
+			tgClient->sendMessage(idUser, propBot.at("messages").at("day_of_week"));
+			return;
+			break;
+		case command_bot::start:
 			tgClient->sendMessage(idUser, propBot.at("messages").at(mesText));
 			return;
 			break;
@@ -58,9 +70,9 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 	}
 
 
-	if (mesText.find(command::REG) == 0 && mesText.size() >= 4 + strlen(command::REG)) {
+	if (mesText.find(command_bot::REG) == 0 && mesText.size() >= 4 + strlen(command_bot::REG)) {
 		int result = 0;
-		std::from_chars_result res = std::from_chars(mesText.data() + strlen(command::REG), mesText.data() + mesText.size(), result);
+		std::from_chars_result res = std::from_chars(mesText.data() + strlen(command_bot::REG), mesText.data() + mesText.size(), result);
 		if (res.ec != std::errc::invalid_argument) {
 			usersGroup[idUser] = result;
 			tgClient->sendMessage(idUser, propBot.at("messages").at("success"));
@@ -72,12 +84,21 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 }
 
 void ScheduleTgBot::processCallBack(const json::value& jsonMes) {
+	// return;
 	int64_t idUser = jsonMes.at("from").at_as_int("id");
 	const uint16_t& group = usersGroup[idUser];
-	std::string day = jsonMes.at_as_str("data");
-	json::value lessons = etuClient->getDay(group, day);
+	std::string command = jsonMes.at_as_str("data");
+	if (command.find(command_bot::DAY_OF_WEEK) != std::string::npos){
+		json::value jv = propBot.at("messages").at("day");
+		for (json::value& i : jv.at("reply_markup").at("inline_keyboard").as_array())
+			for (json::value& j : i.as_array())
+				j.as_object()["callback_data"] = std::string() + j.at_as_str("callback_data") + command.substr(std::strlen(command_bot::DAY_OF_WEEK),1);
+		return tgClient->sendMessage(idUser, jv);
+	}
+	json::value lessons = etuClient->getDay(group, command.substr(0,3));
 	if (lessons.is_object() && lessons.get_object().empty()) return tgClient->sendMessageTextOnly(idUser, "Неверные данные группы.");
-	tgClient->sendMessageTextOnly(idUser, mesMakeForDay(lessons));
+	std::string week = command.substr(3,1);
+	tgClient->sendMessageTextOnly(idUser, mesMakeForDay(lessons, week));
 }
 
 std::string ScheduleTgBot::getEnv(const char* nameEnv) {
@@ -94,20 +115,24 @@ std::string ScheduleTgBot::getEnv(const char* nameEnv) {
 	return env;
 }
 
-std::string ScheduleTgBot::mesMakeForAll(const json::value& lessonsJson) {
+std::string ScheduleTgBot::mesMakeForAll(const json::value& lessonsJson, const std::string& week) {
 	std::stringstream ss;
 	for (int i = 0; i < 7; i++) {
-		ss << mesMakeForDay(lessonsJson.at(std::to_string(i)));
+		ss << mesMakeForDay(lessonsJson.at(std::to_string(i)), week);
 	}
 	return ss.str();
 }
 
-std::string ScheduleTgBot::mesMakeForDay(const json::value& lessonsJson) {
+std::string ScheduleTgBot::mesMakeForDay(const json::value& lessonsJson, const std::string& week) {
 	std::stringstream ss;
+
 	ss << "<b><u>" << lessonsJson.at_as_str("name") << "</u></b>\n";
 	json::array lessonsJsonArray = lessonsJson.at("lessons").as_array();
-	for (const json::value& i : lessonsJsonArray)
-		ss << mesMakeForOneLesson(i);
+	for (const json::value& i : lessonsJsonArray){
+		std::string weekT = i.at_as_str("week");
+		if (weekT == "3" || weekT == week || week == "3")
+			ss << mesMakeForOneLesson(i);
+	}
 	ss << "\n\n";
 	return ss.str();
 }

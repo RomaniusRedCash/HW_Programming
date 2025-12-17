@@ -7,13 +7,16 @@
 #define PROP "BOTproperties.json"
 #define SAVE_USERS "USERS.bin"
 
-namespace command {
+namespace command_bot {
 	const char REG[] = "/reg ";
+	const char DAY_OF_WEEK[] = "WEEK";
 	enum eCommand : char {
 		near_lesson,
 		tommorow,
-		day,
+		day_of_week,
 		all,
+		all1,
+		all2,
 		start
 	};
 	//enum eDay : char{
@@ -33,8 +36,8 @@ class ScheduleTgBot {
 	void processMes(const json::value& jsonMes);
 	void processCallBack(const json::value& jsonMes);
 	std::string getEnv(const char* nameEnv);
-	std::string mesMakeForAll(const json::value& lessonsJson);
-	std::string mesMakeForDay(const json::value& lessonsJson);
+	std::string mesMakeForAll(const json::value& lessonsJson, const std::string& week = "3");
+	std::string mesMakeForDay(const json::value& lessonsJson, const std::string& week = "3");
 	std::string mesMakeForOneLesson(const json::value& lessonJson);
 public:
 	ScheduleTgBot();
