@@ -14,9 +14,6 @@ Sost nowSost = game;
 std::vector<std::vector<HanoyNode>> vHanoys(4);
 int hod = 0;
 
-size_t FrameRate::frame = 1;
-std::vector<std::function<void(void)>> FrameRate::vTriger;
-
 InputHandler inpH;
 MenuHandler* wSetting;
 
