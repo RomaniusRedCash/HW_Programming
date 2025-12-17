@@ -23,29 +23,25 @@ void GameWindow::addSidebar(Window* w) {
 GameWindow::GameWindow(const int& sizeY, const int& sizeX, WINDOW* parent)
     : Window(sizeY, sizeX, parent) {
     setAutoClear(false);
-    isBox = true;
+    setBox(true);
 
-    TextWindow* wInstruction = new TextWindow(2, sizeX - 2, win);
+    TextWindow* wInstruction = new TextWindow(2, sizeX - 2, getWin());
     addSidebar(wInstruction);
     std::string str;
-#ifdef _WIN32
-    wInstruction->setText("←/→ or 1-4 - move, esc - menu.");
-#elif __unix__
-    wInstruction->setText("Arrow or 1-4 - move, esc - menu.");
-#endif
+    wInstruction->setText(HELP);
     wInstruction->setTextPosCenter();
 
-    TowersWindow* wTower = new TowersWindow(maxNumNode * 2 + 1, sizeX - 2, win);
+    TowersWindow* wTower = new TowersWindow(maxNumNode * 2 + 1, sizeX - 2, getWin());
     addSidebar(wTower);
 
-    PosWindow* wPos = new PosWindow(1, sizeX - 2, win);
+    PosWindow* wPos = new PosWindow(1, sizeX - 2, getWin());
     addSidebar(wPos);
 
-    StatisticWindow* wStatistic = new StatisticWindow(1, sizeX - 2, win);
+    StatisticWindow* wStatistic = new StatisticWindow(1, sizeX - 2, getWin());
     addSidebar(wStatistic);
 
-    wFinish = new StatisticWindow(6, getSizeX() - 2, win);
-    wFinish->setText("You finish with %d hodov.\n Press esc for restart.");
+    wFinish = new StatisticWindow(6, getSizeX() - 2, getWin());
+    wFinish->setText(FINISH);
     wFinish->setBox(true);
     wFinish->setTextPos(2,1);
     wFinish->moveCenter();

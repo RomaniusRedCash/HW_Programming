@@ -3,10 +3,6 @@
 #include "Window.h"
 #include "InputHandler.h"
 
-//class SubWindowGame
-//{
-//};
-
 class TowersWindow : public Window {
     void createWin() override;
 public:
@@ -47,7 +43,6 @@ public:
 
 class OptionsWindow : public Window {
     std::vector<std::string> vSetStr;
-    //Window* subW = nullptr;
     int sizeX;
 
     void createWin() override;

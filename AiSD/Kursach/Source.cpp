@@ -20,7 +20,6 @@ MenuHandler* wSetting;
 //==============================================================================================
 
 int main(){
-    // setlocale(LC_ALL, "en_US.UTF-8");
     initscr();
     refresh();
     start_color();
@@ -127,7 +126,6 @@ void autoSolve(const uint8_t& num, const uint8_t& from, const uint8_t& to, const
     uint8_t t1, t2, t3;
     for (t1 = 0; t1 == from || t1 == to; ++t1 %= vHanoys.size());
     for (t2 = 0; t2 == from || t2 == to || t2 == t1; ++t2 %= vHanoys.size());
-    //bool everyCan = ;
     if (isFinal) {
         switch (num)
         {

@@ -11,18 +11,18 @@ void MenuHandler::createWin() {
 }
 
 MenuHandler::MenuHandler(const int& sizeY, const int& sizeX, WINDOW* parent) : Window (sizeY, sizeX, parent) {
-	isBox = true;
+	setBox(true);
 
-	wMain = new OptionsWindow(sizeY, sizeX-2, win);
-	wMain->addOption("Resume");
-	wMain->addOption("Change num of node");
-	wMain->addOption("Restart");
-	wMain->addOption("Auto solve");
-	wMain->addOption("Quit");
+	wMain = new OptionsWindow(sizeY, sizeX-2, getWin());
+	wMain->addOption(RESSUME);
+	wMain->addOption(CHANGE);
+	wMain->addOption(RESTART);
+	wMain->addOption(AUTO);
+	wMain->addOption(QUIT);
 	wMain->init();
 	wMain->moveCenter();
 
-	wChoose = new OptionsWindow(sizeY, sizeX-2, win);
+	wChoose = new OptionsWindow(sizeY, sizeX-2, getWin());
 	for (uint8_t i = 1; i <= maxNumNode; i++)
 		wChoose->addOption(std::to_string(i));
 	wChoose->init();

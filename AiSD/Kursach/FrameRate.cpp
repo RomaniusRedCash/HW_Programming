@@ -6,7 +6,6 @@ FrameRate::FrameRate() {
 
 void FrameRate::wait() {
 	while (!canDo());
-	//FrameRate::frame++;
 }
 
 bool FrameRate::canDo() {

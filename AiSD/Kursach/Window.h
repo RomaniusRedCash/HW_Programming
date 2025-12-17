@@ -3,21 +3,22 @@
 #include "Header.h"
 
 class Window {
-protected:
-    WINDOW* win = nullptr;
-    std::vector<Window*> vW;
-    int posY = 0, posX = 0;
+private:
     bool isBox = false;
     bool isHide = false;
     bool isAutoClear = true;
+    int posY = 0, posX = 0;
 #ifdef __unix__
-    WINDOW* parent;
     int sizeY, sizeX;
+    WINDOW* parent;
 #endif
 
+protected:
+    WINDOW* win = nullptr;
+    std::vector<Window*> vW;
     virtual void createWin();
-public:
 
+public:
     Window(const int& sizeY, const int& sizeX, WINDOW* parent = nullptr);
     void addSub(Window* win);
 

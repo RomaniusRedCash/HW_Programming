@@ -1,6 +1,7 @@
 #include "ScreenHandler.h"
 
 ScreenHandler::ScreenHandler(Window& win) : win(win) {
+	bkgdset(COLOR_PAIR(1));
 	getmaxyx(stdscr, maxY, maxX);
 	win.moveCenter(maxY, maxX);
 #ifdef __unix__
@@ -56,7 +57,6 @@ void ScreenHandler::upDate() {
 
 void ScreenHandler::init() {
 	while (!quit) {
-		//framer.wait();
 		upDate();
 	}
 }
