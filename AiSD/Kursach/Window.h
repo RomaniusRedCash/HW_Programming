@@ -8,12 +8,12 @@ private:
     bool isHide = false;
     bool isAutoClear = true;
     int posY = 0, posX = 0;
+
+protected:
 #ifdef __unix__
     int sizeY, sizeX;
     WINDOW* parent;
 #endif
-
-protected:
     WINDOW* win = nullptr;
     std::vector<Window*> vW;
     virtual void createWin();

@@ -57,7 +57,6 @@ int main(){
     scrH.addSettingWin(wSetting);
     FrameRate::addTriger([&scrH] {scrH.upDate(); });
 
-
     FrameRate::newRate();
     inpH.init();
 

@@ -90,7 +90,6 @@ void OptionsWindow::init() {
 #ifdef __unix__
     sizeY = vSetStr.size();
 #endif
-
     for (int i = 0; i < vSetStr.size(); i++) {
         TextWindow* wT = new TextWindow(1, getSizeX(), getWin());
         wT->setText(vSetStr[i]);

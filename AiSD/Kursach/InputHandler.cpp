@@ -57,7 +57,6 @@ void InputHandler::useKeyGame() {
     case '\n':
     case ' ':
     case KEY_ENTER:
-        //mvprintw(0, 0, "%d", horizontalPos);
         if (selectGamePos == -1) {
             if (vHanoys[gamePos].empty()) break;
             selectGamePos = gamePos;
@@ -84,7 +83,6 @@ void InputHandler::useSetting() {
     case KEY_ENTER:
     case '\n':
         oldSost = nowSost;
-        //nowSost = Sost(wSetting->wMain->nowSelect());
         switch (wSetting->wMain->nowSelect())
         {
         case game:
@@ -143,7 +141,6 @@ int InputHandler::getCh() {
 }
 
 void InputHandler::init() {
-    //nodelay(stdscr, TRUE);
     while (nowSost != quit) {
         ch = getch();
         if (ch == ERR) continue;
