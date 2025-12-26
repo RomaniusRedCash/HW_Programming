@@ -16,8 +16,8 @@ const std::string& Time::getDayByNum(const int& day) {
 }
 
 std::chrono::seconds Time::getNowSeconds() {
-    std::chrono::system_clock::time_point now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now());
-    std::chrono::system_clock::time_point nowDay = std::chrono::floor<std::chrono::days>(now);
+    std::chrono::local_time now = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now()).get_local_time();
+    std::chrono::local_time nowDay = std::chrono::floor<std::chrono::days>(now);
 
-    return duration_cast<std::chrono::seconds>(now - nowDay);;
+    return duration_cast<std::chrono::seconds>(now - nowDay);
 }

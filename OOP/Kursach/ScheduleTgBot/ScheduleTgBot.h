@@ -19,9 +19,6 @@ namespace command_bot {
 		all2,
 		start
 	};
-	//enum eDay : char{
-	//	MON, TUE, WED, THU, FRI, SAT, SUN
-	//};
 }
 
 class ScheduleTgBot {

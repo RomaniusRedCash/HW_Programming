@@ -11,14 +11,11 @@ bool ClientBase::connectServer() {
             ctx.set_verify_mode(ssl::verify_peer);
             beast::get_lowest_layer(*sslStream).connect(resolver.resolve(url, "443"), ec);
             SSL_set_tlsext_host_name(sslStream->native_handle(), url.c_str());
-            beast::get_lowest_layer(*sslStream).expires_after(std::chrono::seconds(30));
             sslStream->handshake(ssl::stream_base::client, ec);
             std::cout << "Connect with " << url << ": " << ec << std::endl;
-            //loger("Connect with " + url + ": " + ec.what());
             if (ec) {
                 if (secCon > maxCooldown) {
                     std::cout << "Connect is fail" << std::endl;
-                    //loger("Connect is fail");
                     return false;
                 }
                 std::cout << "reconnect server after " << secCon.count() << " ms." << std::endl;
@@ -29,7 +26,6 @@ bool ClientBase::connectServer() {
     catch (const boost::system::system_error& e) {
         if (secCon > maxCooldown) {
             std::cout << "Connect is fail" << std::endl;
-            //loger("Connect is fail");
             return false;
         }
         std::cout << "reconnect server after " << secCon.count() << " ms." << std::endl;
@@ -73,15 +69,6 @@ json::value ClientBase::someRequest(const http::verb& method, const json::value&
         }
         connectServer();
     }
-    //try {
-    //    
-    //}
-    //catch (const boost::system::system_error& e) {
-    //    std::cout << jsonRequest << std::endl;
-    //    std::cout << e.what() << std::endl;
-    //    //loger(e.what());
-    //    throw e;
-    //}
 }
 
 ClientBase::ClientBase(const char* url, const json::value& prop) : url(url), resolver(ioc), prop(prop) {
@@ -91,5 +78,4 @@ ClientBase::ClientBase(const char* url, const json::value& prop) : url(url), res
 ClientBase::~ClientBase() {
 	disconnectServer();
     std::cout << "Connect with " << url << " off" << std::endl;
-    //loger("Client " + clientName + " off");
 }

@@ -1,4 +1,4 @@
-LIBS = -lcurses
+LIBS = -lncurses
 
 TARGET = exe
 SOURCES = $(wildcard *.cpp)

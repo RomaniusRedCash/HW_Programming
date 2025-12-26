@@ -21,7 +21,7 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 	if(commandMap.count(mesText) != 0){
 		switch (commandMap[mesText]) {
 		case command_bot::near_lesson:
-
+			// tgClient->sendMessageTextOnly(idUser, std::to_string(Time::getNowSeconds().count()));
 			lessonJson = etuClient->getNearLesson(group);
 			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
 			tgClient->sendMessageTextOnly(idUser, mesMakeForOneLesson(lessonJson));

@@ -30,13 +30,15 @@ void TgClient::sendMessageTextOnly(const int64_t userId, const std::string& data
 TgClient::TgClient(const std::string& token, const json::value& prop) : ClientBase(URL_SERVER, prop) {
     tgToken = token;
     std::fstream fileMes(LAST_MES_FILE, std::ios::binary | std::ios::in);
-    if (fileMes.is_open()) fileMes >> lastMes;
+    if (fileMes.is_open())
+        fileMes.read(reinterpret_cast<char*>(&lastMes), sizeof(lastMes));
     fileMes.close();
 }
 
 TgClient::~TgClient() {
     std::fstream fileMes(LAST_MES_FILE, std::ios::binary | std::ios::out);
-    if (fileMes.is_open()) fileMes << lastMes;
+    if (fileMes.is_open())
+        fileMes.write(reinterpret_cast<const char*>(&lastMes), sizeof(lastMes));
     fileMes.close();
 }
 
