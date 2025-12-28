@@ -10,7 +10,7 @@
 namespace command_bot {
 	const char REG[] = "/reg ";
 	const char DAY_OF_WEEK[] = "WEEK";
-	enum eCommand : char {
+	enum eCommand : uint8_t {
 		near_lesson,
 		tommorow,
 		day_of_week,
@@ -25,9 +25,8 @@ class ScheduleTgBot {
 	TgClient* tgClient;
 	EtuClient* etuClient;
 	json::value propBot;
-
 	std::unordered_map<int64_t, uint16_t> usersGroup;
-	inline static std::unordered_map<std::string, char> commandMap;
+	inline static std::unordered_map<std::string, command_bot::eCommand> commandMap;
 
 	void makeCommandFromMes();
 	void processMes(const json::value& jsonMes);
@@ -41,4 +40,3 @@ public:
 	void upDate();
 	virtual ~ScheduleTgBot();
 };
-

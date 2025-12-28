@@ -3,7 +3,6 @@
 json::value EtuClient::getNearLesson(const uint16_t& idGroup) {
 	int day = Time::getNowDay();
 	long long nowSec = Time::getNowSeconds().count();
-	//json::array nowLesson = getDay(idGroup, Time::getDayByNum(day)).at(std::to_string(day)).at("lessons").as_array();
 	json::value nowLesson = getDay(idGroup, Time::getDayByNum(day));
 	if (nowLesson.as_object().empty()) return nowLesson;
 	json::array nowLessonArr = nowLesson.at("lessons").as_array();
@@ -34,7 +33,6 @@ json::value EtuClient::getAll(const uint16_t& idGroup) {
 json::value EtuClient::getDay(const uint16_t& idGroup, const std::string& day) {
 	int nowDayNum = Time::getNumByDay(day);
 	json::value sendJson = prop.at("etu_request");
-	//std::string methodStr = sendJson.at_as_str("method");
 	sendJson.as_object()["method"] = std::string(sendJson.at_as_str("method"))+"&weekDay=" + day;
 	json::value jsonAnswer = someRequest(http::verb::get, sendJson, idGroup);
 	if (jsonAnswer.get_object().empty()) return jsonAnswer;

@@ -3,10 +3,6 @@
 #ifdef _WIN32
 #define _WIN32_WINNT 0x0601
 #endif
-#define LOG_FILE "log.txt"
-
-//#include <boost/property_tree/ptree.hpp>
-//#include <boost/property_tree/json_parser.hpp>
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
@@ -21,10 +17,8 @@
 #include <boost/json/value.hpp>
 #include <boost/json/serialize.hpp>
 
-
 #define at_as_str(A) at(A).as_string().c_str()
 #define at_as_int(A) at(A).as_int64()
-//#include <boost/process.hpp>
 
 #include <iostream>
 #include <string>
@@ -36,21 +30,8 @@
 #include <charconv>
 #include <ctime>
 
-//#include <cstdlib>
-//#include <filesystem>
-
-//#ifdef _WIN32
-//#include <conio.h>
-//#else
-//#include <unistd.h>
-//#include <sys/select.h>
-//#include <termios.h>
-//#endif
-
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 namespace ssl = net::ssl;
 namespace json = boost::json;
-//namespace ppt = boost::property_tree;
-

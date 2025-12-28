@@ -16,4 +16,3 @@ public:
 	EtuClient(const json::value& prop);
 	~EtuClient() override;
 };
-

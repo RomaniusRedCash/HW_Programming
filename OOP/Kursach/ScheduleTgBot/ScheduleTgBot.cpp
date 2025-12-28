@@ -1,12 +1,12 @@
 #include "ScheduleTgBot.h"
 
 void ScheduleTgBot::makeCommandFromMes(){
-	static const std::unordered_map<std::string, char> tempMap = {
+	static const std::unordered_map<std::string, command_bot::eCommand> tempMap = {
 	{"near_lesson", command_bot::near_lesson}, {"tommorow", command_bot::tommorow},
 	{"all", command_bot::all},{"all1", command_bot::all1},{"all2", command_bot::all2}, {"day_of_week", command_bot::day_of_week}, {"/start", command_bot::start}
 	};
 	json::value commandJson = propBot.at("commands");
-	for (const std::pair<const std::string, char>& i : tempMap) {
+	for (const std::pair<const std::string, command_bot::eCommand>& i : tempMap) {
 		commandMap[commandJson.at_as_str(i.first)] = i.second;
 	}
 }
@@ -21,7 +21,6 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 	if(commandMap.count(mesText) != 0){
 		switch (commandMap[mesText]) {
 		case command_bot::near_lesson:
-			// tgClient->sendMessageTextOnly(idUser, std::to_string(Time::getNowSeconds().count()));
 			lessonJson = etuClient->getNearLesson(group);
 			if (lessonJson.is_object() && lessonJson.get_object().empty()) break;
 			tgClient->sendMessageTextOnly(idUser, mesMakeForOneLesson(lessonJson));
@@ -84,7 +83,6 @@ void ScheduleTgBot::processMes(const json::value& jsonMes) {
 }
 
 void ScheduleTgBot::processCallBack(const json::value& jsonMes) {
-	// return;
 	int64_t idUser = jsonMes.at("from").at_as_int("id");
 	const uint16_t& group = usersGroup[idUser];
 	std::string command = jsonMes.at_as_str("data");
@@ -204,8 +202,6 @@ ScheduleTgBot::~ScheduleTgBot() {
 		}
 		fileSave.close();
 	}
-
-	//else loger("error save users data");
 }
 
 #undef PROP 

@@ -11,4 +11,3 @@ public:
 	static const std::string& getDayByNum(const int& day);
 	static std::chrono::seconds getNowSeconds();
 };
-

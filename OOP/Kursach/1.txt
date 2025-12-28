@@ -1,26 +1,27 @@
 @startuml
 hide empty members
+scale 2
 
 class ClientBase{
     # url: string
     # {static} clientName: string
-    # {static} ioc: io_context
-    # ec: error_code
-    # resolver: resolver
-    # sslStream: ssl_stream<beast::tcp_stream>*
-    # prop: json::value
     # maxCooldown: milliseconds
+    # prop: json::value
+    # {static} ioc: io_context
+    # sslStream: ssl_stream<beast::tcp_stream>*
+    # resolver: resolver
+    # ec: error_code
     --
     # connectServer(): bool
     # disconnectServer(): void
-    # someRequest(method: const http::verb&, jsonRequest: const json::value&): json::value
+    # someRequest(method: http::verb&, jsonRequest: json::value&): json::value
     ==
     + ClientBase(url: const char*, prop: const json::value&)
 	+ ~ClientBase()
 }
 
 class EtuClient{
-	- someRequest(method: const http::verb&, jsonRequest: json::value, idGroup: const uint16_t&): json::value
+	- someRequest(method: http::verb, jsonRequest: json::value, idGroup: uint16_t): json::value
 	==
 	+ getNearLesson(idGroup: const uint16_t&): json::value
 	+ getTommorow(idGroup: const uint16_t&): json::value
@@ -33,28 +34,22 @@ class EtuClient{
 class TgClient {
     - tgToken: string
     - lastMes: size_t
+	--
+    + someRequest(method: http::verb&, jsonValue: json::value&): json::value
     ==
     + getUpdates(): json::array
-    + someRequest(method: const http::verb&, jsonValue: const json::value&): json::value
     + sendMessage(userId: const int64_t, data: json::value&)
     + sendMessageTextOnly(userId: const int64_t, data: const string&)
     + TgClient(token: const string&, prop: const json::value&)
     + ~TgClient()
 }
 
-
-
-
 ClientBase <|-- EtuClient
 ClientBase <|-- TgClient
 
-
-
-
-
-
 class Time {
     - {static} daysArr: const vector<string>
+	==
     + {static} getNowDay(): int
     + {static} getNumByDay(const std::string& day): int
     + {static} getDayByNum(const int& day): const string&
@@ -67,7 +62,7 @@ class ScheduleTgBot {
     - etuClient: EtuClient*
     - propBot: json::value
     - usersGroup: unordered_map<int64_t, uint16_t>
-    - {static} commandMap: unordered_map<string, char>
+    - {static} commandMap: unordered_map<string, eCommand>
     --
     - makeCommandFromMes()
     - processMes(jsonMes: const json::value&)
@@ -85,11 +80,5 @@ class ScheduleTgBot {
 ScheduleTgBot *-- TgClient: tgClient
 ScheduleTgBot *-- EtuClient: etuClient
 EtuClient --> Time: uses
-
-
-
-
-
-
 
 @enduml
