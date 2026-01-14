@@ -18,15 +18,16 @@ void Heapfy(std::vector<T>& V, const size_t& Size, const size_t& Pivot) {
 	}
 }
 
-template<typename T>
-void MakeHeap(std::vector<T>& V) {
-	for (size_t i = V.size() / 2; i > 0; i--) Heapfy(V, V.size(), 0);
-}
+//template<typename T>
+//void MakeHeap(std::vector<T>& V) {
+//	for (size_t i = V.size() / 2; i > 0; i--) Heapfy(V, V.size(), i);
+//}
 
 template<typename T>
 void HeapSort(std::vector<T>& V) {
+	if (V.size() < 2) return;
 
-	MakeHeap(V);
+	for (size_t i = V.size() / 2; i > 0; i--) Heapfy(V, V.size(), i - 1); // MakeHeap(V);
 
 	for (size_t i = V.size() - 1; i > 0; i--) {
 		std::swap(V[i], V.front());

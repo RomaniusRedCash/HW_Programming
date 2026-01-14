@@ -34,7 +34,6 @@ void MergeSort(std::vector<T>& V, ITER left, ITER right) {
 
 	ITER Mid = left + (right - left) / 2;
 
-
 	MergeSort(V, left, Mid);
 	MergeSort(V, Mid, right);
 
