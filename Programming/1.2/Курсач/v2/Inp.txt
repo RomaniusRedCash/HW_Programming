@@ -1,0 +1,40 @@
+<GoydaTour>
+Artiomovsk/On foot/20 days
+Bahmut/Tank/14 days
+Avdeevka/By plane/88 days
+Kiev/Tank/13 days
+</>
+
+<Novorosia>
+Artiomovsk/On foot/120 days
+Bahmut/By train/14 days
+Avdeevka/By plane/88 days
+</>
+
+<VnutTurism>
+Krim/By ship/10 days
+Mahachkala/By train/15 days
+Novokuzneck/On foot/7 days
+Magnitogorsk/By plain/20 days
+Moscow/By plain/7 days
+</>
+
+<Far east>
+Vladivostok/By car/7 days
+Novorosia/By car/5 days
+Krim/By car/7 days
+Tihookeansk/By bus/15 days
+Zavodskoy/By bus/10 days
+Artem/By bus/11 days
+Usuriysk/By train/5 days
+</>
+<DC>
+Moscow/By plane/7 days
+SPB/By train/17 days
+</>
+
+
+<A>
+Moscow/On foot/4 years
+A/By trainAAAA/47
+</>

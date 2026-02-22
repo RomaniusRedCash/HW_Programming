@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+
+actor студент as Student
+
+rectangle "Telegram Bot для расписания ETU" {
+    usecase "Получить ближайший урок" as UC2
+
+    usecase "Получить расписание на день" as UC3
+
+    usecase "Получить расписание на завтра" as UC4
+
+    usecase "Получить расписание на неделю" as UC5
+
+    usecase "Зарегистрироваться по номеру группы" as UC1
+}
+
+Student --> UC1
+Student --> UC2
+Student --> UC3
+Student --> UC4
+Student --> UC5
+
+UC2 ..> UC1 : требуется
+UC3 ..> UC1 : требуется
+UC4 ..> UC1 : требуется
+UC5 ..> UC1 : требуется
+@enduml

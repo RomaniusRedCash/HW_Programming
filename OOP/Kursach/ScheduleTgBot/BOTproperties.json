@@ -1,0 +1,124 @@
+{
+    "admins": [
+        "RomaniusRedCash"
+    ],
+    "getUpdates": {
+        "method": "getUpdates",
+        "allowed_updates": [
+            "message",
+            "callback_query"
+        ]
+    },
+    "messages": {
+        "text_only": {
+            "method": "sendMessage",
+            "parse_mode": "HTML"
+        },
+        "day_of_week": {
+            "method": "sendMessage",
+            "text": "Выберите номер недели",
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "1",
+                            "callback_data": "WEEK1"
+                        },
+                        {
+                            "text": "2",
+                            "callback_data": "WEEK2"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "Все",
+                            "callback_data": "WEEK3"
+                        }
+                    ]
+                ]
+            }
+        },
+        "day": {
+            "method": "sendMessage",
+            "text": "Выберите день недели",
+            "reply_markup": {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "Понедельник",
+                            "callback_data": "MON"
+                        },
+                        {
+                            "text": "Вторник",
+                            "callback_data": "TUE"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "Среда",
+                            "callback_data": "WED"
+                        },
+                        {
+                            "text": "Четверг",
+                            "callback_data": "THU"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "Пятница",
+                            "callback_data": "FRI"
+                        },
+                        {
+                            "text": "Суббота",
+                            "callback_data": "SAT"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "Воскресенье",
+                            "callback_data": "SUN"
+                        }
+                    ]
+                ]
+            }
+        },
+        "/start": {
+            "method": "sendMessage",
+            "text": "Введите /reg [номер вашей группы]"
+        },
+        "success": {
+            "method": "sendMessage",
+            "text": "Группа выбрана.",
+            "reply_markup": {
+                "keyboard": [
+                    [
+                        "Следующая пара",
+                        "Занятия завтра"
+                    ],
+                    [
+                        "Все занятия",
+                        "День"
+                    ],
+                    [
+                        "Все занятия (чёт)",
+                        "Все занятия (нечёт)"
+                    ]
+                ],
+                "one_time_keyboard": false,
+                "resize_keyboard": true
+            }
+        }
+    },
+    "commands": {
+        "near_lesson": "Следующая пара",
+        "tommorow": "Занятия завтра",
+        "all": "Все занятия",
+        "all1":"Все занятия (нечёт)",
+        "all2":"Все занятия (чёт)",
+        "day_of_week": "День",
+        "/start": "/start"
+    },
+    "etu_request": {
+        "method": "/api/mobile/schedule?joinWeeks=true"
+    }
+}
