@@ -1,58 +1,106 @@
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <vector>
 #include <map>
+#include <filesystem>
 #include "compress_fun.h"
 #include "txt_compress.h"
 
+#include <getopt.h>
 
+#define TMP_FILE_NAME ".compr.tmp"
 
-namespace cCOMMANDS {
-    const char TXT_COMP[] = "--txt-comp";
-    const char TXT_DECOMP[] = "--txt-decomp";
-}
+static struct option long_opt[] = {
+    {"help", no_argument, nullptr, 'h'},
+    {"input", required_argument, nullptr, 'i'},
+    {"output", required_argument, nullptr, 'o'},
+    {"rle", no_argument, nullptr, 0},
+    {"de-rle", no_argument, nullptr, 0},
+    {0,0,0,0}
+};
 
 enum eCOMMANDS{
-    HELP, TXT_COMPRESS, TXT_DECOMPRESS, BIN
+    eRLE, eDERLE
 };
-std::map<std::string, eCOMMANDS> map_of_command = {
-    {"-h", eCOMMANDS::HELP},
-    {"--help", eCOMMANDS::HELP},
-    {cCOMMANDS::TXT_COMP, eCOMMANDS::TXT_COMPRESS},
-    {cCOMMANDS::TXT_DECOMP, eCOMMANDS::TXT_DECOMPRESS}
+
+std::map<std::string, eCOMMANDS> map_translater = {
+    {"rle", eRLE},
+    {"de-rle", eDERLE}
 };
 
 void print_help() {
     std::cout<<"-h or --help:\tthis page"<<std::endl;
-    std::cout<<cCOMMANDS::TXT_COMP<<" [path]:\tcompress txt"<<std::endl;
-    std::cout<<"--bin [path]:\tcompress binary file"<<std::endl;
-    std::cout<<"--raw [path]:\tcompress photo"<<std::endl;
 }
 
-void print_error(){
-    std::cout<<"Some error. Use -h for help."<<std::endl;
-}
+int main(const int argc, char* argv[]) {
+    int opt, long_idx;
+    std::string str_inp;
+    std::string str_out;
+    std::vector<eCOMMANDS> v_params;
+    while ((opt = getopt_long(argc, argv, "hi:o:", long_opt, &long_idx)) != -1)
+        switch (opt) {
+            case 'h':
+                print_help();
+                break;
+            case 'i':
+                str_inp = optarg;
+                break;
+            case 'o':
+                str_out = optarg;
+                break;
+            case 0:
+                v_params.push_back(map_translater[long_opt[long_idx].name]);
+                break;
+            default:
+                break;
+        }
 
 
+    if (str_inp.empty()) {
+        std::cout<<"No input path."<<std::endl;
+        return 0;
+    }
+    if (str_out.empty()) str_out = str_inp + ".compr";
 
-int main(const int argc, const char* argv[]) {
-    if (argc > 4 || !map_of_command.contains(argv[1])) print_error();
+    std::fstream file_in(str_inp, std::ios::in);
+    std::fstream file_tmp(TMP_FILE_NAME, std::ios::out | std::ios::in | std::ios::trunc);
+    std::fstream file_out;
 
-    else if (argc == 1 || map_of_command[argv[1]] == eCOMMANDS::HELP) print_help();
-
-    else switch(map_of_command[argv[1]]){
-        case eCOMMANDS::TXT_COMPRESS:
-            compress_txt(argv[2]);
-            break;
-        case eCOMMANDS::TXT_DECOMPRESS:
-            decompress_txt(argv[2]);
-            break;
-        default: print_error; break;
+    if (!(file_in.is_open() && file_tmp.is_open())) {
+        std::cout<<"ERROR! Some files can't openning or creating."<<std::endl;
+        return 0;
     }
 
+    file_tmp << file_in.rdbuf();
+    file_tmp.seekg(0, std::ios::beg);
+    file_tmp.seekp(0, std::ios::beg);
+    file_in.close();
 
+    for (const eCOMMANDS& ec : v_params){
+        file_out.open(str_out, std::ios::out | std::ios::in | std::ios::trunc);
+        switch (ec) {
+            case eRLE:
+                RLE(file_tmp, file_out);
+                break;
+            case eDERLE:
+                from_RLE(file_tmp, file_out);
+                break;
+            default:
+                break;
+            }
+            // file_out.seekg(0, std::ios::beg);
+            file_tmp.close();
+            file_tmp.open(TMP_FILE_NAME, std::ios::out | std::ios::in | std::ios::trunc);
+            file_tmp << file_out.rdbuf();
+            file_tmp.seekg(0, std::ios::beg);
+            file_out.close();
+        }
 
-    // std::fstream file_out2(name + "_out.txt", std::ios::in);
-    // from_RLE(file_out2);
+    std::remove(TMP_FILE_NAME);
 
     return 0;
 }
+
+
+
