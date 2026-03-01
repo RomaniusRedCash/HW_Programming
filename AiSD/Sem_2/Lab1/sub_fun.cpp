@@ -1,127 +1,169 @@
 #include "sub_fun.h"
-// #include <iostream>
 
 #define MASK_RLE 0x80
 
-#define USLOVIE stream_in.get(byte) && !((len + 1) & MASK_RLE)
-
+#define BUFFER_SIZE 1024
+#define SUB_BUFFER_SIZE 130
 void RLE(std::istream& stream_in, std::ostream& stream_out) {
-    char byte, redo_byte;
-    while(stream_in.get(redo_byte)) {
-        if (!stream_in.get(byte)) {
-            stream_out.put(1);
-            stream_out.write(&redo_byte, 1);
-            break;
-        }
-
-        uint8_t len = 2;
-        if (redo_byte == byte) {
-            while (USLOVIE) {
-                if (byte != redo_byte) break;
-                len++;
-            }
-            len += MASK_RLE;
-            stream_out.write(reinterpret_cast<char*>(&len), 1);
-            stream_out.write(&redo_byte, 1);
-        }
-        else {
-            std::string str_pool;
-            str_pool += redo_byte;
-            str_pool += byte;
-            redo_byte = byte;
-            while (USLOVIE) {
-                if (byte == redo_byte){
-                    len--;
-                    str_pool.pop_back();
-                    break;
-                }
-                str_pool+=byte;
-                redo_byte = byte;
-                len++;
-            }
-            stream_out.write(reinterpret_cast<char*>(&len), 1);
-            stream_out.write(str_pool.c_str(), str_pool.size());
-        }
-        if (stream_in.eof()) break;
-        stream_in.clear();
-        stream_in.seekg(-1 - (byte == redo_byte), std::ios::cur);
-    }
-}
-#undef USLOVIE
-
-void RLE2(std::istream& stream_in, std::ostream& stream_out) {
-    char ch, ch_redo;
-
-    while(stream_in.get(ch_redo)) {
-        int len = 1;
-        while (true) {
-            if (!stream_in.get(ch) || ch != ch_redo) {
+    std::string buffer(BUFFER_SIZE, 0);
+    while (stream_in) {
+        stream_in.read(buffer.data(), BUFFER_SIZE);
+        size_t read_bytes = stream_in.gcount();
+        if (read_bytes == 0) break;
+        int len = 0;
+        for (size_t chunk = 0; chunk < read_bytes; chunk+=len) {
+            if (chunk + SUB_BUFFER_SIZE > read_bytes && !stream_in.eof()){
                 stream_in.clear();
-                if (len > 2) {
-                    stream_in.seekg(-1, std::ios::cur);
-                    len--;
-                    len |= MASK_RLE;
-                } else {
-                    stream_in.seekg(-len, std::ios::cur);
-                    len = 1;
-                    break;
-                }
-            }
-            len++;
-            if ((len + 1) & MASK_RLE){
-                stream_out.write(reinterpret_cast<char*>(&len), 1);
-                stream_out.write(&ch_redo, 1);
+                stream_in.seekg(-(read_bytes-chunk), std::ios::cur);
                 break;
             }
-            ch_redo = ch;
-        }
-        if (!(len & MASK_RLE)) {
-            std::string str_pool;
-            str_pool+=ch_redo;
-            while (stream_in.get(ch)) {
-                size_t pos = stream_in.tellg();
-                if (ch_redo == ch) {
-                    if (stream_in.get(ch) && ch_redo == ch) {
-                        str_pool.pop_back();
-                        stream_in.clear();
-                        stream_in.seekg(-3, std::ios::cur);
-                        break;
-                    }
-                    // str_pool+=ch_redo;
-                    ch = ch_redo;
-                    stream_in.clear();
-                    stream_in.seekg(-1, std::ios::cur);
-                }
-                ch_redo = ch;
-                str_pool+=ch_redo;
-                // if (((str_pool.size() + 1) & MASK_RLE )&& ch == ch_redo) {
-                //     std::cout<<pos<<' '<<str_pool<<' '<<stream_in.tellg()<<std::endl;
-                // }
+            size_t str_len = std::min<size_t>(SUB_BUFFER_SIZE, read_bytes-chunk);
+            std::string_view sub_buffer(buffer.data() + chunk, str_len);
+            len = sub_buffer.find_first_not_of(sub_buffer.front());
+            if (len == -1) len = str_len;
+            if (len > 2) {
+                if (len & MASK_RLE)
+                    len = MASK_RLE;
+                stream_out.put(uint8_t((len - 1) | MASK_RLE));
+                stream_out.put(sub_buffer.front());
 
-                if ((str_pool.size() + 1) & MASK_RLE)
-                    break;
+                continue;
             }
-            len = str_pool.size();
-            stream_out.write(reinterpret_cast<char*>(&len), 1);
-            stream_out.write(str_pool.c_str(), len);
+            for(len = 0; len < MASK_RLE && len < str_len - 2; len++)
+                if (sub_buffer[len] == sub_buffer[len + 1] && sub_buffer[len] == sub_buffer[len+2])
+                    break;
+            if (str_len < 3) {
+                len = str_len;
+            }
+            stream_out.put(uint8_t(len - 1));
+            stream_out.write(sub_buffer.data(), len);
         }
     }
 }
+#undef BUFFER_SIZE
+#undef SUB_BUFFER_SIZE
+
+
+
+#define BUFFER_SIZE 1024 * num_byte
+#define SUB_BUFFER_SIZE 130 * num_byte
+void RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte) {
+    std::string buffer(BUFFER_SIZE, 0);
+    while (stream_in) {
+        stream_in.read(buffer.data(), BUFFER_SIZE);
+        size_t read_bytes = stream_in.gcount();
+        if (read_bytes == 0) break;
+        int len = 0;
+        for (size_t chunk = 0; chunk < read_bytes; chunk+=len*num_byte) {
+
+            // std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+            if (chunk + SUB_BUFFER_SIZE > read_bytes && !stream_in.eof()){
+                stream_in.clear();
+                stream_in.seekg(-(read_bytes-chunk), std::ios::cur);
+                break;
+            }
+            size_t str_len = std::min<size_t>(SUB_BUFFER_SIZE, read_bytes-chunk);
+            std::string_view sub_buffer(buffer.data() + chunk, str_len);
+            if(str_len < num_byte) {
+                // std::string str(sub_buffer);
+                // str.resize(num_byte, 0);
+                // stream_out.put(uint8_t(0));
+                // stream_out.write(sub_buffer.data(), num_byte);
+                // return;
+                stream_out.put(0);
+                stream_out.write(sub_buffer.data(), str_len);
+                return;
+            }
+            len = (find_first_not_of_str(sub_buffer, sub_buffer.substr(0,num_byte))-sub_buffer.begin())/num_byte;
+            if (len == -1) len = str_len;
+            if (len > 2) {
+                if (len & MASK_RLE)
+                    len = MASK_RLE;
+                stream_out.put(uint8_t((len - 1) | MASK_RLE));
+                stream_out.write(sub_buffer.data(), num_byte);
+
+                std::cout<<"r:"<<len<<' ';
+                std::cout.write(sub_buffer.data(), num_byte);
+                std::cout<<std::endl;
+
+                continue;
+            }
+            for(len = 0; len < MASK_RLE && len * num_byte + 2< str_len; len++)
+                if (sub_buffer.substr(len * num_byte, num_byte) == sub_buffer.substr((len + 1) * num_byte, num_byte) && sub_buffer.substr(len * num_byte, num_byte) == sub_buffer.substr((len + 2) * num_byte, num_byte))
+                    break;
+            if (str_len < 3) {
+                len = str_len;
+            }
+            stream_out.put(uint8_t(len - 1));
+            stream_out.write(sub_buffer.data(), len * num_byte);
+
+            std::cout<<"nr:"<<len<<' ';
+            std::cout.write(sub_buffer.data(), len * num_byte);
+            std::cout<<std::endl;
+        }
+    }
+}
+#undef BUFFER_SIZE
+#undef SUB_BUFFER_SIZE
 
 void from_RLE(std::istream& stream_in, std::ostream& stream_out) {
-    char byte, len;
-    while (stream_in.get(len)) {
+    char byte;
+    uint8_t len;
+    while (stream_in.get(byte)){
+        len = byte;
         if (len & MASK_RLE) {
             len ^= MASK_RLE;
             if (stream_in.get(byte))
-                for (char i = 0; i < len; i++)
+                for (uint8_t i = 0; i <= len; i++){
+
+                    // std::cout<<byte;
+
                     stream_out << byte;
+                }
         }
         else {
-            for (char i = 0; i < len && stream_in.get(byte); i++)
-                stream_out << byte;
+            len++;
+            std::string str(len, 0);
+            stream_in.read(str.data(), len);
+
+            // std::cout<<int(len)<<std::endl;
+            // std::cout<<str;
+
+            stream_out.write(str.data(), len);
         }
     }
+
+}
+
+void from_RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte) {
+    char byte;
+    uint8_t len;
+
+    while (stream_in.get(byte)){
+        len = byte;
+        std::string str;
+        if (len & MASK_RLE) {
+            len ^= MASK_RLE;
+            str.resize(num_byte, 0);
+            if (stream_in.read(str.data(), num_byte))
+                for (uint8_t i = 0; i <= len; i++){
+                    stream_out.write(str.data(), num_byte);
+
+                    std::cout<<byte;
+                }
+        }
+        else {
+            len++;
+            str.resize(len * num_byte, 0);
+            stream_in.read(str.data(), len * num_byte);
+            stream_out.write(str.data(), stream_in.gcount());
+
+            std::cout<<std::endl<<int(len)<<std::endl;
+            std::cout<<str;
+        }
+    }
+
 }
 
 #undef MASK_RLE
@@ -144,5 +186,13 @@ bool compare_f(std::istream& stream_in1, std::istream& stream_in2) {
 
     if (stream_in1.eof() != stream_in2.eof()) return false;
     return true;
+}
+
+std::string_view::const_iterator find_first_not_of_str(const std::string_view& str1, const std::string_view& str2) {
+    for(size_t i = 0; i < str1.size(); i+=str2.size()) {
+        std::string_view str_w(str1.data() + i, str2.size());
+        if (str_w != str2) return str1.begin() + i;
+    }
+    return str1.end();
 }
 
