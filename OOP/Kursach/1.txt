@@ -1,0 +1,84 @@
+@startuml
+hide empty members
+scale 2
+
+class ClientBase{
+    # url: string
+    # {static} clientName: string
+    # maxCooldown: milliseconds
+    # prop: json::value
+    # {static} ioc: io_context
+    # sslStream: ssl_stream<beast::tcp_stream>*
+    # resolver: resolver
+    # ec: error_code
+    --
+    # connectServer(): bool
+    # disconnectServer(): void
+    # someRequest(method: http::verb&, jsonRequest: json::value&): json::value
+    ==
+    + ClientBase(url: const char*, prop: const json::value&)
+	+ ~ClientBase()
+}
+
+class EtuClient{
+	- someRequest(method: http::verb, jsonRequest: json::value, idGroup: uint16_t): json::value
+	==
+	+ getNearLesson(idGroup: const uint16_t&): json::value
+	+ getTommorow(idGroup: const uint16_t&): json::value
+	+ getAll(idGroup: const uint16_t&): json::value
+	+ getDay(idGroup: const uint16_t&, day: const string&): json::value
+	+ EtuClient(prop: const json::value&)
+	+ ~EtuClient()
+}
+
+class TgClient {
+    - tgToken: string
+    - lastMes: size_t
+	--
+    + someRequest(method: http::verb&, jsonValue: json::value&): json::value
+    ==
+    + getUpdates(): json::array
+    + sendMessage(userId: const int64_t, data: json::value&)
+    + sendMessageTextOnly(userId: const int64_t, data: const string&)
+    + TgClient(token: const string&, prop: const json::value&)
+    + ~TgClient()
+}
+
+ClientBase <|-- EtuClient
+ClientBase <|-- TgClient
+
+class Time {
+    - {static} daysArr: const vector<string>
+	==
+    + {static} getNowDay(): int
+    + {static} getNumByDay(const std::string& day): int
+    + {static} getDayByNum(const int& day): const string&
+    + {static} getNowSeconds(): seconds
+}
+
+
+class ScheduleTgBot {
+    - tgClient: TgClient*
+    - etuClient: EtuClient*
+    - propBot: json::value
+    - usersGroup: unordered_map<int64_t, uint16_t>
+    - {static} commandMap: unordered_map<string, eCommand>
+    --
+    - makeCommandFromMes()
+    - processMes(jsonMes: const json::value&)
+    - processCallBack(jsonMes: const json::value&)
+    - getEnv(nameEnv: const char*): string
+    - mesMakeForAll(lessonsJson: const json::value&): string
+    - mesMakeForDay(lessonsJson: const json::value&): string
+    - mesMakeForOneLesson(lessonJson: const json::value&): string
+    ==
+    + ScheduleTgBot()
+    + upDate()
+    + ~ScheduleTgBot()
+}
+
+ScheduleTgBot *-- TgClient: tgClient
+ScheduleTgBot *-- EtuClient: etuClient
+EtuClient --> Time: uses
+
+@enduml
