@@ -1,0 +1,530 @@
+DC-->nullptr
+	\/\/
+	Moscow-->nullptr
+	By plane-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	SPB-->nullptr
+	By train-->nullptr
+	17 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+Far east-->nullptr
+	\/\/
+	Vladivostok-->nullptr
+	By car-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	Novorosia-->nullptr
+	By car-->nullptr
+	5 days-->nullptr
+	\/\/\/
+	Krim-->nullptr
+	By car-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	Tihookeansk-->nullptr
+	By bus-->nullptr
+	15 days-->nullptr
+	\/\/\/
+	Zavodskoy-->nullptr
+	By bus-->nullptr
+	10 days-->nullptr
+	\/\/\/
+	Artem-->nullptr
+	By bus-->nullptr
+	11 days-->nullptr
+	\/\/\/
+	Usuriysk-->nullptr
+	By train-->nullptr
+	5 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+GoydaTour-->nullptr
+	\/\/
+	Artiomovsk-->nullptr
+	On foot-->nullptr
+	20 days-->nullptr
+	\/\/\/
+	Bahmut-->nullptr
+	Tank-->nullptr
+	14 days-->nullptr
+	\/\/\/
+	Avdeevka-->nullptr
+	By plane-->nullptr
+	88 days-->nullptr
+	\/\/\/
+	Kiev-->nullptr
+	Tank-->nullptr
+	13 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+Novorosia-->nullptr
+	\/\/
+	Artiomovsk-->nullptr
+	On foot-->nullptr
+	120 days-->nullptr
+	\/\/\/
+	Bahmut-->nullptr
+	By train-->nullptr
+	14 days-->nullptr
+	\/\/\/
+	Avdeevka-->nullptr
+	By plane-->nullptr
+	88 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+VnutTurism-->nullptr
+	\/\/
+	Krim-->nullptr
+	By ship-->nullptr
+	10 days-->nullptr
+	\/\/\/
+	Mahachkala-->nullptr
+	By train-->nullptr
+	15 days-->nullptr
+	\/\/\/
+	Novokuzneck-->nullptr
+	On foot-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	Magnitogors-->k-->nullptr
+	By plain-->nullptr
+	20 days-->nullptr
+	\/\/\/
+	Moscow-->nullptr
+	By plain-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+nullptr
+
+Points:
+	A-->nullptr
+		\/\/
+		Artem-->nullptr
+		\/\/\/
+		Artiomovsk-->nullptr
+		\/\/\/
+		Avdeevka-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	B-->nullptr
+		\/\/
+		Bahmut-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	K-->nullptr
+		\/\/
+		Kiev-->nullptr
+		\/\/\/
+		Krim-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	M-->nullptr
+		\/\/
+		Magnitogors-->k-->nullptr
+		\/\/\/
+		Mahachkala-->nullptr
+		\/\/\/
+		Moscow-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	N-->nullptr
+		\/\/
+		Novokuzneck-->nullptr
+		\/\/\/
+		Novorosia-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	S-->nullptr
+		\/\/
+		SPB-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	T-->nullptr
+		\/\/
+		Tihookeansk-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	U-->nullptr
+		\/\/
+		Usuriysk-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	V-->nullptr
+		\/\/
+		Vladivostok-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	Z-->nullptr
+		\/\/
+		Zavodskoy-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	nullptr
+
+Spos:
+	B-->nullptr
+		\/\/
+		By bus-->nullptr
+		\/\/\/
+		By car-->nullptr
+		\/\/\/
+		By plain-->nullptr
+		\/\/\/
+		By plane-->nullptr
+		\/\/\/
+		By ship-->nullptr
+		\/\/\/
+		By train-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	O-->nullptr
+		\/\/
+		On foot-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	T-->nullptr
+		\/\/
+		Tank-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	nullptr
+
+Times:
+	1-->nullptr
+		\/\/
+		10 days-->nullptr
+		\/\/\/
+		11 days-->nullptr
+		\/\/\/
+		120 days-->nullptr
+		\/\/\/
+		13 days-->nullptr
+		\/\/\/
+		14 days-->nullptr
+		\/\/\/
+		15 days-->nullptr
+		\/\/\/
+		17 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	2-->nullptr
+		\/\/
+		20 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	5-->nullptr
+		\/\/
+		5 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	7-->nullptr
+		\/\/
+		7 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	8-->nullptr
+		\/\/
+		88 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	nullptr
+A-->nullptr
+	\/\/
+	A-->nullptr
+	B-->nullptr
+	C-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+DC-->nullptr
+	\/\/
+	Moscow-->nullptr
+	By plane-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	SPB-->nullptr
+	By train-->nullptr
+	17 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+Far east-->nullptr
+	\/\/
+	Vladivostok-->nullptr
+	By car-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	Novorosia-->nullptr
+	By car-->nullptr
+	5 days-->nullptr
+	\/\/\/
+	Krim-->nullptr
+	By car-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	Tihookeansk-->nullptr
+	By bus-->nullptr
+	15 days-->nullptr
+	\/\/\/
+	Zavodskoy-->nullptr
+	By bus-->nullptr
+	10 days-->nullptr
+	\/\/\/
+	Artem-->nullptr
+	By bus-->nullptr
+	11 days-->nullptr
+	\/\/\/
+	Usuriysk-->nullptr
+	By train-->nullptr
+	5 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+GoydaTour-->nullptr
+	\/\/
+	Artiomovsk-->nullptr
+	On foot-->nullptr
+	20 days-->nullptr
+	\/\/\/
+	Bahmut-->nullptr
+	Tank-->nullptr
+	14 days-->nullptr
+	\/\/\/
+	Avdeevka-->nullptr
+	By plane-->nullptr
+	88 days-->nullptr
+	\/\/\/
+	Kiev-->nullptr
+	Tank-->nullptr
+	13 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+Novorosia-->nullptr
+	\/\/
+	Artiomovsk-->nullptr
+	On foot-->nullptr
+	120 days-->nullptr
+	\/\/\/
+	Bahmut-->nullptr
+	By train-->nullptr
+	14 days-->nullptr
+	\/\/\/
+	Avdeevka-->nullptr
+	By plane-->nullptr
+	88 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+VnutTurism-->nullptr
+	\/\/
+	Krim-->nullptr
+	By ship-->nullptr
+	10 days-->nullptr
+	\/\/\/
+	Mahachkala-->nullptr
+	By train-->nullptr
+	15 days-->nullptr
+	\/\/\/
+	Novokuzneck-->nullptr
+	On foot-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	Magnitogors-->k-->nullptr
+	By plain-->nullptr
+	20 days-->nullptr
+	\/\/\/
+	Moscow-->nullptr
+	By plain-->nullptr
+	7 days-->nullptr
+	\/\/\/
+	nullptr
+\/\/\/
+nullptr
+
+Points:
+	A-->nullptr
+		\/\/
+		A-->nullptr
+		\/\/\/
+		Artem-->nullptr
+		\/\/\/
+		Artiomovsk-->nullptr
+		\/\/\/
+		Avdeevka-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	B-->nullptr
+		\/\/
+		Bahmut-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	K-->nullptr
+		\/\/
+		Kiev-->nullptr
+		\/\/\/
+		Krim-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	M-->nullptr
+		\/\/
+		Magnitogors-->k-->nullptr
+		\/\/\/
+		Mahachkala-->nullptr
+		\/\/\/
+		Moscow-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	N-->nullptr
+		\/\/
+		Novokuzneck-->nullptr
+		\/\/\/
+		Novorosia-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	S-->nullptr
+		\/\/
+		SPB-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	T-->nullptr
+		\/\/
+		Tihookeansk-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	U-->nullptr
+		\/\/
+		Usuriysk-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	V-->nullptr
+		\/\/
+		Vladivostok-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	Z-->nullptr
+		\/\/
+		Zavodskoy-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	nullptr
+
+Spos:
+	B-->nullptr
+		\/\/
+		B-->nullptr
+		\/\/\/
+		By bus-->nullptr
+		\/\/\/
+		By car-->nullptr
+		\/\/\/
+		By plain-->nullptr
+		\/\/\/
+		By plane-->nullptr
+		\/\/\/
+		By ship-->nullptr
+		\/\/\/
+		By train-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	O-->nullptr
+		\/\/
+		On foot-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	T-->nullptr
+		\/\/
+		Tank-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	nullptr
+
+Times:
+	1-->nullptr
+		\/\/
+		10 days-->nullptr
+		\/\/\/
+		11 days-->nullptr
+		\/\/\/
+		120 days-->nullptr
+		\/\/\/
+		13 days-->nullptr
+		\/\/\/
+		14 days-->nullptr
+		\/\/\/
+		15 days-->nullptr
+		\/\/\/
+		17 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	2-->nullptr
+		\/\/
+		20 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	5-->nullptr
+		\/\/
+		5 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	7-->nullptr
+		\/\/
+		7 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	8-->nullptr
+		\/\/
+		88 days-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	C-->nullptr
+		\/\/
+		C-->nullptr
+		\/\/\/
+		nullptr
+	\/\/\/
+	nullptr

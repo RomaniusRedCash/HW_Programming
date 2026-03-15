@@ -1,0 +1,184 @@
+@startuml
+
+' Настройки
+hide empty members
+skinparam classAttributeIconSize 0
+
+' Исключения (Exception Hierarchy)
+'class ParcerException {
+'  - message: string
+'  + getMessage(): const string&
+'}
+
+'class TabNotOpen {
+'}
+
+'class XmlExItem {
+'  + XmlExItem(name: const string&)
+'}
+
+'class XmlValidate {
+'  + XmlValidate(xmlStr: const string&)
+'}
+
+'class XmlNotOpen {
+'  + XmlNotOpen(path: const string&)
+'}
+
+'class CsvNotOpen {
+'  + CsvNotOpen(path: const string&)
+'}
+
+'ParcerException <|-- TabNotOpen
+'TabNotOpen <|-- XmlNotOpen
+'TabNotOpen <|-- CsvNotOpen
+'ParcerException <|-- XmlExItem
+'ParcerException <|-- XmlValidate
+
+' Интерфейс и иерархия данных
+interface IData {
+  + printRepeating(os: ostream&): void
+  + printNow(os: ostream&): void
+}
+
+abstract class DataBase<T1, T2> {
+  # data: HM<T1, T2>
+  # cur: HM<T1, T2>::iterator
+  # parent: IData*
+  + operator[](i: const T1&): T2&
+  + printNow(os: ostream&): void
+  {abstract} + printRepeating(os: ostream&): void
+}
+
+class House<int, int> {
+  + add(parent: IData*, floors: const int&): void
+  + printRepeating(os: ostream&): void
+}
+
+class Street<string, House> {
+  + add(parent: IData*, house: const int&, floors: const int&): void
+  + printRepeating(os: ostream&): void
+}
+
+class City<string, Street> {
+  - floorsMap: HM<int, int>
+  + add(parent: IData*, street: const string&, house: const int&, floors: const int&): void
+  + printRepeating(os: ostream&): void
+  + printFloors(os: ostream&) const: void
+}
+
+class Dater<string, City> {
+  + add(city: const string&, street: const string&, house: const int&, floors: const int&): void
+  + printRepeating(os: ostream&): void
+  + printNow(os: ostream&): void
+  + printFloors(os: ostream&) const: void
+}
+
+' Иерархия наследования для Data
+IData <|.. DataBase
+DataBase <|-- House
+DataBase <|-- Street
+DataBase <|-- City
+DataBase <|-- Dater
+
+' Парсеры
+class Parcer {
+  # buffer: string
+  # file: fstream
+  # pos: size_t = 0
+  # getLine(): void
+  # openFileUtf(path: const string&): void
+  # addDater(dater: Dater&, vOut: vector<string>): void
+  + ~Parcer()
+}
+
+class XmlParcer {
+  - vS: vector<string> = {"city", "street", "house", "floor"}
+  - readItem(item: const string&): string
+  - xmlValidate(expected: const char*): bool
+  + XmlParcer(FName: const string&, dater: Dater&)
+}
+
+'class XmlFastParcer {
+'  + XmlFastParcer(FName: const string&, dater: Dater&)
+'}
+
+class CsvParcer {
+  - sepors: string = "\";\\r"
+  - getItem(): string
+  + CsvParcer(pathToFile: const string&, dater: Dater&)
+}
+
+' Иерархия наследования парсеров
+Parcer <|-- XmlParcer
+'Parcer <|-- XmlFastParcer
+Parcer <|-- CsvParcer
+
+' Вспомогательный класс
+'class Timer {
+'  - startTime: chrono::high_resolution_clock::time_point
+'  - s: ostream&
+'  + Timer(s: ostream&)
+'  + ~Timer()
+'}
+
+' Main и зависимости
+class Main {
+  + main(): int
+}
+
+' Ассоциации и зависимости
+'XmlParcer --> XmlException : throws
+'CsvParcer --> CsvException : throws
+
+XmlParcer --> Dater : uses
+'XmlFastParcer --> Dater : uses
+CsvParcer --> Dater : uses
+
+Main --> XmlParcer : creates
+Main --> CsvParcer : creates
+'Main --> Timer : creates
+Main --> Dater : creates
+
+Parcer --> Dater : calls addDater()
+
+' Зависимости исключений
+'XmlException --> ParcerException
+'CsvException --> ParcerException
+
+
+Street *-- House : in map
+City *-- Street : in map
+Dater *-- City : in map
+
+
+
+
+' Дополнительные заметки
+note top of Parcer
+  Базовый класс парсеров
+end note
+
+note top of DataBase
+  Шаблонный класс данных с map<T1,T2>
+end note
+
+note bottom of Dater
+  Корневой класс данных:
+  - Хранит города и количество домов с одинаковыми этажами
+  - Служит тригером для вывода данных из други подклассов
+end note
+
+note top of XmlParcer
+  Парсит, проверяя структуру XML
+end note
+
+'note top of XmlFastParcer
+'  Упрощенный парсер, без валидации XML
+'end note
+
+note top of CsvParcer
+  Парсит CSV
+end note
+
+@enduml
