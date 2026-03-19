@@ -1,4 +1,6 @@
 #include "ha.h"
+#include <memory>
+#include <utility>
 
 using namespace ha_ns;
 
@@ -7,27 +9,26 @@ using namespace ha_ns;
 ha_code::ha_code() : bytebit(0){};
 
 void ha_code::add_null() {
-    if (size%8==0){
+    if (!(size%8)){
         data.push_back(0);
     }else {
-        // data.back()<<=1;
-        // data.back()++;
+        data.back() &= 0xFF << (8 - size % 8);
     }
     size++;
 }
 void ha_code::add_one() {
-    if (!size%8){
+    if (!(size++%8)){
         data.push_back(0x80);
     }else {
         // data.back();
-        data.back() |= 1 << (8 - size);
+        data.back() |= 1 << (8 - size % 8);
     }
-    size++;
+    // size++;
 }
 
 void ha_code::pop_back() {
     size--;
-    if (!size%8) data.pop_back();
+    if (!(size%8)) data.pop_back();
 }
 
 //////////////////////////////////// node ////////////////////////////////////
@@ -46,14 +47,15 @@ bool node::operator<(const node& noda) {
 calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
     if (v_node.size() < 2) throw"meni duje lenivo";
     while (v_node.size() > 1) {
-        std::vector<node*>::iterator it1 = v_node.begin(), it2 = it1;
+        std::vector<node*>::iterator it1 = v_node.begin(), it2 = v_node.begin();
         for (std::vector<node*>::iterator i = v_node.begin(); i != v_node.end(); i++)
-            it1 = *it1 < *i ? it1 : i;
+            it1 = **it1 < **i ? it1 : i;
         it2 = it1 == v_node.begin() ? it2 + 1 : it2;
         for (std::vector<node*>::iterator j = v_node.begin(); j != v_node.end(); j++)
-            if (it1 != j) it2 = *it2 < *j ? it2 : j;
-        logger(log_ns::DEV_ONLY) << (*it1)->data << " and ";
-        logger(log_ns::DEV_ONLY) << (*it2)->data <<std::endl;
+            if (it1 != j) it2 = **it2 < **j ? it2 : j;
+        if (it1 > it2) std::swap(it1, it2);
+        logger(log_ns::DEV_ONLY) << (*it1)->data<<" : "<<(*it1)->num << " and ";
+        logger(log_ns::DEV_ONLY) << (*it2)->data<<" : "<<(*it1)->num <<std::endl;
 
 #ifdef DEBUG
         node* nn = new node((*it1)->data + (*it2)->data,(*it1)->num + (*it2)->num);
@@ -62,14 +64,14 @@ calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
 #endif
         nn->left = *it1;
         nn->right = *it2;
-        if (it1 < it2) {
-            v_node.erase(it2);
+        // if (it1 < it2) {
+            *it2 = nn;
             v_node.erase(it1);
-        } else {
-            v_node.erase(it1);
-            v_node.erase(it2);
-        }
-        v_node.push_back(nn);
+        // } else {
+            // *it1 = nn;
+            // v_node.erase(it2);
+        // }
+        // v_node.push_back(nn);
         logger(log_ns::DEV_ONLY) << "pool: ";
         for (const node* i :v_node)
             logger(log_ns::DEV_ONLY)<<i->data << ' ';
@@ -95,20 +97,27 @@ calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
 }
 
 void calculator::order(node*& noda, ha_code& hc, const int8_t& balance) {
-    if (balance == -1) hc.add_null();
-    else if (balance == 1) hc.add_one();
     if (noda) {
+        if (balance == -1) hc.add_null();
+        else if (balance == 1) hc.add_one();
+
+        logger(log_ns::DEV_ONLY) << noda->data << " : ";
+        for (const uint8_t& c : hc.get_data())
+            logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
+        logger(log_ns::DEV_ONLY)<<" size "<<hc.get_size()<<std::endl;
+
         if (!noda->left && !noda->right) {
             mapa[noda->data]=hc;
             logger(log_ns::DEV_ONLY)<<"leaf: "<<noda->data<<" : ";
             for (const uint8_t& c : hc.get_data())
                 logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
             logger(log_ns::DEV_ONLY)<<" size "<<hc.get_size()<<std::endl;
-            hc.pop_back();
-            return ;
+        } else {
+            order(noda->left, hc, -1);
+            order(noda->right, hc, 1);
         }
-        order(noda->left, hc, 1);
-        order(noda->right, hc, -1);
+        if (hc.get_size())
+            hc.pop_back();
 
     }
 }
@@ -117,10 +126,10 @@ const ha_code& calculator::operator[] (const std::string& sim) const {
     return mapa.at(sim);
 }
 
-const std::map<std::string, ha_code>::const_iterator calculator::begin() const {
+const std::unordered_map<std::string, ha_code>::const_iterator calculator::begin() const {
     return mapa.cbegin();
 }
-const std::map<std::string, ha_code>::const_iterator calculator::end() const {
+const std::unordered_map<std::string, ha_code>::const_iterator calculator::end() const {
     return mapa.cend();
 }
 
@@ -131,6 +140,12 @@ void ha_ns::ha_1(std::istream& stream_in, std::ostream& stream_out, const int& n
     std::string buffer(BUFFER_SIZE, 0);
     size_t read_bites = 0;
     sstrtobb bbs_out;
+    for (const std::pair<std::string, ha_code>& i :calc) {
+        bbs_out<<i.first;
+        // const char* cs = std::static_cast<const char*>(&i.second.get_size());
+
+        bbs_out.write(, );
+    }
     while(stream_in) {
         stream_in.read(buffer.data(), BUFFER_SIZE);
         read_bites = stream_in.gcount();
@@ -174,13 +189,14 @@ void ha(std::istream& stream_in, std::ostream& stream_out, const int& num_byte) 
     }
 
     calculator calc(v_nodes);
-    for (node* i : v_nodes) delete i;
+    // for (node* i : v_nodes) delete i;
+    // logger(log_ns::DEV_ONLY) << "final clearing"<<std::endl;
     logger()<<"model: "<<std::endl;
     for (const std::pair<std::string, ha_code>& i : calc) {
         logger()<<'\t'<<i.first<<" : ";
         for (const uint8_t& c : i.second.get_data())
             logger()<<std::bitset<8>(c);
-            logger()<<std::endl;
+        logger()<<" size " << i.second.get_size()<<std::endl;
     }
     stream_in.clear();
     stream_in.seekg(0, std::ios::beg);

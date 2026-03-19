@@ -1,2 +1,7 @@
 *.txt
 *.comptxt
+*.compr
+*.tmp
+*.ctxt
+back/*
+build/*
