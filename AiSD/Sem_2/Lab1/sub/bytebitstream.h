@@ -40,6 +40,7 @@ public:
     sstrtobb(const std::string& str);
     sstrtobb& operator>>(bytebit& bb);
     sstrtobb& operator<<(bytebit bb);
+    sstrtobb& operator<<(const std::string& str);
     const std::string& get_data() const override;
     void try_write(std::ostream& os);
 };

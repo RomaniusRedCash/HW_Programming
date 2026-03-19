@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <queue>
 #include "../logger/logger.h"
 #include "../bytebitstream.h"
@@ -33,14 +34,14 @@ namespace ha_ns {
 
     class calculator {
         std::vector<node*> v_node;
-        std::map<std::string, ha_code> mapa;
+        std::unordered_map<std::string, ha_code> mapa;
         // node *pivot;
         void order(node*& noda, ha_code& hc, const int8_t& balance);
     public:
         calculator(const std::vector<node*>& v_node_in);
         const ha_code& operator[] (const std::string& sim) const;
-        const std::map<std::string, ha_code>::const_iterator begin() const;
-        const std::map<std::string, ha_code>::const_iterator end() const;
+        const std::unordered_map<std::string, ha_code>::const_iterator begin() const;
+        const std::unordered_map<std::string, ha_code>::const_iterator end() const;
     };
 
     void ha_1(std::istream& stream_in, std::ostream& stream_out, const int& num_byte, const calculator& calc);

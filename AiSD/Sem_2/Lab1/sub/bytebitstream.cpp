@@ -137,12 +137,20 @@ sstrtobb& sstrtobb::operator<<(bytebit bb) {
     return *this;
 }
 
+sstrtobb& sstrtobb::operator<<(const std::string& str) {
+    data+=str;
+    return *this;
+}
+
 const std::string& sstrtobb::get_data() const {
     return data;
 }
 
 void sstrtobb::try_write(std::ostream& os) {
     if(!buffer_sdvig_size) {
+        logger()<<"write on file ";
+        logger().write(data.data(), data.size());
+        logger()<<std::endl;
         os.write(data.data(), data.size());
         data.clear();
     }

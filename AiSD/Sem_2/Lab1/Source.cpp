@@ -172,7 +172,7 @@ int main(const int argc, char* argv[]) {
                 std::cout<<"- start HA"<<std::endl;
                 ha(file_tmp, file_out, num_byte);
                 std::cout<<"- stop HA"<<std::endl;
-
+                break;
                 // NOTE: decompress
             case eDERLE:
                 std::cout<<"- start deRLE"<<std::endl;
