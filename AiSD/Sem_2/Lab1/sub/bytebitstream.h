@@ -5,21 +5,30 @@
 #include <cinttypes>
 #include "../sub/logger/logger.h"
 #include <bitset>
+#include "logger/logger.h"
+#include <cstdint>
+
+class sstrtobb;
 
 class ssbb_base {
 protected:
+    // friend sstrtobb;
     std::string data;
     int8_t buffer_sdvig_size = 0;
 
-    void sdvig_l(const uint8_t& size);
-    void sdvig_r(const uint8_t& size);
+    // void sdvig_l(const uint8_t& delta);
+    // void sdvig_r(const uint8_t& delta);
 public:
+    void sdvig(int8_t delta);
     ssbb_base() = default;
     ssbb_base(const std::string& str);
     virtual const std::string& get_data() const = 0;
+    const int8_t& real_last() const;
+    const int8_t& get_buffer_sdvig_size() const;
+    void set_buffer_sdvig_size(const int8_t& sdvig);
+    virtual ~ssbb_base() = default;
 };
 
-class sstrtobb;
 
 class bytebit : public ssbb_base{
 protected:
@@ -35,13 +44,17 @@ public:
 };
 
 class sstrtobb : public ssbb_base {
+protected:
+    void write(ssbb_base* ptr_ssbb);
 public:
     sstrtobb();
     sstrtobb(const std::string& str);
     sstrtobb& operator>>(bytebit& bb);
     sstrtobb& operator<<(bytebit bb);
+    sstrtobb& operator<<(sstrtobb ptr_ssbb);
     sstrtobb& operator<<(const std::string& str);
     const std::string& get_data() const override;
+    // std::string& get_data();
     void try_write(std::ostream& os);
 };
 
