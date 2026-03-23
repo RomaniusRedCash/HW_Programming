@@ -13,7 +13,10 @@ namespace log_ns {
 
         DEV_ONLY = 1 << 2,
 
-        DEFAULT_LVL = FILE_LVL | CONS_LVL,
+        NORMAL_LVL = 1 << 3,
+        HARD_LVL = 1 << 4,
+
+        // DEFAULT_LVL = FILE_LVL | CONS_LVL,
     };
 }
 
@@ -21,9 +24,10 @@ namespace log_ns {
 
 class logger_demon;
 class logger {
-    uint8_t lvl = log_ns::DEFAULT_LVL;
+    uint8_t lvl = log_ns::NON_LVL;
     //
     friend logger_demon;
+    bool check_flag();
 public:
     logger() {};
     logger(uint8_t lvl);
@@ -31,6 +35,7 @@ public:
     logger& operator<<(const T& t);
     logger& operator<<(std::ostream& (*manip)(std::ostream&));
     logger& write(const char* s, std::streamsize n);
+    static void flush();
 };
 
 class logger_demon {
@@ -53,15 +58,12 @@ public:
 
 template<typename T>
 logger& logger::operator<<(const T& t) {
-    if (lvl & log_ns::CONS_LVL & logger_demon::lvl)
+    if (!check_flag()) return *this;
+    if (log_ns::CONS_LVL & logger_demon::lvl)
         std::cout<<t;
-    if (lvl & log_ns::FILE_LVL & logger_demon::lvl)
+    if (log_ns::FILE_LVL & logger_demon::lvl)
         logger_demon::logfile<<t;
-
-    if (lvl & log_ns::DEV_ONLY & logger_demon::lvl) {
-        std::cout<<t;
-        logger_demon::logfile<<t;
-    }
+    logger_demon::logfile.flush();
 
     return *this;
 }

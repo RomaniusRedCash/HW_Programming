@@ -1,35 +1,47 @@
 #include "logger.h"
 
+using namespace log_ns;
+
+bool logger::check_flag() {
+    return (
+        (
+            !(lvl & (NORMAL_LVL | HARD_LVL)) ||
+            (lvl & NORMAL_LVL & logger_demon::lvl) ||
+            (lvl & HARD_LVL & logger_demon::lvl)
+        ) && (
+            !(lvl && DEV_ONLY) ||
+            (lvl & DEV_ONLY & logger_demon::lvl)
+        )
+
+    );
+}
+
 logger::logger(uint8_t lvl) : lvl(lvl) {
 
 }
 
 logger& logger::operator<<(std::ostream& (*manip)(std::ostream&)) {
-    if (lvl & log_ns::CONS_LVL & logger_demon::lvl)
+    if (!check_flag()) return *this;
+    if (CONS_LVL & logger_demon::lvl)
         std::cout<<std::endl;
-    if (lvl & log_ns::FILE_LVL & logger_demon::lvl)
+    if (FILE_LVL & logger_demon::lvl)
         logger_demon::logfile<<std::endl;
-
-    if (lvl & log_ns::DEV_ONLY & logger_demon::lvl) {
-        std::cout<<std::endl;
-        logger_demon::logfile<<std::endl;
-    }
 
     return *this;
 }
 
 logger& logger::write(const char* s, std::streamsize n) {
-    if (lvl & log_ns::CONS_LVL & logger_demon::lvl)
+    if (!check_flag()) return *this;
+    if (CONS_LVL & logger_demon::lvl)
         std::cout.write(s, n);
-    // if (lvl & log_ns::FILE_LVL & logger_demon::lvl)
     logger_demon::logfile.write(s, n);
 
-    if (lvl & log_ns::DEV_ONLY & logger_demon::lvl) {
-        std::cout.write(s, n);
-        logger_demon::logfile.write(s, n);
-    }
-
     return *this;
+}
+
+void logger::flush() {
+    logger_demon::logfile.flush();
+    std::cout.flush();
 }
 
 void logger_demon::set_log_lvl(const uint8_t& lvl) {

@@ -34,7 +34,7 @@ enum eCOMMANDS : int {
     eBYTE,
     eCMPRE, eENWIKn7,
     eTEST,
-    eLOGF, eLOGC,
+    eLOGF, eLOGC, eLOGN, eLOGH,
 
     eRLE, eDERLE,
     eMTF, eDEMTF,
@@ -51,6 +51,8 @@ std::vector<some_param> v_someprm = {
     {"test", no_argument, nullptr, 0, ":test", eTEST},
     {"log-file", no_argument, nullptr, 0, ":log in file", eLOGF},
     {"log-console", no_argument, nullptr, 0, ":log in console", eLOGC},
+    {"log-n", no_argument, nullptr, 0, ":log in normal lvl", eLOGN},
+    {"log-h", no_argument, nullptr, 0, ":log in hard lvl", eLOGH},
 
 // NOTE: compress
     {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE},
@@ -119,6 +121,11 @@ int main(const int argc, char* argv[]) {
                     case eLOGC:
                         logger_demon::add_log_lvl(log_ns::CONS_LVL);
                         break;
+                    case eLOGH:
+                        logger_demon::add_log_lvl(log_ns::HARD_LVL);
+                    case eLOGN:
+                        logger_demon::add_log_lvl(log_ns::NORMAL_LVL);
+                        break;
                     default:
                         v_params.push_back(map_translater[long_opt[long_idx].name]);
                         break;
@@ -173,6 +180,7 @@ int main(const int argc, char* argv[]) {
                 ha(file_tmp, file_out, num_byte);
                 std::cout<<"- stop HA"<<std::endl;
                 break;
+
                 // NOTE: decompress
             case eDERLE:
                 std::cout<<"- start deRLE"<<std::endl;
@@ -184,13 +192,16 @@ int main(const int argc, char* argv[]) {
                 de_mtf(file_tmp, file_out, num_byte);
                 std::cout<<"- stop deMTF"<<std::endl;
                 break;
-
-
+            case eDEHA:
+                std::cout<<"- start deHA"<<std::endl;
+                de_ha(file_tmp, file_out, num_byte);
+                std::cout<<"- stop deHA"<<std::endl;
+                break;
 
 
             case eTEST:
                 // RLE_bit(file_tmp, file_out, 6, 6);
-                test("123456", num_byte);
+                test("banana", num_byte);
                 break;
 
             default:
@@ -210,15 +221,16 @@ int main(const int argc, char* argv[]) {
 
     if (!str_cmpr.empty()) {
         std::cout<<"- start compare"<<std::endl;
-        file_in.clear();
-        file_in.seekg(0, std::ios::beg);
+        // file_in.clear();
+        // file_in.seekg(0, std::ios::beg);
         std::fstream file_cmpr(str_cmpr, std::ios::in);
-        if (compare_f(file_in, file_tmp)) std::cout<< "file is equal" << std::endl;
+        if (compare_f(file_cmpr, file_tmp)) std::cout<< "file is equal" << std::endl;
         else std::cout<< "file is not equal" << std::endl;
         file_cmpr.close();
         std::cout<<"- stop compare"<<std::endl;
     }
     file_in.close();
+    file_tmp.close();
 
     return 0;
 }
