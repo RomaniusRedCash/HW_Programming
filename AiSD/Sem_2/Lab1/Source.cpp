@@ -201,7 +201,7 @@ int main(const int argc, char* argv[]) {
 
             case eTEST:
                 // RLE_bit(file_tmp, file_out, 6, 6);
-                test("banana", num_byte);
+                test("abacabacabadaca", num_byte);
                 break;
 
             default:
