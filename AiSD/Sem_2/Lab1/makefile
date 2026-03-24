@@ -4,7 +4,7 @@ SOURCES = $(shell find . -name "*.cpp" -not -path "./back/*" )
 # Преобразуем пути: например, кладём объектные файлы в папку build, сохраняя структуру
 OBJECTS = $(patsubst ./%.cpp, build/%.o, $(SOURCES))
 
-CXXFLAGS = -std=c++23 -o3
+CXXFLAGS = -std=c++23 -ggdb
 ifdef DEBUG
 	CXXFLAGS+=-DDEBUG
 endif
