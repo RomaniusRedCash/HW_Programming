@@ -1,22 +1,17 @@
-#include "lz78.h"
+#include "lzw.h"
 
-using namespace lz78_ns;
+using namespace lzw_ns;
 
-std::ostream& lz78_ns::operator<<(std::ostream& os, const node& n) {
-    os.write(reinterpret_cast<const char*>(&n.pos), 1);
-    // os.write(reinterpret_cast<const char*>(&n.len), 1);
-    os.write(n.next.data(), n.next.size());
+std::ostream& operator<<(std::ostream& os, const node& n) {
+    os.write(reinterpret_cast<const char*>(&n.pos), 2);
+    os.write(reinterpret_cast<const char*>(&n.next), 2);
     return os;
 }
+std::istream& operator>>(std::istream& is, node& n);
 
-std::istream& lz78_ns::operator>>(std::istream& is, node& n) {
-    is.read(reinterpret_cast<char*>(&n.pos), 1);
-    // is.read(reinterpret_cast<char*>(&n.len), 1);
-    is.read(n.next.data(), n.next.size());
-    return is;
-}
+std::string lzw_1(const std::string& str, size_t buffer_size, const uint8_t& num_byte) {
+    if (num_byte > 1) throw "hz";
 
-std::string lz78_ns::lz78_1(const std::string& str, size_t buffer_size, const uint8_t& num_byte) {
     std::stringstream ss;
     std::vector<std::string> v_slovar(1, "");
     for(size_t i = 0; i < str.size() - num_byte; i+=num_byte) {
@@ -47,18 +42,4 @@ std::string lz78_ns::lz78_1(const std::string& str, size_t buffer_size, const ui
     return ss.str();
 }
 
-std::string lz78_ns::de_lz78_1(const std::string& str, size_t buffer_size, const uint8_t& num_byte) {
-    std::vector<std::string> v_slovar(1, "");
-    std::stringstream ss;
-    ss<<str;
-    std::string str_out;
-    node n;
-    n.next.resize(num_byte);
-    for (size_t i = 0; i < str.size(); i+=num_byte+1) {
-        ss>>n;
-        v_slovar.push_back(v_slovar[n.pos] + n.next);
-        str_out += v_slovar.back();
-    }
-    return str_out;
-}
-
+std::string de_lzw_1(const std::string& str, size_t buffer_size, const uint8_t& num_byte);
