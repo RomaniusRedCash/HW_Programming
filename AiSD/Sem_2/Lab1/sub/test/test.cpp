@@ -20,11 +20,26 @@ void test(const std::string& str, const size_t& mc) {
 
     logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
     std::string str_tmp = lzw_ns::lzw_1(str, 5, 1);
-    // for (size_t i = 0; i < str_tmp.size(); i+=2) {
-    //     size_t n =std::stoi(str_tmp.substr(i,2));
-    //     logger()<<'{'<<size_t(str_tmp[i])<<"}, ";
-    // }
-    // logger()<<std::endl;
+    int x = 0;
+
+    for (size_t i = 0; i < str_tmp.size(); i+=1+x) {
+        if(i)x=1;
+        size_t n = str_tmp[i+x];
+        if(x) {
+            n<<=8;
+            n|=str_tmp[i];
+        }
+        logger()<<'{'<<n<<"}, ";
+    }
+    logger()<<std::endl;
     logger()<<"out "<<lzw_ns::de_lzw_1(str_tmp, 5, 1)<<std::endl;
+
+
+
+    logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
+    str_tmp = lzw_ns::lzw_2(str, 5, 1);
+    x = 0;
+    logger()<<std::endl;
+    logger()<<"out "<<lzw_ns::de_lzw_2(str_tmp, 5, 1)<<std::endl;
 
 }

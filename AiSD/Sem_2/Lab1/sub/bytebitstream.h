@@ -12,12 +12,8 @@ class sstrtobb;
 
 class ssbb_base {
 protected:
-    // friend sstrtobb;
     std::string data;
     int8_t buffer_sdvig_size = 0;
-
-    // void sdvig_l(const uint8_t& delta);
-    // void sdvig_r(const uint8_t& delta);
 public:
     void sdvig(int8_t delta);
     ssbb_base() = default;
@@ -32,15 +28,16 @@ public:
 
 class bytebit : public ssbb_base{
 protected:
-    // std::string data;
     friend sstrtobb;
-
     size_t size;
 public:
     bytebit(const size_t& size);
     bytebit& operator<<(const char& c);
     const std::string& get_data() const override;
     const size_t& get_size() const;
+    void add_null();
+    void add_one();
+    void pop_back();
 };
 
 class sstrtobb : public ssbb_base {
@@ -54,12 +51,5 @@ public:
     sstrtobb& operator<<(sstrtobb ptr_ssbb);
     sstrtobb& operator<<(const std::string& str);
     const std::string& get_data() const override;
-    // std::string& get_data();
     void try_write(std::ostream& os);
 };
-
-// class sbbtostr : protected ssbb_base {
-// public:
-//     // sbbtostr(const std::string& str);
-//
-// };
