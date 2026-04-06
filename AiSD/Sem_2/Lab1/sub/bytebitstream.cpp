@@ -95,6 +95,28 @@ const size_t& bytebit::get_size() const {
     return size;
 }
 
+
+void bytebit::add_null() {
+    if (!(size%8))
+        data.push_back(0);
+    else
+        data.back() &= 0xFF << (8 - size % 8);
+    size++;
+}
+void bytebit::add_one() {
+    if (!(size%8))
+        data.push_back(0x80);
+    else
+        data.back() |= 0x80 >> size%8;
+    size++;
+}
+
+void bytebit::pop_back() {
+    size--;
+    data.back() &= 0xFF << (8-size%8);
+    if (!(size%8)) data.pop_back();
+}
+
 //////////////////////////////////// sstrtobb ////////////////////////////////////
 void sstrtobb::write(ssbb_base* ptr_ssbb) {
     sstrtobb ssbb = sstrtobb(ptr_ssbb->get_data());

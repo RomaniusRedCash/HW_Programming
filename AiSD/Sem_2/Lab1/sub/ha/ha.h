@@ -20,9 +20,9 @@ namespace ha_ns {
     class ha_code : public bytebit {
     public:
         ha_code();
-        void add_null();
-        void add_one();
-        void pop_back();
+        // void add_null();
+        // void add_one();
+        // void pop_back();
         bool read_hacode(sstrtobb& ssbb, const calculator& calc, const size_t& max_size);
         bool operator<(const ha_code& hc) const;
         // bool operator==(const ha_code& hc) const;

@@ -35,11 +35,11 @@ void ha_ns::read_shift_size(std::istream& stream_in, size_t& size) {
     uint8_t size_shift;
     stream_in >> size_shift;
     std::string buffer(size_shift, 0);
+    stream_in.read(buffer.data(), size_shift);
     if (!stream_in)
         logger() << "WARN read "<<stream_in.gcount()<<" from "<<size_t(size_shift)<<std::endl;
-    stream_in.read(buffer.data(), size_shift);
-    for (size_t i = 0; i < size_shift; ++i) {
-        uint8_t byte = static_cast<unsigned char>(buffer[i]);
+    for (size_t i = 0; i < size_shift; i++) {
+        uint8_t byte = static_cast<uint8_t>(buffer[i]);
         size |= static_cast<size_t>(byte) << (i * 8);
     }
     // logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"size shift "<<size_t(size_shift)<<" buffer ";

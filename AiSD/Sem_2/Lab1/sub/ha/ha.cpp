@@ -9,7 +9,7 @@ using namespace ha_ns;
 //////////////////////////////////// ha_code ////////////////////////////////////
 
 ha_code::ha_code() : bytebit(0){};
-
+/*
 void ha_code::add_null() {
     if (!(size%8)){
         data.push_back(0);
@@ -32,7 +32,7 @@ void ha_code::pop_back() {
     size--;
     data.back() &= 0xFF << (8-size%8);
     if (!(size%8)) data.pop_back();
-}
+}*/
 
 bool ha_code::read_hacode(sstrtobb& ssbb, const calculator& calc, const size_t& max_size) {
     while (ssbb.get_data().size() * 8 - 8 + ssbb.get_buffer_sdvig_size() > size) {
