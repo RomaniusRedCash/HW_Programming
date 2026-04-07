@@ -52,6 +52,7 @@ public:
     sstrtobb& operator<<(const std::string& str);
     sstrtobb& operator>>(std::string& str);
     sstrtobb& operator>>(uint8_t& c);
+    sstrtobb& operator<<(const uint8_t& c);
     const std::string& get_data() const override;
     void try_write(std::ostream& os);
 };
