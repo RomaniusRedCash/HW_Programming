@@ -37,9 +37,11 @@ void test(const std::string& str, const size_t& mc) {
 
 
     logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
-    str_tmp = lzw_ns::lzw_2(str, 5, 1);
+    std::string str_tmp2 = lzw_ns::lzw_2(str, 5, 1);
     x = 0;
     logger()<<std::endl;
-    logger()<<"out "<<lzw_ns::de_lzw_2(str_tmp, 5, 1)<<std::endl;
+    logger()<<"out "<<lzw_ns::de_lzw_2(str_tmp2, 5, 1)<<std::endl;
+
+    logger() << "first "<<str_tmp.size() << " second " << str_tmp2.size()<<std::endl;
 
 }
