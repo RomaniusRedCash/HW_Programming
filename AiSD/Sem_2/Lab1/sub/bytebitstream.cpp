@@ -182,6 +182,19 @@ sstrtobb& sstrtobb::operator<<(const std::string& str) {
     return *this << sstrtobb(str);
 }
 
+sstrtobb& sstrtobb::operator>>(std::string& str) {
+    if (data.size() > str.size()) throw "ERR";
+    str = std::string_view(data.data(), str.size());
+    data.erase(data.begin(), data.begin() + str.size());
+    return *this;
+}
+
+sstrtobb& sstrtobb::operator>>(uint8_t& c) {
+    c = data.front();
+    data.erase(data.begin());
+    return *this;
+}
+
 const std::string& sstrtobb::get_data() const {
     return data;
 }

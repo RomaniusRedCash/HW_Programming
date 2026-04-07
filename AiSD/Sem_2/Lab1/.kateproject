@@ -1,0 +1,26 @@
+{
+    "name": "Compressor",
+    "files": [
+        {
+            "recursive": true
+        }
+    ],
+    "build": {
+        "directory": ".",
+        "targets": [
+            {
+                "name": "Собрать DEBUG",
+                "build_cmd": "make DEBUG=1 -j12"
+            },
+            {
+                "name": "Собрать",
+                "build_cmd": "make -j12"
+            },
+            {
+                "name": "Очистка",
+                "build_cmd": "make clean"
+            }
+        ],
+        "default_target": "Собрать"
+    }
+}
