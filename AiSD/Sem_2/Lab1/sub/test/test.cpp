@@ -18,30 +18,32 @@ void test(const std::string& str, const size_t& mc) {
     // logger()<<std::endl;
     // logger()<<"out "<<lz78_ns::de_lz78_1(str_tmp, 5, 1)<<std::endl;
 
+    // logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
+    // std::string str_tmp = lzw_ns::lzw_1(str, 5, 1);
+    // int x = 0;
+    // for (size_t i = 0; i < str_tmp.size(); i+=1+x) {
+    //     if(i)x=1;
+    //     size_t n = str_tmp[i+x];
+    //     if(x) {
+    //         n<<=8;
+    //         n|=str_tmp[i];
+    //     }
+    //     logger()<<'{'<<n<<"}, ";
+    // }
+    // logger()<<std::endl;
+    // logger()<<"out "<<lzw_ns::de_lzw_1(str_tmp, 5, 1)<<std::endl;
+    // logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
+    // std::string str_tmp2 = lzw_ns::lzw_2(str, 5, 1);
+    // x = 0;
+    // logger()<<std::endl;
+    // logger()<<"out "<<lzw_ns::de_lzw_2(str_tmp2, 5, 1)<<std::endl;
+    //
+    // logger() << "first "<<str_tmp.size() << " second " << str_tmp2.size()<<std::endl;
+
     logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
-    std::string str_tmp = lzw_ns::lzw_1(str, 5, 1);
-    int x = 0;
-
-    for (size_t i = 0; i < str_tmp.size(); i+=1+x) {
-        if(i)x=1;
-        size_t n = str_tmp[i+x];
-        if(x) {
-            n<<=8;
-            n|=str_tmp[i];
-        }
-        logger()<<'{'<<n<<"}, ";
-    }
-    logger()<<std::endl;
-    logger()<<"out "<<lzw_ns::de_lzw_1(str_tmp, 5, 1)<<std::endl;
-
-
-
-    logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
-    std::string str_tmp2 = lzw_ns::lzw_2(str, 5, 1);
-    x = 0;
-    logger()<<std::endl;
-    logger()<<"out "<<lzw_ns::de_lzw_2(str_tmp2, 5, 1)<<std::endl;
-
-    logger() << "first "<<str_tmp.size() << " second " << str_tmp2.size()<<std::endl;
-
+    std::stringstream ss; ss << str;
+    std::stringstream ss_i, ss_o;
+    lzss_ns::lzss_1(ss, ss_i, 1, 5);
+    lzss_ns::de_lzss_1(ss_i, ss_o, 1, 5);
+    logger() << ss_o.str()<<std::endl;
 }

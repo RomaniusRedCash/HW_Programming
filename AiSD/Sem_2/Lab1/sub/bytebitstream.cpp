@@ -1,5 +1,6 @@
 #include "bytebitstream.h"
 #include "logger/logger.h"
+#include <cstring>
 
 
 //////////////////////////////////// ssbb_base ////////////////////////////////////
@@ -10,7 +11,6 @@ void ssbb_base::sdvig(int8_t delta) {
     for (const char i : data)
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::bitset<8>(i) << ' ';
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::endl;
-
     if (delta > 0) {
         delta %= 8;
         if ((buffer_sdvig_size + delta - 1) /8 || !buffer_sdvig_size)
@@ -22,11 +22,6 @@ void ssbb_base::sdvig(int8_t delta) {
         }
         data.front()>>=delta;
         data.front()&=0xFF>>delta;
-
-        // if (buffer_sdvig_size >= 8) {
-        //     // data.erase(data.begin());
-        //     buffer_sdvig_size %= 8;
-        // }
     } else if (delta < 0) {
         int8_t delta_tmp = -delta;
         if (delta_tmp >= 8) {
@@ -42,11 +37,9 @@ void ssbb_base::sdvig(int8_t delta) {
         if (buffer_sdvig_size <= delta_tmp && buffer_sdvig_size)
             data.pop_back();
     }
-
     buffer_sdvig_size+=delta%8;
     buffer_sdvig_size = (buffer_sdvig_size + 8) % 8;
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"sdvig buffer now "<<int(buffer_sdvig_size);
-
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<" str now ";
     for (const char i : data)
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::bitset<8>(i) << ' ';
@@ -82,8 +75,6 @@ bytebit& bytebit::operator<<(const char& c){
     shift = std::min(shift, 8);
     logger(log_ns::DEV_ONLY) << size - data.size()*8<< ' '<<std::bitset<8>(~(uint8_t(0xFF) >> shift))<<std::endl;
     data.push_back(c & ~(uint8_t(0xFF) >> shift));
-
-
     return *this;
 }
 
@@ -183,15 +174,28 @@ sstrtobb& sstrtobb::operator<<(const std::string& str) {
 }
 
 sstrtobb& sstrtobb::operator>>(std::string& str) {
-    if (data.size() > str.size()) throw "ERR";
-    str = std::string_view(data.data(), str.size());
-    data.erase(data.begin(), data.begin() + str.size());
+    bytebit bb(str.size() * 8);
+    *this >> bb;
+    str = bb.data;
     return *this;
 }
 
+sstrtobb& sstrtobb::operator<<(const uint8_t& c) {
+    bytebit bb(sizeof(c) * 8);
+    std::memcpy(bb.data.data(), &c, sizeof(c));
+    return *this << bb;
+}
 sstrtobb& sstrtobb::operator>>(uint8_t& c) {
-    c = data.front();
-    data.erase(data.begin());
+    // if (data.size() * 8 - 8 + buffer_sdvig_size < 8) throw "ERR";
+    // c = data.back();
+    // data.pop_back();
+    // if (buffer_sdvig_size) {
+    //     c >>= 8  - buffer_sdvig_size;
+    //     c|= (0xFF <<buffer_sdvig_size) & data.back();
+    // }
+    bytebit bb(sizeof(c) * 8);
+    *this >> bb;
+    std::memcpy(&c, bb.data.data(), sizeof(c));
     return *this;
 }
 
