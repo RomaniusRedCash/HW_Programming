@@ -4,10 +4,12 @@ SOURCES = $(shell find . -name "*.cpp" -not -path "./back/*" )
 # Преобразуем пути: например, кладём объектные файлы в папку build, сохраняя структуру
 OBJECTS = $(patsubst ./%.cpp, build/%.o, $(SOURCES))
 
-CXXFLAGS = -std=c++23 -ggdb
-ifdef DEBUG
-	CXXFLAGS+=-DDEBUG
-endif
+all: release
+debug: CXXFLAGS += -g -O0
+debug: $(TARGET)
+release: CXXFLAGS += -O3 -DNDEBUG
+release: $(TARGET)
+
 # Создаём целевой исполняемый файл из всех объектных
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(BOOST_LIBS)

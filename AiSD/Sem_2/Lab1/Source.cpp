@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <map>
 #include <iomanip>
 #include <getopt.h>
 
@@ -12,11 +11,12 @@
 #include "sub/rle/rle.h"
 #include "sub/mtf/mtf.h"
 #include "sub/ha/ha.h"
+#include "sub/lz/lzss/lzss.h"
 
 #include "sub/logger/logger.h"
 
 enum eCOMMANDS : int;
-std::map<std::string, eCOMMANDS> map_translater;
+bimap<std::string, eCOMMANDS> map_translater;
 
 struct some_param {
     option opt;
@@ -25,7 +25,7 @@ struct some_param {
     name(name), desc(desc)
     {
         opt = {name,has_arg,flag,val};
-        map_translater[name] = eC;
+        map_translater.insert(name, eC);
     }
 };
 
@@ -39,6 +39,7 @@ enum eCOMMANDS : int {
     eRLE, eDERLE,
     eMTF, eDEMTF,
     eHA, eDEHA,
+    eLZSS, eDELZSS
 };
 
 std::vector<some_param> v_someprm = {
@@ -58,11 +59,13 @@ std::vector<some_param> v_someprm = {
     {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE},
     {"mtf", no_argument, nullptr, 0, ":use MTF.", eMTF},
     {"ha", no_argument, nullptr, 0, ":use HA.", eHA},
+    {"lzss", optional_argument, nullptr, 0, ":use LZSS.", eLZSS},
 
 // NOTE: decompress
     {"de-rle", no_argument, nullptr, 0, ":extract from RLE.", eDERLE},
-    {"de-mtf", no_argument, nullptr, 0, ":extract from MTF.", eMTF},
+    {"de-mtf", no_argument, nullptr, 0, ":extract from MTF.", eDEMTF},
     {"de-ha", no_argument, nullptr, 0, ":extract from HA.", eDEHA},
+    {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS},
 
 };
 
@@ -77,7 +80,7 @@ void print_help() {
 }
 
 int main(const int argc, char* argv[]) {
-#ifdef DEBUG
+#ifndef NDEBUG
     logger_demon::add_log_lvl(log_ns::DEV_ONLY);
 #endif
 
@@ -88,7 +91,8 @@ int main(const int argc, char* argv[]) {
     std::string str_inp;
     std::string str_out;
     std::string str_cmpr;
-    int num_byte = 1;
+    uint8_t num_byte = 1;
+    uint8_t buffer_size_lz = 8;
     std::vector<eCOMMANDS> v_params;
     while ((opt = getopt_long(argc, argv, "hi:o:", &long_opt.front(), &long_idx)) != -1)
         switch (opt) {
@@ -104,6 +108,7 @@ int main(const int argc, char* argv[]) {
                 break;
             case 0:
                 switch (map_translater[long_opt[long_idx].name]) {
+
                     case eCMPRE:
                         str_cmpr = optarg;
                         break;
@@ -126,6 +131,11 @@ int main(const int argc, char* argv[]) {
                     case eLOGN:
                         logger_demon::add_log_lvl(log_ns::NORMAL_LVL);
                         break;
+
+                    case eLZSS:
+                    case eDELZSS:
+                        if (optarg != nullptr)
+                            buffer_size_lz = std::stoi(optarg);
                     default:
                         v_params.push_back(map_translater[long_opt[long_idx].name]);
                         break;
@@ -180,6 +190,9 @@ int main(const int argc, char* argv[]) {
                 ha(file_tmp, file_out, num_byte);
                 std::cout<<"- stop HA"<<std::endl;
                 break;
+            case eLZSS:
+                start_algorithm(map_translater[ec], [&]{lzss(file_tmp, file_out, num_byte, buffer_size_lz);});
+                break;
 
                 // NOTE: decompress
             case eDERLE:
@@ -197,10 +210,12 @@ int main(const int argc, char* argv[]) {
                 de_ha(file_tmp, file_out, num_byte);
                 std::cout<<"- stop deHA"<<std::endl;
                 break;
+            case eDELZSS:
+                start_algorithm(map_translater[ec], [&]{de_lzss(file_tmp, file_out, num_byte, buffer_size_lz);});
+                break;
 
 
             case eTEST:
-                // RLE_bit(file_tmp, file_out, 6, 6);
                 test("abacabacabadaca", num_byte);
                 break;
 
@@ -221,8 +236,6 @@ int main(const int argc, char* argv[]) {
 
     if (!str_cmpr.empty()) {
         std::cout<<"- start compare"<<std::endl;
-        // file_in.clear();
-        // file_in.seekg(0, std::ios::beg);
         std::fstream file_cmpr(str_cmpr, std::ios::in);
         if (compare_f(file_cmpr, file_tmp)) std::cout<< "file is equal" << std::endl;
         else std::cout<< "file is not equal" << std::endl;

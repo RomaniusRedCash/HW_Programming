@@ -10,11 +10,11 @@
         "targets": [
             {
                 "name": "Собрать DEBUG",
-                "build_cmd": "make DEBUG=1 -j12"
+                "build_cmd": "make -j12 debug"
             },
             {
                 "name": "Собрать",
-                "build_cmd": "make -j12"
+                "build_cmd": "make -j12 release"
             },
             {
                 "name": "Очистка",

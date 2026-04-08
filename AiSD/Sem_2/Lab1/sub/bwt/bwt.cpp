@@ -15,7 +15,7 @@ std::string bwt_ns::bwt_1(const std::string& str, const uint8_t& num_byte) {
 
     str_out.insert(str_out.begin(), uint8_t(matrix.end() - it));
 
-#ifdef DEBUG
+#ifndef NDEBUG
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "str in "<<str<<std::endl;
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "str out "<<str_out<<" - " <<size_t(str_out.front())<<" : "<<str_out.substr(1)<<std::endl;
 #endif

@@ -40,9 +40,8 @@ std::string lz77_ns::lz77_1(const std::string& str, size_t buffer_size, const ui
         }
         n1.pos /= num_byte;
         n1.next = std::string_view(str.data() + i + n1.len,num_byte);
-        // str.substr(i + n1.len,num_byte);
         i+=n1.len*num_byte;
-#ifdef DEBUG
+#ifndef NDEBUG
         if(n1.len) {
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"found "<<std::string_view(str.data()+n1.pos,n1.len)<<std::endl;
         }

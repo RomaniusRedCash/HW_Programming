@@ -6,10 +6,9 @@ bool logger::check_flag() {
     return (
         (
             !(lvl & (NORMAL_LVL | HARD_LVL)) ||
-            (lvl & NORMAL_LVL & logger_demon::lvl) ||
-            (lvl & HARD_LVL & logger_demon::lvl)
+            (lvl & (NORMAL_LVL | HARD_LVL) & logger_demon::lvl)
         ) && (
-            !(lvl && DEV_ONLY) ||
+            !(lvl & DEV_ONLY) ||
             (lvl & DEV_ONLY & logger_demon::lvl)
         )
 
@@ -26,7 +25,6 @@ logger& logger::operator<<(std::ostream& (*manip)(std::ostream&)) {
         std::cout<<std::endl;
     if (FILE_LVL & logger_demon::lvl)
         logger_demon::logfile<<std::endl;
-
     return *this;
 }
 
@@ -35,7 +33,6 @@ logger& logger::write(const char* s, std::streamsize n) {
     if (CONS_LVL & logger_demon::lvl)
         std::cout.write(s, n);
     logger_demon::logfile.write(s, n);
-
     return *this;
 }
 

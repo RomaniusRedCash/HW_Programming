@@ -9,30 +9,6 @@ using namespace ha_ns;
 //////////////////////////////////// ha_code ////////////////////////////////////
 
 ha_code::ha_code() : bytebit(0){};
-/*
-void ha_code::add_null() {
-    if (!(size%8)){
-        data.push_back(0);
-    }else {
-        data.back() &= 0xFF << (8 - size % 8);
-    }
-    size++;
-}
-void ha_code::add_one() {
-    if (!(size%8)){
-        data.push_back(0x80);
-    }else {
-        // data.back();
-        data.back() |= 0x80 >> size%8;
-    }
-    size++;
-}
-
-void ha_code::pop_back() {
-    size--;
-    data.back() &= 0xFF << (8-size%8);
-    if (!(size%8)) data.pop_back();
-}*/
 
 bool ha_code::read_hacode(sstrtobb& ssbb, const calculator& calc, const size_t& max_size) {
     while (ssbb.get_data().size() * 8 - 8 + ssbb.get_buffer_sdvig_size() > size) {
@@ -155,7 +131,6 @@ void calculator::remap(const std::map<size_t, std::vector<std::string>>& mapa_in
 
 calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
     if (v_node.size() < 2) throw"meni duje lenivo";
-    // std::sort(v_node.begin(), v_node.end(), [](node* a, node* b) { return *b < *a; });
     while (v_node.size() > 1) {
         std::vector<node*>::iterator it1 = v_node.begin(), it2 = v_node.begin() + 1;
         if (**it2 < **it1) std::swap(it1, it2);
@@ -165,11 +140,7 @@ calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
                 it2 = i;
             }
 
-        // if (it1 > it2) std::swap(it1, it2);
-        // if((*it1)->depth < (*it2)->depth)
-            // std::swap(it1, it2);
-
-#ifdef DEBUG
+#ifndef NDEBUG
         node* nn = new node((*it1)->data + (*it2)->data,(*it1)->num + (*it2)->num);
 #else
         node* nn = new node((*it1)->num + (*it2)->num);
@@ -183,9 +154,7 @@ calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
 
         if (it1 > it2) std::swap(it1, it2);
         *it2 = nn;
-        // v_node.erase(it2);
         v_node.erase(it1);
-        // v_node.push_back(nn);
 
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << "pool: ";
         for (const node* i :v_node)
@@ -281,8 +250,6 @@ const std::vector<std::string>& calculator::get_ord() const {
  * node size
 */
 
-
-
 #define BUFFER_SIZE 1024 * num_byte
 void ha_ns::ha_1(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num_byte, const calculator& calc) {
 // last byte
@@ -299,10 +266,7 @@ void ha_ns::ha_1(std::istream& stream_in, std::ostream& stream_out, const uint8_
     while(stream_in) {
         stream_in.read(buffer.data(), BUFFER_SIZE);
         read_bites = stream_in.gcount();
-        // sstrtobb bbs_in(buffer);
         for (size_t i = 0; i < read_bites / num_byte; i++) {
-            // bytebit bb(num_byte);
-            // bbs_in>>bb;
             bbs_out<<calc[buffer.substr(i * num_byte, num_byte)];
             bbs_out.try_write(stream_out);
         }
@@ -374,7 +338,7 @@ void de_ha(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL).write(buffer.data(), read_bites);
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<" size "<<read_bites<<std::endl;
 
-#ifdef DEBUG
+#ifndef NDEBUG
         logger(log_ns::DEV_ONLY)<<"new buffer is ";
         for (const char& c : buffer)
             logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
@@ -387,7 +351,6 @@ void de_ha(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num
             ssbb_tmp.set_buffer_sdvig_size(last_byte_size);
             ssbb << ssbb_tmp;
         } else ssbb<<buffer;
-            // ssbb.set_buffer_sdvig_size((ssbb.get_buffer_sdvig_size() + last_byte_size - 8) % 8);
         while (ssbb.get_data().size()) {
             ha_code hc;
             if (!hc.read_hacode(ssbb, calc, max_size_sim)) {

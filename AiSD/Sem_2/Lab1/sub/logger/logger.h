@@ -15,8 +15,6 @@ namespace log_ns {
 
         NORMAL_LVL = 1 << 3,
         HARD_LVL = 1 << 4,
-
-        // DEFAULT_LVL = FILE_LVL | CONS_LVL,
     };
 }
 
@@ -25,7 +23,6 @@ namespace log_ns {
 class logger_demon;
 class logger {
     uint8_t lvl = log_ns::NON_LVL;
-    //
     friend logger_demon;
     bool check_flag();
 public:
@@ -40,19 +37,15 @@ public:
 
 class logger_demon {
     static logger_demon log_dem;
-
     logger_demon();
     logger_demon(const logger_demon&) = delete;
     logger_demon& operator=(const logger_demon&) = delete;
-    // friend logger;
-
 public:
     inline static std::ofstream logfile;
     inline static uint8_t lvl = log_ns::NON_LVL;
     static void set_log_lvl(const uint8_t& lvl);
     static void add_log_lvl(const uint8_t& lvl);
     static void open_logfile(const char* name);
-
     ~logger_demon();
 };
 
@@ -64,6 +57,5 @@ logger& logger::operator<<(const T& t) {
     if (log_ns::FILE_LVL & logger_demon::lvl)
         logger_demon::logfile<<t;
     logger_demon::logfile.flush();
-
     return *this;
 }

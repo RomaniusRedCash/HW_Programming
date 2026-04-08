@@ -19,4 +19,3 @@ bool compare_f(std::istream& stream_in1, std::istream& stream_in2) {
     if (stream_in1.eof() != stream_in2.eof()) return false;
     return true;
 }
-
