@@ -4,7 +4,6 @@ void ha_ns::write_shift_size(std::ostream& stream_out, const size_t& size) {
     uint8_t size_shift = 0;
     for (size_shift = 0; size >> (size_shift * 8); size_shift++);
     stream_out << size_shift;
-    // size_t value = size << (sizeof(size) - size_shift * 8);
     logger() <<"write size "<< size <<" with shift "<<size_t(size_shift)<< std::endl;
     stream_out.write(reinterpret_cast<const char*>(&size), size_shift);
 }
@@ -19,10 +18,9 @@ void ha_ns::write_shift_size(std::ostream& stream_out, const calculator& calc) {
     stream_out << size_shift;
     for (const std::string& i :calc.get_ord()) {
         stream_out<<i;
-        // size_t value = i.second.get_size() << (sizeof(i.second.get_size()) - size_shift) * 8;
         stream_out.write(reinterpret_cast<const char*>(&calc.get_mapa().at(i).get_size()), size_shift);
 
-#ifdef DEBUG
+#ifndef NDEBUG
         logger(log_ns::DEV_ONLY) << "write: "<<i<<" : ";
         for (uint8_t j = 1; j <= size_shift; j++)
            logger()<<std::bitset<8>(calc.get_mapa().at(i).get_size() >> (size_shift - j) * 8);
@@ -42,11 +40,6 @@ void ha_ns::read_shift_size(std::istream& stream_in, size_t& size) {
         uint8_t byte = static_cast<uint8_t>(buffer[i]);
         size |= static_cast<size_t>(byte) << (i * 8);
     }
-    // logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"size shift "<<size_t(size_shift)<<" buffer ";
-    // for (const char& c : buffer)
-    //     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<size_t(c);
-    // logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<" size " <<size<<std::endl;
-
 }
 
 void ha_ns::read_shift_size(std::istream& stream_in, std::map<size_t, std::vector<std::string>>& mapa, const size_t& model_size, const uint8_t num_byte, const uint8_t& node_size) {

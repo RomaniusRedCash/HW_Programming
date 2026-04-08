@@ -176,13 +176,14 @@ sstrtobb& sstrtobb::operator<<(const std::string& str) {
 sstrtobb& sstrtobb::operator>>(std::string& str) {
     bytebit bb(str.size() * 8);
     *this >> bb;
+    bb.data.resize(str.size());
     str = bb.data;
     return *this;
 }
 
 sstrtobb& sstrtobb::operator<<(const uint8_t& c) {
     bytebit bb(sizeof(c) * 8);
-    std::memcpy(bb.data.data(), &c, sizeof(c));
+    bb << c;
     return *this << bb;
 }
 sstrtobb& sstrtobb::operator>>(uint8_t& c) {
