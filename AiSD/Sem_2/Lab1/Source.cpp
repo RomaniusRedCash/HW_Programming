@@ -11,6 +11,7 @@
 #include "sub/rle/rle.h"
 #include "sub/mtf/mtf.h"
 #include "sub/ha/ha.h"
+#include "sub/lz/lzw/lzw.h"
 #include "sub/lz/lzss/lzss.h"
 
 #include "sub/logger/logger.h"
@@ -39,7 +40,8 @@ enum eCOMMANDS : int {
     eRLE, eDERLE,
     eMTF, eDEMTF,
     eHA, eDEHA,
-    eLZSS, eDELZSS
+    eLZW, eDELZW,
+    eLZSS, eDELZSS,
 };
 
 std::vector<some_param> v_someprm = {
@@ -59,12 +61,14 @@ std::vector<some_param> v_someprm = {
     {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE},
     {"mtf", no_argument, nullptr, 0, ":use MTF.", eMTF},
     {"ha", no_argument, nullptr, 0, ":use HA.", eHA},
+    {"lzw", optional_argument, nullptr, 0, ":use LZW.", eLZW},
     {"lzss", optional_argument, nullptr, 0, ":use LZSS.", eLZSS},
 
 // NOTE: decompress
     {"de-rle", no_argument, nullptr, 0, ":extract from RLE.", eDERLE},
     {"de-mtf", no_argument, nullptr, 0, ":extract from MTF.", eDEMTF},
     {"de-ha", no_argument, nullptr, 0, ":extract from HA.", eDEHA},
+    {"de-lzw", optional_argument, nullptr, 0, ":extract from LZW.", eDELZW},
     {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS},
 
 };
@@ -132,6 +136,8 @@ int main(const int argc, char* argv[]) {
                         logger_demon::add_log_lvl(log_ns::NORMAL_LVL);
                         break;
 
+                    case eLZW:
+                    case eDELZW:
                     case eLZSS:
                     case eDELZSS:
                         if (optarg != nullptr)
@@ -190,6 +196,9 @@ int main(const int argc, char* argv[]) {
                 ha(file_tmp, file_out, num_byte);
                 std::cout<<"- stop HA"<<std::endl;
                 break;
+            case eLZW:
+                start_algorithm(map_translater[ec], [&]{lzw(file_tmp, file_out, num_byte, buffer_size_lz);});
+                break;
             case eLZSS:
                 start_algorithm(map_translater[ec], [&]{lzss(file_tmp, file_out, num_byte, buffer_size_lz);});
                 break;
@@ -209,6 +218,9 @@ int main(const int argc, char* argv[]) {
                 std::cout<<"- start deHA"<<std::endl;
                 de_ha(file_tmp, file_out, num_byte);
                 std::cout<<"- stop deHA"<<std::endl;
+                break;
+            case eDELZW:
+                start_algorithm(map_translater[ec], [&]{de_lzw(file_tmp, file_out, num_byte, buffer_size_lz);});
                 break;
             case eDELZSS:
                 start_algorithm(map_translater[ec], [&]{de_lzss(file_tmp, file_out, num_byte, buffer_size_lz);});

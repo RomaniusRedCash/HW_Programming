@@ -187,13 +187,6 @@ sstrtobb& sstrtobb::operator<<(const uint8_t& c) {
     return *this << bb;
 }
 sstrtobb& sstrtobb::operator>>(uint8_t& c) {
-    // if (data.size() * 8 - 8 + buffer_sdvig_size < 8) throw "ERR";
-    // c = data.back();
-    // data.pop_back();
-    // if (buffer_sdvig_size) {
-    //     c >>= 8  - buffer_sdvig_size;
-    //     c|= (0xFF <<buffer_sdvig_size) & data.back();
-    // }
     bytebit bb(sizeof(c) * 8);
     *this >> bb;
     std::memcpy(&c, bb.data.data(), sizeof(c));
