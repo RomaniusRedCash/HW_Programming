@@ -40,13 +40,7 @@ void RLE(std::istream& stream_in, std::ostream& stream_out) {
         }
     }
 }
-#undef BUFFER_SIZE
-#undef SUB_BUFFER_SIZE
 
-
-
-#define BUFFER_SIZE 1024 * num_byte
-#define SUB_BUFFER_SIZE 130 * num_byte
 void RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte) {
     std::string buffer(BUFFER_SIZE, 0);
     while (stream_in) {
@@ -60,9 +54,6 @@ void RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte
         }
         int len = 0;
         for (size_t chunk = 0; chunk < read_bytes; chunk+=len*num_byte) {
-
-            // std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
             if (chunk + SUB_BUFFER_SIZE > read_bytes && !stream_in.eof()){
                 stream_in.clear();
                 stream_in.seekg(-(read_bytes-chunk), std::ios::cur);
@@ -71,11 +62,6 @@ void RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte
             size_t str_len = std::min<size_t>(SUB_BUFFER_SIZE, read_bytes-chunk);
             std::string_view sub_buffer(buffer.data() + chunk, str_len);
             if(str_len < num_byte) {
-                // std::string str(sub_buffer);
-                // str.resize(num_byte, 0);
-                // stream_out.put(uint8_t(0));
-                // stream_out.write(sub_buffer.data(), num_byte);
-                // return;
                 stream_out.put(0);
                 stream_out.write(sub_buffer.data(), str_len);
                 return;
@@ -88,9 +74,9 @@ void RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte
                 stream_out.put(uint8_t((len - 1) | MASK_RLE));
                 stream_out.write(sub_buffer.data(), num_byte);
 
-                logger()<<"r:"<<len<<' ';
-                logger().write(sub_buffer.data(), num_byte);
-                logger()<<std::endl;
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"r: "<<len<<' ';
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL).write(sub_buffer.data(), num_byte);
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
 
                 continue;
             }
@@ -103,9 +89,9 @@ void RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte
             stream_out.put(uint8_t(len - 1));
             stream_out.write(sub_buffer.data(), len * num_byte);
 
-            logger()<<"nr:"<<len<<' ';
-            logger().write(sub_buffer.data(), len * num_byte);
-            logger()<<std::endl;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"nr: "<<len<<' ';
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL).write(sub_buffer.data(), len * num_byte);
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
         }
     }
 }
@@ -121,9 +107,6 @@ void from_RLE(std::istream& stream_in, std::ostream& stream_out) {
             len ^= MASK_RLE;
             if (stream_in.get(byte))
                 for (uint8_t i = 0; i <= len; i++){
-
-                    // logger()<<byte;
-
                     stream_out << byte;
                 }
         }
@@ -131,10 +114,6 @@ void from_RLE(std::istream& stream_in, std::ostream& stream_out) {
             len++;
             std::string str(len, 0);
             stream_in.read(str.data(), len);
-
-            // logger()<<int(len)<<std::endl;
-            // logger()<<str;
-
             stream_out.write(str.data(), len);
         }
     }
@@ -144,7 +123,6 @@ void from_RLE(std::istream& stream_in, std::ostream& stream_out) {
 void from_RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte) {
     char byte;
     uint8_t len;
-
     while (stream_in.get(byte)){
         len = byte;
         std::string str;
@@ -154,8 +132,7 @@ void from_RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num
             if (stream_in.read(str.data(), num_byte))
                 for (uint8_t i = 0; i <= len; i++){
                     stream_out.write(str.data(), num_byte);
-
-                    logger()<<byte;
+                    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<byte;
                 }
         }
         else {
@@ -163,14 +140,12 @@ void from_RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num
             str.resize(len * num_byte, 0);
             stream_in.read(str.data(), len * num_byte);
             stream_out.write(str.data(), stream_in.gcount());
-
-            logger()<<std::endl<<int(len)<<std::endl;
-            logger()<<str;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl<<int(len)<<std::endl;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<str;
         }
     }
 
 }
-
 #undef MASK_RLE
 
 std::string_view::const_iterator find_first_not_of_str(const std::string_view& str1, const std::string_view& str2) {

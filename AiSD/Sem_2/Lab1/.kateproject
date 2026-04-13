@@ -2,7 +2,8 @@
     "name": "Compressor",
     "files": [
         {
-            "recursive": true
+            "recursive": true,
+            "filters": ["*.cpp", "*.hpp", "*.cxx", "*.cc", "*.h", "Makefile"]
         }
     ],
     "build": {

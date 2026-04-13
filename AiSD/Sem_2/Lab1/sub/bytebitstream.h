@@ -33,11 +33,13 @@ protected:
 public:
     bytebit(const size_t& size);
     bytebit& operator<<(const char& c);
+    bytebit& operator<<(const std::string& str);
     const std::string& get_data() const override;
     const size_t& get_size() const;
     void add_null();
     void add_one();
     void pop_back();
+    void clear();
 };
 
 class sstrtobb : public ssbb_base {
