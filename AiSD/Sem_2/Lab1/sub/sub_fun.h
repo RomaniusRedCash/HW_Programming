@@ -8,7 +8,7 @@
 #include <string_view>
 #include <thread>
 #include <cstring>
-#include <map>
+#include <unordered_map>
 #include "logger/logger.h"
 
 
@@ -27,12 +27,12 @@ enum eCOMMANDS : int;
 
 template<typename T1, typename T2>
 class bimap {
-    std::map<T1, const T2*> map_s_e;
-    std::map<T2, const T1*> map_e_s;
+    std::unordered_map<T1, const T2*> map_s_e;
+    std::unordered_map<T2, const T1*> map_e_s;
 public:
     void insert(const T1& a, const T2& b) {
-        typename std::map<T1, const T2*>::iterator pairse = map_s_e.insert({a,nullptr}).first;
-        typename std::map<T2, const T1*>::iterator paires = map_e_s.insert({b,nullptr}).first;
+        typename std::unordered_map<T1, const T2*>::iterator pairse = map_s_e.insert({a,nullptr}).first;
+        typename std::unordered_map<T2, const T1*>::iterator paires = map_e_s.insert({b,nullptr}).first;
         pairse->second = &paires->first;
         paires->second = &pairse->first;
     }

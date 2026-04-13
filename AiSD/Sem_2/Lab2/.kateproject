@@ -1,0 +1,17 @@
+{
+    "name": "JPEG",
+    "files": [
+        {
+            "recursive": true
+        }
+    ],
+    "build": {
+        "directory": ".",
+        "targets": [
+            {
+                "name": "Run",
+                "build_cmd": "python Source.py"
+            }
+        ]
+    }
+}

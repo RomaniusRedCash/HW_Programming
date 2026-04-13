@@ -1,7 +1,9 @@
 #include <ios>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <iomanip>
 #include <getopt.h>
@@ -151,111 +153,92 @@ int main(const int argc, char* argv[]) {
                 break;
         }
 
-    if (str_inp.empty()) {
-        std::cout<<"No input path."<<std::endl;
-        // return 0;
-    }
+    if (str_inp.empty()) std::cout<<"No input path."<<std::endl;
     if (str_out.empty()) str_out = str_inp + ".compr";
-
-    #define TMP_FILE_NAME ".compr.tmp"
-    std::fstream file_in(str_inp, std::ios::in);
-    std::fstream file_tmp(TMP_FILE_NAME, std::ios::out | std::ios::in | std::ios::trunc);
+    std::fstream file_in(str_inp, std::ios::in | std::ios::binary);
+    std::stringstream ss_tmp1,ss_tmp2;
+    std::stringstream *p_ss_tmp1 = &ss_tmp1, *p_ss_tmp2 = &ss_tmp2;
     std::fstream file_out;
-
-    if (!(file_in.is_open() && file_tmp.is_open())) {
+    if (file_in.is_open())
+        ss_tmp1 << file_in.rdbuf();
+    else {
         std::cout<<"ERROR! Some files can't openning or creating."<<std::endl;
-        // return 0;
+        return 1;
     }
-
-    file_tmp << file_in.rdbuf();
-    file_tmp.seekg(0, std::ios::beg);
-    file_tmp.seekp(0, std::ios::beg);
-
-    for (const eCOMMANDS& ec : v_params){
-        file_out.open(str_out, std::ios::out | std::ios::in | std::ios::trunc);
+    for (const eCOMMANDS& ec : v_params) {
+        p_ss_tmp2->str(std::string());
+        p_ss_tmp2->clear();
+        p_ss_tmp1->clear();
+        p_ss_tmp1->seekg(0,std::ios::beg);
         switch (ec) {
-
-
             case eENWIKn7:
-                    enwik8_to_enwik(file_tmp, file_out);
-                    break;
+                enwik8_to_enwik(*p_ss_tmp1, *p_ss_tmp2);
+                break;
 
                 // NOTE: compress
             case eRLE:
-                std::cout<<"- start RLE"<<std::endl;
-                RLE2(file_tmp, file_out, num_byte);
-                std::cout<<"- stop RLE"<<std::endl;
+                start_algorithm(map_translater[ec], [&]{RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eMTF:
-                std::cout<<"- start MTF"<<std::endl;
-                mtf(file_tmp, file_out, num_byte);
-                std::cout<<"- stop MTF"<<std::endl;
+                start_algorithm(map_translater[ec], [&]{mtf(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eHA:
-                std::cout<<"- start HA"<<std::endl;
-                ha(file_tmp, file_out, num_byte);
-                std::cout<<"- stop HA"<<std::endl;
+                start_algorithm(map_translater[ec], [&]{ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eLZW:
-                start_algorithm(map_translater[ec], [&]{lzw(file_tmp, file_out, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
             case eLZSS:
-                start_algorithm(map_translater[ec], [&]{lzss(file_tmp, file_out, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
 
                 // NOTE: decompress
             case eDERLE:
-                std::cout<<"- start deRLE"<<std::endl;
-                from_RLE2(file_tmp, file_out, num_byte);
-                std::cout<<"- stop deRLE"<<std::endl;
+                start_algorithm(map_translater[ec], [&]{from_RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eDEMTF:
-                std::cout<<"- start deMTF"<<std::endl;
-                de_mtf(file_tmp, file_out, num_byte);
-                std::cout<<"- stop deMTF"<<std::endl;
+                start_algorithm(map_translater[ec], [&]{de_mtf(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eDEHA:
-                std::cout<<"- start deHA"<<std::endl;
-                de_ha(file_tmp, file_out, num_byte);
-                std::cout<<"- stop deHA"<<std::endl;
+                start_algorithm(map_translater[ec], [&]{de_ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eDELZW:
-                start_algorithm(map_translater[ec], [&]{de_lzw(file_tmp, file_out, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
             case eDELZSS:
-                start_algorithm(map_translater[ec], [&]{de_lzss(file_tmp, file_out, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
 
 
             case eTEST:
                 test("abacabacabadaca", num_byte);
                 break;
-
             default:
                 break;
-            }
-            file_out.clear();
-            file_out.seekg(0, std::ios::beg);
-            file_tmp.close();
-            file_tmp.open(TMP_FILE_NAME, std::ios::out | std::ios::in | std::ios::trunc);
-            file_tmp << file_out.rdbuf();
-            file_tmp.clear();
-            file_tmp.seekg(0, std::ios::beg);
-            file_out.close();
         }
-    std::remove(TMP_FILE_NAME);
-#undef TMP_FILE_NAME
-
+        std::swap(p_ss_tmp1, p_ss_tmp2);
+    }
+    file_out.open(str_out, std::ios::out);
+    if (!file_out.is_open()) {
+        logger() << "ERROR! Can't create out file."<<std::endl;
+        return 1;
+    } else {
+        p_ss_tmp1->clear();
+        p_ss_tmp1->seekg(0,std::ios::beg);
+        file_out<<p_ss_tmp1->rdbuf();
+    }
     if (!str_cmpr.empty()) {
-        std::cout<<"- start compare"<<std::endl;
-        std::fstream file_cmpr(str_cmpr, std::ios::in);
-        if (compare_f(file_cmpr, file_tmp)) std::cout<< "file is equal" << std::endl;
-        else std::cout<< "file is not equal" << std::endl;
+        file_in.clear();
+        file_in.seekg(0,std::ios::beg);
+        std::fstream file_cmpr(str_cmpr, std::ios::in | std::ios::binary);
+        if (!file_cmpr.is_open()) {
+            logger()<<"ERROR! Can't open file for compare."<<std::endl;
+            return 1;
+        }
+        start_algorithm("compare", [&]{logger() << (compare_f(file_cmpr, file_in) ? "file is equal" : "file is not equal") << std::endl;});
         file_cmpr.close();
-        std::cout<<"- stop compare"<<std::endl;
     }
     file_in.close();
-    file_tmp.close();
 
     return 0;
 }

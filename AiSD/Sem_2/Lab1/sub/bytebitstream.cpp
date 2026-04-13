@@ -69,12 +69,22 @@ bytebit::bytebit(const size_t& size) : size(size) {
 }
 
 bytebit& bytebit::operator<<(const char& c){
-    logger(log_ns::DEV_ONLY)<<"try read "<<std::bitset<8>(c)<< " for size " << data.size() * 8 <<" from "<< size <<std::endl;
+    logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << "try read "<<std::bitset<8>(c) << " for size " << data.size() * 8 << " from " << size <<std::endl;
     if (data.size()*8 > size) throw "ERROR";
     int shift = size - data.size() * 8;
     shift = std::min(shift, 8);
-    logger(log_ns::DEV_ONLY) << size - data.size()*8<< ' '<<std::bitset<8>(~(uint8_t(0xFF) >> shift))<<std::endl;
+    logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << size - data.size()*8<< ' '<<std::bitset<8>(~(uint8_t(0xFF) >> shift))<<std::endl;
     data.push_back(c & ~(uint8_t(0xFF) >> shift));
+    return *this;
+}
+
+bytebit& bytebit::operator<<(const std::string& str) {
+    logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"try read ";
+    for(const char& c : str)
+        logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::bitset<8>(c);
+    logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << " for size " << data.size() * 8 <<" from "<< size <<std::endl;
+    if (data.size()*8 > size || str.size() > (size + 7) / 8) throw "ERROR";
+    data = str;
     return *this;
 }
 
@@ -106,6 +116,10 @@ void bytebit::pop_back() {
     size--;
     data.back() &= 0xFF << (8-size%8);
     if (!(size%8)) data.pop_back();
+}
+
+void bytebit::clear() {
+    data.clear();
 }
 
 //////////////////////////////////// sstrtobb ////////////////////////////////////
