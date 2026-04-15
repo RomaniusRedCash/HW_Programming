@@ -9,12 +9,15 @@
 #include <getopt.h>
 
 #include "sub/sub_fun.h"
+#ifndef NDEBUG
 #include "sub/test/test.h"
+#endif
 #include "sub/rle/rle.h"
 #include "sub/mtf/mtf.h"
 #include "sub/ha/ha.h"
 #include "sub/lz/lzw/lzw.h"
 #include "sub/lz/lzss/lzss.h"
+#include "sub/itu/itu.h"
 
 #include "sub/logger/logger.h"
 
@@ -44,6 +47,8 @@ enum eCOMMANDS : int {
     eHA, eDEHA,
     eLZW, eDELZW,
     eLZSS, eDELZSS,
+
+    eITU, eDEITU
 };
 
 std::vector<some_param> v_someprm = {
@@ -53,12 +58,13 @@ std::vector<some_param> v_someprm = {
     {"byte", required_argument, nullptr, 0, "[num]:custom num of byte (default 1).", eBYTE},
     {"compare", required_argument, nullptr, 0, " [path]:compare input file with file by path.", eCMPRE},
     {"enwikn-to-enwik", no_argument, nullptr, 0, ":first 1E+7 byte from file", eENWIKn7},
+#ifndef NDEBUG
     {"test", no_argument, nullptr, 0, ":test", eTEST},
+#endif
     {"log-file", no_argument, nullptr, 0, ":log in file", eLOGF},
     {"log-console", no_argument, nullptr, 0, ":log in console", eLOGC},
     {"log-n", no_argument, nullptr, 0, ":log in normal lvl", eLOGN},
     {"log-h", no_argument, nullptr, 0, ":log in hard lvl", eLOGH},
-
 // NOTE: compress
     {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE},
     {"mtf", no_argument, nullptr, 0, ":use MTF.", eMTF},
@@ -72,6 +78,9 @@ std::vector<some_param> v_someprm = {
     {"de-ha", no_argument, nullptr, 0, ":extract from HA.", eDEHA},
     {"de-lzw", optional_argument, nullptr, 0, ":extract from LZW.", eDELZW},
     {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS},
+
+    {"de-itu", required_argument, nullptr, 0, "[C/nC]:compress JPEG layer.", eITU},
+    {"de-itu", required_argument, nullptr, 0, "[C/nC]:decompress JPEG layer.", eDEITU},
 
 };
 
@@ -94,9 +103,8 @@ int main(const int argc, char* argv[]) {
     for (const some_param& i : v_someprm) long_opt.push_back(i.opt);
 
     int opt, long_idx;
-    std::string str_inp;
-    std::string str_out;
-    std::string str_cmpr;
+    std::string str_inp, str_out, str_cmpr;
+    std::string str_itu;
     uint8_t num_byte = 1;
     uint8_t buffer_size_lz = 8;
     std::vector<eCOMMANDS> v_params;
@@ -138,6 +146,10 @@ int main(const int argc, char* argv[]) {
                         logger_demon::add_log_lvl(log_ns::NORMAL_LVL);
                         break;
 
+                    case eITU:
+                    case eDEITU:
+                        str_itu = optarg;
+                        break;
                     case eLZW:
                     case eDELZW:
                     case eLZSS:
@@ -209,10 +221,18 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
 
+            case eITU:
+                start_algorithm(map_translater[ec], [&]{itu(*p_ss_tmp1, *p_ss_tmp2, itu_ns::get_layer(str_itu));});
+                break;
+            case eDEITU:
+                start_algorithm(map_translater[ec], [&]{de_itu(*p_ss_tmp1, *p_ss_tmp2, itu_ns::get_layer(str_itu));});
+                break;
 
+#ifndef NDEBUG
             case eTEST:
                 test("abacabacabadaca", num_byte);
                 break;
+#endif
             default:
                 break;
         }
