@@ -11,13 +11,19 @@ void calculator::add_to_map(const uint8_t& a, const uint8_t& size, const uint32_
     }
     bytebit bb(size);
     bb<<str;
-    mapa.insert(a,b);
+    mapa.insert(a,bb);
 }
 
 const bytebit& calculator::operator[](const uint8_t& l) const {
     return mapa[l];
 }
+const uint8_t& calculator::operator[](const bytebit& bb) const {
+    return mapa[bb];
+}
 
+bool calculator::have_code(const bytebit& bb) const {
+    return mapa.contain(bb);
+}
 
 calculator_DC::calculator_DC() {
     add_to_map(0, 2, 0b00);

@@ -17,9 +17,9 @@ def process_channel(channel_data, q_matrix, filename, size):
     with open(filename, 'wb') as f:
         f.write(struct.pack(f'<{len(D)}l', *D))
 
-    subprocess.run("./exe -i {filename} -o {filename}.cmpr --rle-itu")
+    subprocess.run(f"./exe -i {filename} -o {filename}.cmpr --itu")
 
-def compress1(img):
+def compress1(img, quality):
     if img.mode != 'YCbCr':
         img = rgb_to_ycbcr(img)
     width, height = img.size
@@ -46,9 +46,9 @@ def compress1(img):
         [99, 99, 99, 99, 99, 99, 99, 99]
     ])
 
-    p1 = Process(target=process_channel, args=(Y, Q_Luminance, "Y.tmp", size))
-    p2 = Process(target=process_channel, args=(Cb, Q_CLuminance, "Cb.tmp", size))
-    p3 = Process(target=process_channel, args=(Cr, Q_CLuminance, "Cr.tmp", size))
+    p1 = Process(target=process_channel, args=(Y, get_scaled_quantization_table(Q_Luminance, quality), "Y.tmp", size))
+    p2 = Process(target=process_channel, args=(Cb, get_scaled_quantization_table(Q_CLuminance, quality), "Cb.tmp", size))
+    p3 = Process(target=process_channel, args=(Cr, get_scaled_quantization_table(Q_CLuminance, quality), "Cr.tmp", size))
     p1.start()
     p2.start()
     p3.start()

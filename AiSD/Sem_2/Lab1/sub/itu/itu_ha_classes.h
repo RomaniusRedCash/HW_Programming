@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
-#include "../../bytebitstream.h"
-#include "../../sub_fun.h"
+#include "../bytebitstream.h"
+#include "../sub_fun.h"
 
 namespace std {
     template <>
@@ -24,6 +24,8 @@ namespace itu_ns {
         calculator() = default;
         virtual ~calculator() = default;
         const bytebit& operator[](const uint8_t& l) const;
+        const uint8_t& operator[](const bytebit& bb) const;
+        bool have_code(const bytebit& bb) const;
     };
 
     class calculator_DC : public calculator {

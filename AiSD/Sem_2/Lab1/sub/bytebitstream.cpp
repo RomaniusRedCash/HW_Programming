@@ -68,6 +68,11 @@ bytebit::bytebit(const size_t& size) : size(size) {
 
 }
 
+bool bytebit::operator==(const bytebit& bb) {
+    if (get_size() != bb.get_size()) return false;
+    if ()
+}
+
 bytebit& bytebit::operator<<(const char& c){
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << "try read "<<std::bitset<8>(c) << " for size " << data.size() * 8 << " from " << size <<std::endl;
     if (data.size()*8 > size) throw "ERROR";

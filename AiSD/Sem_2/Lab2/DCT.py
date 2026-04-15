@@ -117,6 +117,20 @@ def quantize(dct_coefficients, q_table):
 def dequantize(quantized_coefficients, q_table):
     return (quantized_coefficients * q_table).astype(float)
 
+def get_scaled_quantization_table(base_table, quality):
+    if quality < 1:
+        quality = 1
+    elif quality > 100:
+        quality = 100
+
+    if quality < 50:
+        S = 5000 / quality
+    else:
+        S = 200 - 2 * quality
+    scaled_table = np.ceil((base_table * S) / 100.0)
+    scaled_table = np.clip(scaled_table, 1, 255)
+    return scaled_table.astype(int)
+
 def test_dct_pipeline(img):
     Q_Luminance = np.array([
         [16, 11, 10, 16, 24, 40, 51, 61],
