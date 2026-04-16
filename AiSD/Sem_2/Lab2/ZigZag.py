@@ -18,7 +18,7 @@ def zigzag(matrix):
                 result.append(matrix[y,x])
                 y += 1
                 x -= 1
-    return result
+    return  np.array(result, dtype=np.int32)
 
 def deZigzag(L, rows, cols):
     matrix = np.zeros((rows, cols))
@@ -40,4 +40,4 @@ def deZigzag(L, rows, cols):
                 y += 1
                 x -= 1
                 i+=1
-    return matrix
+    return matrix.astype(int32)

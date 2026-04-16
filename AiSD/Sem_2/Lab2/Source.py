@@ -5,6 +5,7 @@ from ColorConvert import *
 from ReSampling import *
 from Interpolation import *
 from RAWer import *
+from JDI import *
 
 ##############################################################
 
@@ -15,9 +16,9 @@ Lenna = Image.open('250px-Lenna.png')
 # up2(down2(Lenna)).show()
 # test_dct_pipeline(Lenna).show()
 
-IMGsome = resize_bilinear(Lenna, (5, 5))
-IMGsome.show()
-resize_bilinear(IMGsome, (512, 512)).show()
+# IMGsome = resize_bilinear(Lenna, (5, 5))
+# IMGsome.show()
+# resize_bilinear(IMGsome, (512, 512)).show()
 
-
+compress1(Lenna,75)
 
