@@ -94,16 +94,13 @@ def DCT(startXPos, startYPos, pixels):
     x0=startXPos * 8
     y0=startYPos * 8
     block = np.zeros((8, 8))
-    actual_pixels = pixels[x0 : min(x0 + 8, width), y0 : min(y0 + 8, height)]
-    avg_value = np.mean(actual_pixels)
-    block.fill(avg_value)
-    for x in range(min(8, width - x0)):
-        for y in range(min(8, height - y0)):
-            block[x, y] = pixels[x0 + x, y0 + y]
+    for y in range(8):
+        for x in range(8):
+            block[y, x] = pixels[x0 + x, y0 + y]
     block -= 128
     return C @ block @ C.T
 def deDCT(S):
-    С+=128
+    S+=128
     C = np.zeros((8, 8))
     for i in range(8):
         C[0,i]=1/np.sqrt(8)
@@ -142,12 +139,13 @@ def test_dct_pipeline(img):
         [49, 64, 78, 87, 103, 121, 120, 101],
         [72, 92, 95, 98, 112, 100, 103, 99]
     ])
-    width, height = img.size
+    size = img.size
+    width, height = size
     width = (width // 8) * 8
     height = (height // 8) * 8
     img = img.crop((0, 0, width, height))
     A,B,C = img.split()
-    A, B, C = A.load(), B.load(), C.load()
+    A, B,C = A.load(), B.load(), C.load()
     res_img = Image.new(img.mode, (width, height))
     res_pixels = res_img.load()
     for y_block in range(height // 8):

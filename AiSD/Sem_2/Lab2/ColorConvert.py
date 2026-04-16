@@ -13,7 +13,7 @@ def rgb_to_ycbcr(pixl):
     return np.clip(ycbcr, 0, 255).astype(np.uint8)
 def img_rgb_to_ycbcr(img):
     if img.mode != 'RGB':
-        img.convert('RGB')
+        return NULL
     new_data = [tuple(rgb_to_ycbcr(p)) for p in img.getdata()]
     out = Image.new('YCbCr', img.size)
     out.putdata(new_data)
