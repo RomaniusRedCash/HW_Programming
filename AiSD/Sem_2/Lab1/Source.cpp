@@ -79,7 +79,7 @@ std::vector<some_param> v_someprm = {
     {"de-lzw", optional_argument, nullptr, 0, ":extract from LZW.", eDELZW},
     {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS},
 
-    {"de-itu", required_argument, nullptr, 0, "[C/nC]:compress JPEG layer.", eITU},
+    {"itu", required_argument, nullptr, 0, "[C/nC]:compress JPEG layer.", eITU},
     {"de-itu", required_argument, nullptr, 0, "[C/nC]:decompress JPEG layer.", eDEITU},
 
 };

@@ -68,9 +68,9 @@ bytebit::bytebit(const size_t& size) : size(size) {
 
 }
 
-bool bytebit::operator==(const bytebit& bb) {
+bool bytebit::operator==(const bytebit& bb) const {
     if (get_size() != bb.get_size()) return false;
-    if ()
+    return get_data() == bb.get_data();
 }
 
 bytebit& bytebit::operator<<(const char& c){

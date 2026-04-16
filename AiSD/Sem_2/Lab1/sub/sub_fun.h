@@ -43,6 +43,6 @@ public:
         return *map_e_s.at(a);
     }
     bool contain(const T2& a) const {
-        return map_s_e.find(a) != map_s_e.end();
+        return map_e_s.find(a) != map_e_s.end();
     }
 };

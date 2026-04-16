@@ -32,7 +32,7 @@ protected:
     size_t size;
 public:
     bytebit(const size_t& size);
-    bool operator==(const bytebit& bb);
+    bool operator==(const bytebit& bb) const;
     bytebit& operator<<(const char& c);
     bytebit& operator<<(const std::string& str);
     const std::string& get_data() const override;
