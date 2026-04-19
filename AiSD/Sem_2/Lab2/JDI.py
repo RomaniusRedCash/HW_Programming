@@ -55,7 +55,7 @@ def deprocess_channel(q_matrix, filename, size, layer):
     width, height = size
     width = (width + 7) // 8 * 8
     height = (height + 7) // 8 * 8
-    # subprocess.run(["./exe", f"--de-itu={layer}", "-o", filename, "-i", f"{filename}.cmpr", "--log-file"], check=True)
+    subprocess.run(["./exe", f"--de-itu={layer}", "-o", filename, "-i", f"{filename}.cmpr", "--log-file"], check=True)
     data = np.fromfile(filename, dtype=np.int16)
     channel_data = np.zeros((height, width))
     block_idx = 0
