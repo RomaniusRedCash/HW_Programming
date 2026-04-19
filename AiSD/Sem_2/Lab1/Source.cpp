@@ -121,6 +121,8 @@ int main(const int argc, char* argv[]) {
                 str_out = optarg;
                 break;
             case 0:
+                if (map_translater[long_opt[long_idx].name] < eLOGF || map_translater[long_opt[long_idx].name] > eLOGH)
+                    v_params.push_back(map_translater[long_opt[long_idx].name]);
                 switch (map_translater[long_opt[long_idx].name]) {
 
                     case eCMPRE:
@@ -157,7 +159,6 @@ int main(const int argc, char* argv[]) {
                         if (optarg != nullptr)
                             buffer_size_lz = std::stoi(optarg);
                     default:
-                        v_params.push_back(map_translater[long_opt[long_idx].name]);
                         break;
                 }
                 break;
@@ -238,7 +239,7 @@ int main(const int argc, char* argv[]) {
         }
         std::swap(p_ss_tmp1, p_ss_tmp2);
     }
-    file_out.open(str_out, std::ios::out);
+    file_out.open(str_out, std::ios::out | std::ios::binary);
     if (!file_out.is_open()) {
         logger() << "ERROR! Can't create out file."<<std::endl;
         return 1;
@@ -258,6 +259,7 @@ int main(const int argc, char* argv[]) {
         start_algorithm("compare", [&]{logger() << (compare_f(file_cmpr, file_in) ? "file is equal" : "file is not equal") << std::endl;});
         file_cmpr.close();
     }
+    file_out.close();
     file_in.close();
 
     return 0;

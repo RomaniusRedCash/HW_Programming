@@ -40,4 +40,4 @@ def deZigzag(L, rows, cols):
                 y += 1
                 x -= 1
                 i+=1
-    return matrix.astype(int32)
+    return matrix.astype(np.int32)

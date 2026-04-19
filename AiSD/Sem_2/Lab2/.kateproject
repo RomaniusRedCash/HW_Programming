@@ -2,7 +2,8 @@
     "name": "JPEG",
     "files": [
         {
-            "recursive": true
+            "recursive": true,
+            "filters": ["*.py"]
         }
     ],
     "build": {

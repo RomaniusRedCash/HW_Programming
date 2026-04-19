@@ -8,6 +8,7 @@
 #include <string_view>
 #include <thread>
 #include <cstring>
+#include <map>
 #include <unordered_map>
 #include "logger/logger.h"
 

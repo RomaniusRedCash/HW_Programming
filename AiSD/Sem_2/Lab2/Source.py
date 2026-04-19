@@ -20,5 +20,6 @@ Lenna = Image.open('250px-Lenna.png')
 # IMGsome.show()
 # resize_bilinear(IMGsome, (512, 512)).show()
 
-compress1(Lenna,75)
+# compress1(Lenna,100)
+# test_dct_pipeline(Lenna).show()
 

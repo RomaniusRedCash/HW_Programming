@@ -2,12 +2,12 @@
 
 using namespace itu_ns;
 
-void calculator::add_to_map(const uint8_t& a, const uint8_t& size, const uint32_t& b) {
+void calculator::add_to_map(const uint8_t& a, const uint8_t& size, const uint16_t& b) {
     uint8_t real_size = (size + 7) / 8;
     std::string str(real_size, 0);
-    uint32_t real_b = (static_cast<uint32_t>(b) << (sizeof(int32_t) * 8 - size));
+    uint32_t real_b = (static_cast<uint32_t>(b) << (sizeof(uint32_t) * 8 - size));
     for (uint8_t i = 0; i < real_size; i++) {
-        str[i] = static_cast<char>((real_b >> (sizeof(int32_t) * 8 - (i + 1) * 8)) & 0xFF);
+        str[i] = static_cast<char>((real_b >> ((sizeof(uint32_t) - (i + 1)) * 8)) & 0xFF);
     }
     bytebit bb(size);
     bb<<str;
@@ -56,7 +56,7 @@ calculator_CDC::calculator_CDC() {
 }
 
 calculator_AC::calculator_AC() {
-add_to_map(0x00, 4, 1010);
+add_to_map(0x00, 4, 0b1010);
 add_to_map(0x01, 2, 0b00);
 add_to_map(0x02, 2, 0b01);
 add_to_map(0x03, 3, 0b100);
@@ -88,7 +88,7 @@ add_to_map(0x28, 16, 0b1111111110001100);
 add_to_map(0x29, 16, 0b1111111110001101);
 add_to_map(0x2A, 16, 0b1111111110001110);
 add_to_map(0x31, 6, 0b111010);
-add_to_map(0x32, 19, 0b111110111);
+add_to_map(0x32, 9, 0b111110111);
 add_to_map(0x33, 12, 0b111111110101);
 add_to_map(0x34, 16, 0b1111111110001111);
 add_to_map(0x35, 16, 0b1111111110010000);
