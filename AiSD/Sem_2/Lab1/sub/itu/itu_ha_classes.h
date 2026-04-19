@@ -19,7 +19,7 @@ namespace itu_ns {
     class calculator {
     protected:
         bimap<uint8_t, bytebit> mapa;
-        void add_to_map(const uint8_t& a, const uint8_t& size, const uint32_t& b);
+        void add_to_map(const uint8_t& a, const uint8_t& size, const uint16_t& b);
     public:
         calculator() = default;
         virtual ~calculator() = default;

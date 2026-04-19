@@ -7,9 +7,9 @@
 #include "../bytebitstream.h"
 
 namespace itu_ns {
-    uint8_t get_category(const int32_t& x);
-    void write_shift(sstrtobb& ssbb, const uint8_t& size, const int32_t& x);
-    void read_shift(sstrtobb& ssbb, const uint8_t& size);
+    uint8_t get_category(const int16_t& x);
+    void write_shift(sstrtobb& ssbb, const uint8_t& size, const int16_t& x);
+    bool read_shift(sstrtobb& ssbb, const uint8_t& size, int16_t& x);
     enum e_layer : uint8_t {
         eCHROM, eNOCHROM
     };

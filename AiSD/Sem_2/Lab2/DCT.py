@@ -85,29 +85,35 @@ def simpleDeDCT_Generic(S, N, M):
     return np.clip(np.round(s_reconstructed), 0, 255).astype(np.uint8)
 
 def DCT(startXPos, startYPos, pixels):
+    pixels = np.array(pixels)
     C = np.zeros((8, 8))
     for i in range(8):
         C[0,i]=1/np.sqrt(8)
     for i in range(1, 8):
         for j in range(8):
             C[i, j] = np.sqrt(0.25) * np.cos((2 * j + 1) * i * np.pi / (16))
-    x0=startXPos * 8
-    y0=startYPos * 8
+    height, width = pixels.shape
+    y0 = startYPos * 8
+    x0 = startXPos * 8
     block = np.zeros((8, 8))
-    for y in range(8):
-        for x in range(8):
-            block[y, x] = pixels[x0 + x, y0 + y]
+    actual_pixels = pixels[y0 : min(y0 + 8, height), x0 : min(x0 + 8, width)]
+    avg_value = np.mean(actual_pixels)
+    block.fill(avg_value)
+    h_limit = min(8, height - y0)
+    w_limit = min(8, width - x0)
+    for y in range(h_limit):
+        for x in range(w_limit):
+            block[y, x] = pixels[y0 + y, x0 + x]
     block -= 128
     return C @ block @ C.T
 def deDCT(S):
-    S+=128
     C = np.zeros((8, 8))
     for i in range(8):
         C[0,i]=1/np.sqrt(8)
     for i in range(1, 8):
         for j in range(8):
             C[i, j] = np.sqrt(0.25) * np.cos((2 * j + 1) * i * np.pi / (16))
-    return C.T @ S @ C
+    return (C.T @ S @ C) + 128
 
 def quantize(dct_coefficients, q_table):
     return np.round(dct_coefficients / q_table).astype(np.int32)
@@ -145,7 +151,7 @@ def test_dct_pipeline(img):
     height = (height // 8) * 8
     img = img.crop((0, 0, width, height))
     A,B,C = img.split()
-    A, B,C = A.load(), B.load(), C.load()
+    # A, B,C = A.load(), B.load(), C.load()
     res_img = Image.new(img.mode, (width, height))
     res_pixels = res_img.load()
     for y_block in range(height // 8):

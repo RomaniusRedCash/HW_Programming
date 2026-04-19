@@ -6,6 +6,7 @@
 //////////////////////////////////// ssbb_base ////////////////////////////////////
 
 void ssbb_base::sdvig(int8_t delta) {
+    if (data.size() == 0) return;
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"sdvig for "<<int(delta)<<std::endl;
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"last buffer "<<int(buffer_sdvig_size)<<" str now ";
     for (const char i : data)
@@ -29,6 +30,7 @@ void ssbb_base::sdvig(int8_t delta) {
             data.erase(data.begin(), data.begin() + delta_tmp / 8);
             delta_tmp%=8;
         }
+        if (data.size() == 0) return;
         for (std::string::iterator i = data.begin(); i != data.end() - 1; i++) {
             *i<<=delta_tmp;
             *i +=(*(i+1) >> (8-delta_tmp)) & (0xFF >> (8-delta_tmp));
@@ -70,7 +72,9 @@ bytebit::bytebit(const size_t& size) : size(size) {
 
 bool bytebit::operator==(const bytebit& bb) const {
     if (get_size() != bb.get_size()) return false;
-    return get_data() == bb.get_data();
+    for (size_t i = 0; i  < (get_size() + 7) / 8; i++)
+        if (get_data()[i] != bb.get_data()[i]) return false;
+    return true;
 }
 
 bytebit& bytebit::operator<<(const char& c){
@@ -88,7 +92,7 @@ bytebit& bytebit::operator<<(const std::string& str) {
     for(const char& c : str)
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::bitset<8>(c);
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << " for size " << data.size() * 8 <<" from "<< size <<std::endl;
-    if (data.size()*8 > size || str.size() > (size + 7) / 8) throw "ERROR";
+    if (str.size() > (size + 7) / 8) throw "ERROR";
     data = str;
     return *this;
 }
@@ -125,6 +129,7 @@ void bytebit::pop_back() {
 
 void bytebit::clear() {
     data.clear();
+    size = 0;
 }
 
 //////////////////////////////////// sstrtobb ////////////////////////////////////
@@ -160,14 +165,14 @@ sstrtobb::sstrtobb(const std::string& str) : ssbb_base(str) {
 
 sstrtobb& sstrtobb::operator>>(bytebit& bb) {
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"read " << &bb<<" for size " << bb.get_size()<<std::endl;
-    uint8_t size_in_byte = bb.get_size()/8;
-    for (int i = 0; i <= size_in_byte; i++) {
+    for (int i = 0; i < (bb.get_size() + 7) / 8; i++) {
         bb<<data[i];
     }
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<&bb<<" now ";
     for (const char i : bb.get_data())
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::bitset<8>(i) << ' ';
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::endl;
+    uint8_t size_in_byte = bb.get_size() / 8;
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"cut str to " << int(size_in_byte)<<std::endl;
     data.erase(data.begin(), data.begin() + size_in_byte);
     sdvig(-(bb.get_size() % 8));
@@ -218,10 +223,12 @@ const std::string& sstrtobb::get_data() const {
 
 void sstrtobb::try_write(std::ostream& os) {
     if(!buffer_sdvig_size) {
-        logger()<<"write on file ";
+#ifndef DNDEBUG
+        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"write on file ";
         for (const char& c : data)
-            logger()<<std::bitset<8>(c);
-        logger()<<std::endl;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::bitset<8>(c);
+        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
+#endif
         os.write(data.data(), data.size());
         data.clear();
     }

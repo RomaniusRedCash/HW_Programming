@@ -1,2 +1,10 @@
 __pycache__
 *.raw
+*.tmp*
+log*
+*.log
+jop
+img
+*.png
+*.jpg
+*.jop
