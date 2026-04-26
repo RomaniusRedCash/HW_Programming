@@ -107,16 +107,15 @@ void de_ha(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num
             logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
         logger(log_ns::DEV_ONLY)<<std::endl;
 #endif
-
         if (stream_in.eof()){
             sstrtobb ssbb_tmp(buffer);
             ssbb_tmp.set_buffer_sdvig_size(last_byte_size);
             ssbb << ssbb_tmp;
         } else ssbb<<buffer;
-        while (ssbb.get_data().size()) { // NOTE: Переделать. Так как часто делает сдвиги.
+        while (ssbb.get_data().size()) {
             ha_code hc;
             if (!hc.read_hacode(ssbb, calc, max_size_sim)) {
-                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"next buffer"<<std::endl; // это вообще я дебилизм написал
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"next buffer"<<std::endl;
                 break;
             }
             stream_out<<calc[hc];

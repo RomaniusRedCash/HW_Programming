@@ -31,6 +31,18 @@ Q_CLuminance = np.array([
         [99, 99, 99, 99, 99, 99, 99, 99]
     ])
 
+
+Q_nLuminance = np.array([
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
+    ])
+
 def process_channel(channel_data, q_matrix, filename, size, layer):
     width, height = size
     D = np.array([])
@@ -144,6 +156,12 @@ def OnlyTestColor(img, quality):
         Y = test_pipeline_full(Y, get_scaled_quantization_table(Q_Luminance, quality), size)
         Cb = test_pipeline_full(Cb, get_scaled_quantization_table(Q_CLuminance, quality), size)
         Cr = test_pipeline_full(Cr, get_scaled_quantization_table(Q_CLuminance, quality), size)
+
+        # Y = test_pipeline_full(Y, Q_nLuminance, size)
+        # Cb = test_pipeline_full(Cb, Q_nLuminance, size)
+        # Cr = test_pipeline_full(Cr, Q_nLuminance, size)
+
+
         final_img = Image.fromarray(np.stack((Y, Cb, Cr), axis=-1), mode='YCbCr')
     else:
         size = height, width

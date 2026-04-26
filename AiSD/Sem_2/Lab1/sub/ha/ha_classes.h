@@ -39,7 +39,7 @@ namespace ha_ns {
     class calculator {
         bool read = false;
         std::vector<node*> v_node;
-        std::map<std::string, ha_code> mapa;
+        std::unordered_map<std::string, ha_code> mapa;
         std::vector<std::string> v_data;
         // node *pivot;
         void order(node*& noda, ha_code& hc, const int8_t& balance);
@@ -54,10 +54,10 @@ namespace ha_ns {
         const ha_code& operator[] (const std::string& sim) const;
         const std::string& operator[] (const ha_code& ha_c) const;
         bool have_hac (const ha_code& ha_c) const;
-        const std::map<std::string, ha_code>::const_iterator begin() const;
-        const std::map<std::string, ha_code>::const_iterator end() const;
+        const std::unordered_map<std::string, ha_code>::const_iterator begin() const;
+        const std::unordered_map<std::string, ha_code>::const_iterator end() const;
         const size_t get_size() const;
-        const std::map<std::string, ha_code>& get_mapa() const;
+        const std::unordered_map<std::string, ha_code>& get_mapa() const;
         std::string print_model();
         const std::vector<std::string>&  get_ord() const;
     };

@@ -123,16 +123,15 @@ def dequantize(quantized_coefficients, q_table):
 def get_scaled_quantization_table(base_table, quality):
     if quality < 1:
         quality = 1
-    elif quality > 100:
-        quality = 100
+    elif quality >= 100:
+        quality = 99
 
     if quality < 50:
         S = 5000 / quality
     else:
         S = 200 - 2 * quality
     scaled_table = np.ceil((base_table * S) / 100.0)
-    scaled_table = np.clip(scaled_table, 1, 255)
-    return scaled_table.astype(int)
+    return scaled_table.astype(np.int32)
 
 def test_dct_pipeline(img):
     Q_Luminance = np.array([

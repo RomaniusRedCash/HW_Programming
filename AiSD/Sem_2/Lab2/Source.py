@@ -9,7 +9,7 @@ from JDI import *
 
 ##############################################################
 
-Lenna = Image.open('250px-Lenna.png')
+Lenna = Image.open('512px-Lenna.png')
 # LennaChB = Lenna.convert(mode = "1", dither=Image.Dither.NONE)
 # LennaChBD = Lenna.convert(mode = "1")
 # smartUp2(down2(Lenna)).show()
