@@ -21,6 +21,8 @@
 
 #include "sub/logger/logger.h"
 
+uint8_t num_byte = 1;
+
 enum eCOMMANDS : int;
 bimap<std::string, eCOMMANDS> map_translater;
 
@@ -105,7 +107,6 @@ int main(const int argc, char* argv[]) {
     int opt, long_idx;
     std::string str_inp, str_out, str_cmpr;
     std::string str_itu;
-    uint8_t num_byte = 1;
     uint8_t buffer_size_lz = 8;
     std::vector<eCOMMANDS> v_params;
     while ((opt = getopt_long(argc, argv, "hi:o:", &long_opt.front(), &long_idx)) != -1)
@@ -172,12 +173,14 @@ int main(const int argc, char* argv[]) {
     std::stringstream ss_tmp1,ss_tmp2;
     std::stringstream *p_ss_tmp1 = &ss_tmp1, *p_ss_tmp2 = &ss_tmp2;
     std::fstream file_out;
+#ifdef DNDEBUG
     if (file_in.is_open())
         ss_tmp1 << file_in.rdbuf();
     else {
         std::cout<<"ERROR! Some files can't openning or creating."<<std::endl;
         return 1;
     }
+#endif
     for (const eCOMMANDS& ec : v_params) {
         p_ss_tmp2->str(std::string());
         p_ss_tmp2->clear();

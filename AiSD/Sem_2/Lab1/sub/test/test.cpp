@@ -40,13 +40,15 @@ void test(const std::string& str, const size_t& mc) {
     //
     // logger() << "first "<<str_tmp.size() << " second " << str_tmp2.size()<<std::endl;
 
-    logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
-    std::stringstream ss; ss << "KRASNAA KRASKA";
-    std::stringstream ss_i, ss_o;
-    lzss_ns::lzss_1(ss, ss_i, 1, 8);
-    for (const char& c : ss_i.str())
-        logger() << std::bitset<8>(c) << ' ';
-    logger() <<std::endl;
-    lzss_ns::de_lzss_1(ss_i, ss_o, 1, 8);
-    logger() << ss_o.str()<<std::endl;
+    // logger()<<"inp str '"<<str<<"' buffer is "<<5<<std::endl;
+    // std::stringstream ss; ss << "KRASNAA KRASKA";
+    // std::stringstream ss_i, ss_o;
+    // lzss_ns::lzss_1(ss, ss_i, 1, 8);
+    // for (const char& c : ss_i.str())
+    //     logger() << std::bitset<8>(c) << ' ';
+    // logger() <<std::endl;
+    // lzss_ns::de_lzss_1(ss_i, ss_o, 1, 8);
+    // logger() << ss_o.str()<<std::endl;
+
+    bwt_ns::de_bwt_1(bwt_ns::bwt_1("banana", 1),1);
 }

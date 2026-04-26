@@ -202,10 +202,10 @@ bool calculator::have_hac (const ha_code& ha_c) const {
     return de_mapa.find(ha_c) != de_mapa.end();
 }
 
-const std::map<std::string, ha_code>::const_iterator calculator::begin() const {
+const std::unordered_map<std::string, ha_code>::const_iterator calculator::begin() const {
     return mapa.cbegin();
 }
-const std::map<std::string, ha_code>::const_iterator calculator::end() const {
+const std::unordered_map<std::string, ha_code>::const_iterator calculator::end() const {
     return mapa.cend();
 }
 
@@ -213,7 +213,7 @@ const size_t calculator::get_size() const {
     return mapa.size();
 }
 
-const std::map<std::string, ha_code>& calculator::get_mapa() const {
+const std::unordered_map<std::string, ha_code>& calculator::get_mapa() const {
     return mapa;
 }
 
