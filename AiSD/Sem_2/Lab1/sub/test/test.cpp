@@ -51,4 +51,5 @@ void test(const std::string& str, const size_t& mc) {
     // logger() << ss_o.str()<<std::endl;
 
     logger() << bwt_ns::de_bwt_0(bwt_ns::bwt_1("banana"))<<std::endl;
+    logger() << bwt_ns::de_bwt_0(bwt_ns::bwt_1("122222222222234567890\n"))<<std::endl;
 }

@@ -149,7 +149,7 @@ std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const size_t& bwt_pos) {
 #ifndef NDEBUG
     logger(log_ns::DEV_ONLY) << "waymap:"<<std::endl;
     for (std::pair<const std::string_view, std::deque<std::string_view>>& pr : umapa) {
-        logger(log_ns::DEV_ONLY) << pr.first << " (" << pr.first << ')' << " - ";
+        logger(log_ns::DEV_ONLY) << pr.first << " - ";
         for (const std::string_view& str : pr.second)
             logger(log_ns::DEV_ONLY) << str<<' ';
         logger(log_ns::DEV_ONLY) << std::endl;
@@ -173,12 +173,22 @@ std::string bwt_ns::de_bwt_0(const std::string& str) {
 }
 
 void bwt(std::istream& stream_in, std::ostream& stream_out) {
-    std::string buffer(1 << 8, 0);
+    std::string buffer(1 << (sizeof(uint8_t) * 8), 0);
     while (stream_in) {
         stream_in.read(buffer.data(), buffer.size());
-        size_t read_bytes = stream_in.gcount();
-        buffer.resize(read_bytes);
+        buffer.resize(stream_in.gcount());
+        if (buffer.empty()) return;
         std::string new_str = bwt_ns::bwt_1(buffer);
+        stream_out.write(new_str.data(),new_str.size());
+    }
+}
+void de_bwt(std::istream& stream_in, std::ostream& stream_out) {
+    std::string buffer((1 << (sizeof(uint8_t) * 8)) + 1, 0);
+    while (stream_in) {
+        stream_in.read(buffer.data(), buffer.size());
+        buffer.resize(stream_in.gcount());
+        if (buffer.empty()) return;
+        std::string new_str = bwt_ns::de_bwt_0(buffer);
         stream_out.write(new_str.data(),new_str.size());
     }
 }
