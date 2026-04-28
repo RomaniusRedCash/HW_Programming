@@ -47,6 +47,7 @@ enum eCOMMANDS : int {
     eRLE, eDERLE,
     eMTF, eDEMTF,
     eHA, eDEHA,
+    eBWT, eDEBWT,
     eLZW, eDELZW,
     eLZSS, eDELZSS,
 
@@ -71,6 +72,7 @@ std::vector<some_param> v_someprm = {
     {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE},
     {"mtf", no_argument, nullptr, 0, ":use MTF.", eMTF},
     {"ha", no_argument, nullptr, 0, ":use HA.", eHA},
+    {"bwt", no_argument, nullptr, 0, ":use BWT.", eBWT},
     {"lzw", optional_argument, nullptr, 0, ":use LZW.", eLZW},
     {"lzss", optional_argument, nullptr, 0, ":use LZSS.", eLZSS},
 
@@ -78,6 +80,7 @@ std::vector<some_param> v_someprm = {
     {"de-rle", no_argument, nullptr, 0, ":extract from RLE.", eDERLE},
     {"de-mtf", no_argument, nullptr, 0, ":extract from MTF.", eDEMTF},
     {"de-ha", no_argument, nullptr, 0, ":extract from HA.", eDEHA},
+    {"de-bwt", no_argument, nullptr, 0, ":extract from BWt.", eDEBWT},
     {"de-lzw", optional_argument, nullptr, 0, ":extract from LZW.", eDELZW},
     {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS},
 
@@ -173,9 +176,9 @@ int main(const int argc, char* argv[]) {
     std::stringstream ss_tmp1,ss_tmp2;
     std::stringstream *p_ss_tmp1 = &ss_tmp1, *p_ss_tmp2 = &ss_tmp2;
     std::fstream file_out;
-#ifdef DNDEBUG
     if (file_in.is_open())
         ss_tmp1 << file_in.rdbuf();
+#ifdef DNDEBUG
     else {
         std::cout<<"ERROR! Some files can't openning or creating."<<std::endl;
         return 1;
@@ -191,7 +194,7 @@ int main(const int argc, char* argv[]) {
                 enwik8_to_enwik(*p_ss_tmp1, *p_ss_tmp2);
                 break;
 
-                // NOTE: compress
+            // NOTE: compress
             case eRLE:
                 start_algorithm(map_translater[ec], [&]{RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
@@ -201,6 +204,9 @@ int main(const int argc, char* argv[]) {
             case eHA:
                 start_algorithm(map_translater[ec], [&]{ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
+            case eBWT:
+                start_algorithm(map_translater[ec], [&]{bwt(*p_ss_tmp1, *p_ss_tmp2);});
+                break;
             case eLZW:
                 start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
@@ -208,7 +214,7 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
 
-                // NOTE: decompress
+            // NOTE: decompress
             case eDERLE:
                 start_algorithm(map_translater[ec], [&]{from_RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
@@ -218,6 +224,9 @@ int main(const int argc, char* argv[]) {
             case eDEHA:
                 start_algorithm(map_translater[ec], [&]{de_ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
+            case eDEBWT:
+                start_algorithm(map_translater[ec], [&]{de_bwt(*p_ss_tmp1, *p_ss_tmp2);});
+                break;
             case eDELZW:
                 start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
@@ -225,6 +234,8 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
                 break;
 
+
+            // NOTE: JPEG
             case eITU:
                 start_algorithm(map_translater[ec], [&]{itu(*p_ss_tmp1, *p_ss_tmp2, itu_ns::get_layer(str_itu));});
                 break;
