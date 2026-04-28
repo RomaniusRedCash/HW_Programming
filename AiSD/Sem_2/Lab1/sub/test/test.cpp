@@ -50,5 +50,5 @@ void test(const std::string& str, const size_t& mc) {
     // lzss_ns::de_lzss_1(ss_i, ss_o, 1, 8);
     // logger() << ss_o.str()<<std::endl;
 
-    bwt_ns::de_bwt_1(bwt_ns::bwt_1("banana", 1),1);
+    logger() << bwt_ns::de_bwt_0(bwt_ns::bwt_1("banana"))<<std::endl;
 }
