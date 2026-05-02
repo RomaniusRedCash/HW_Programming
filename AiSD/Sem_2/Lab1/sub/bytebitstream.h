@@ -59,3 +59,12 @@ public:
     const std::string& get_data() const override;
     void try_write(std::ostream& os);
 };
+
+namespace std {
+    template <>
+    struct hash<bytebit> {
+        size_t operator()(const bytebit& b) const {
+            return hash<std::string>{}(b.get_data());
+        }
+    };
+}

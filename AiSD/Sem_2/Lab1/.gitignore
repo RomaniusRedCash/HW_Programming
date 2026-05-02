@@ -1,6 +1,7 @@
 *.txt
 *.comptxt
 *.compr
+*.cmpr
 *.tmp
 *.ctxt
 back/*

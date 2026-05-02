@@ -3,7 +3,7 @@
 void ha_ns::write_shift_size(std::ostream& stream_out, const size_t& size) {
     uint8_t size_shift = 0;
     for (size_shift = 0; size >> (size_shift * 8); size_shift++);
-    stream_out << size_shift;
+    stream_out.write(reinterpret_cast<const char*>(&size_shift), sizeof(size_shift));
     logger() <<"write size "<< size <<" with shift "<<size_t(size_shift)<< std::endl;
     stream_out.write(reinterpret_cast<const char*>(&size), size_shift);
 }
@@ -11,19 +11,19 @@ void ha_ns::write_shift_size(std::ostream& stream_out, const size_t& size) {
 void ha_ns::write_shift_size(std::ostream& stream_out, const calculator& calc) {
     size_t max_size = 0;
     uint8_t size_shift = 0;
-    for (const std::pair<std::string, ha_code>& i :calc)
-        max_size = std::max(i.second.get_size(), max_size);
+    for (const std::pair<std::string, const ha_code*>& i : calc)
+        max_size = std::max(i.second->get_size(), max_size);
     for (size_shift = 0; max_size >> (size_shift * 8); size_shift++);
     logger() << "max node size: " <<max_size<<" shift: "<<int(size_shift)<<std::endl;
-    stream_out << size_shift;
+    stream_out.write(reinterpret_cast<const char*>(&size_shift), sizeof(size_shift));
     for (const std::string& i :calc.get_ord()) {
-        stream_out<<i;
-        stream_out.write(reinterpret_cast<const char*>(&calc.get_mapa().at(i).get_size()), size_shift);
+        stream_out.write(i.data(), i.size());
+        stream_out.write(reinterpret_cast<const char*>(&calc.get_mapa()[i].get_size()), size_shift);
 
 #ifndef NDEBUG
         logger(log_ns::DEV_ONLY) << "write: "<<i<<" : ";
         for (uint8_t j = 1; j <= size_shift; j++)
-           logger()<<std::bitset<8>(calc.get_mapa().at(i).get_size() >> (size_shift - j) * 8);
+           logger()<<std::bitset<8>(calc.get_mapa()[i].get_size() >> (size_shift - j) * 8);
         logger(log_ns::DEV_ONLY)<<std::endl;
 #endif
     }
@@ -31,7 +31,7 @@ void ha_ns::write_shift_size(std::ostream& stream_out, const calculator& calc) {
 
 void ha_ns::read_shift_size(std::istream& stream_in, size_t& size) {
     uint8_t size_shift;
-    stream_in >> size_shift;
+    stream_in.read(reinterpret_cast<char*>(&size_shift), sizeof(size_shift));
     std::string buffer(size_shift, 0);
     stream_in.read(buffer.data(), size_shift);
     if (!stream_in)

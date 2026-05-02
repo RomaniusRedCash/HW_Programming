@@ -15,16 +15,16 @@ bool ha_code::read_hacode(sstrtobb& ssbb, const calculator& calc, const size_t& 
         }
         else add_null();
         if (calc.have_hac(*this)) {
-            logger(log_ns::NORMAL_LVL)<<"succes read ";
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"succes read ";
             for (const char& c : data)
-                logger(log_ns::NORMAL_LVL) << std::bitset<8>(c);
-            logger(log_ns::NORMAL_LVL)<<" size " << size <<" : "<<calc[*this]<<std::endl;
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::bitset<8>(c);
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<" size " << size <<" : "<<calc[*this]<<std::endl;
             ssbb.sdvig(-get_size());
             return true;
         }
         for (const char& c : data)
-            logger(log_ns::NORMAL_LVL) << std::bitset<8>(c);
-        logger(log_ns::NORMAL_LVL)<<" size "<<size<<" not found"<<std::endl;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::bitset<8>(c);
+        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<" size "<<size<<" not found"<<std::endl;
         if (get_size() >= max_size) {
             logger(log_ns::DEV_ONLY) << "already max size " <<max_size<<std::endl;
             return false;
@@ -34,10 +34,20 @@ bool ha_code::read_hacode(sstrtobb& ssbb, const calculator& calc, const size_t& 
 }
 
 bool ha_code::operator<(const ha_code& hc) const {
+    // if (hc.size == 12 && hc.get_data() == "p" && size == 12) {
+    //     logger()<<"ZZZZZZZZZZZZZ";
+    // }
     if (size != hc.size) return size < hc.size;
     for (size_t i = 0; i < size / 8; i++)
         if (data[i] < hc.data[i]) return true;
     return (data.back() >> (8-size%8)) < (hc.data.back() >> (8-size%8));
+}
+
+bool ha_code::operator==(const ha_code& hc) const {
+    if (size != hc.size) return false;
+    for (size_t i = 0; i < size / 8; i++)
+        if (data[i] != hc.data[i]) return false;
+    return (data.back() >> (8-size%8)) == (hc.data.back() >> (8-size%8));
 }
 
 //////////////////////////////////// node ////////////////////////////////////
@@ -66,10 +76,10 @@ void calculator::order(node*& noda, ha_code& hc, const int8_t& balance) {
         if (!noda->left && !noda->right) {
             zap(noda->data, hc);
             v_data.push_back(noda->data);
-            logger(log_ns::DEV_ONLY)<<"leaf: "<<noda->data<<" : ";
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"leaf: "<<noda->data<<" : ";
             for (const uint8_t& c : hc.get_data())
-                logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
-            logger(log_ns::DEV_ONLY)<<" size "<<hc.get_size()<<std::endl;
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::bitset<8>(c);
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<" size "<<hc.get_size()<<std::endl;
         } else {
             order(noda->left, hc, -1);
             order(noda->right, hc, 1);
@@ -81,9 +91,10 @@ void calculator::order(node*& noda, ha_code& hc, const int8_t& balance) {
 }
 
 void calculator::zap(const std::string& sim, const ha_code& ha_c) {
-    if (read)
-        de_mapa[ha_c]=sim;
-    else mapa[sim]=ha_c;
+    // if (read)
+    //     de_mapa[ha_c]=sim;
+    // else mapa[sim]=ha_c;
+    mapa.insert(sim, ha_c);
 }
 
 void calculator::clear(node* n) {
@@ -128,7 +139,9 @@ void calculator::remap(const std::map<size_t, std::vector<std::string>>& mapa_in
 calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
     if(v_node.empty()) return;
     if (v_node.size() < 2) {
-        mapa[v_node.front()->data].add_null();
+        // mapa[v_node.front()->data].add_null();
+        ha_code hc = mapa[v_node.front()->data];
+        mapa.modify(v_node.front()->data, hc, [] (std::string& a, ha_code& b) {b.add_null();});
     }
     while (v_node.size() > 1) {
         std::vector<node*>::iterator it1 = v_node.begin(), it2 = v_node.begin() + 1;
@@ -164,8 +177,9 @@ calculator::calculator(const std::vector<node*>& v_node_in) : v_node(v_node_in){
     clear(v_node.front());
 
     std::map<size_t, std::vector<std::string>> mapa2;
-    for (const std::pair<std::string, ha_code>& i : mapa)
-        mapa2[i.second.get_size()].push_back(i.first);
+    // for (const std::pair<std::string, ha_code>& i : mapa)
+    for (std::unordered_map<std::string, const ha_code*>::const_iterator i = mapa.beg12(); i != mapa.end12(); i++)
+        mapa2[i->second->get_size()].push_back(i->first);
     remap(mapa2);
 
     logger(log_ns::DEV_ONLY)<<"end treeing"<<std::endl;
@@ -191,47 +205,57 @@ calculator::calculator(const std::map<size_t, std::vector<std::string>>& mapa_in
 }
 
 const ha_code& calculator::operator[] (const std::string& sim) const {
-    return mapa.at(sim);
+    return mapa[sim];
 }
 
 const std::string& calculator::operator[] (const ha_code& ha_c) const {
-    return de_mapa.at(ha_c);
+    return mapa[ha_c];
 }
 
 bool calculator::have_hac (const ha_code& ha_c) const {
-    return de_mapa.find(ha_c) != de_mapa.end();
+    return mapa.contain(ha_c);
 }
 
-const std::unordered_map<std::string, ha_code>::const_iterator calculator::begin() const {
-    return mapa.cbegin();
+std::unordered_map<std::string, const ha_code*>::const_iterator calculator::begin() const {
+    return mapa.beg12();
 }
-const std::unordered_map<std::string, ha_code>::const_iterator calculator::end() const {
-    return mapa.cend();
+std::unordered_map<std::string, const ha_code*>::const_iterator calculator::end() const {
+    return mapa.end12();
 }
 
-const size_t calculator::get_size() const {
+size_t calculator::get_size() const {
     return mapa.size();
 }
 
-const std::unordered_map<std::string, ha_code>& calculator::get_mapa() const {
+const bimap<std::string, ha_code>& calculator::get_mapa() const {
     return mapa;
 }
 
 std::string calculator::print_model() {
     std::stringstream os;
     os<<"model: "<<std::endl;
-    if (read) for (const std::pair<ha_code, std::string>& i : de_mapa) {
-        os<<'\t'<<i.second<<" : ";
-        for (const uint8_t& c : i.first.get_data())
+    // if (read) for (const std::pair<ha_code, std::string>& i : de_mapa) {
+    //     os<<'\t'<<i.second<<" : ";
+    //     for (const uint8_t& c : i.first.get_data())
+    //         os<<std::bitset<8>(c);
+    //     os<<" size " << i.first.get_size()<<std::endl;
+    // }
+    // else for (const std::string& str : v_data) {
+    //     os<<'\t'<<str<<" : ";
+    //     for (const uint8_t& c : mapa[str].get_data())
+    //         os<<std::bitset<8>(c);
+    //     os<<" size " << mapa[str].get_size()<<std::endl;
+    // }
+
+
+    for (std::unordered_map<std::string, const ha_code*>::const_iterator i = mapa.beg12(); i != mapa.end12(); i++) {
+        os<<'\t'<<i->first<<" : ";
+        for (const uint8_t& c : i->second->get_data())
             os<<std::bitset<8>(c);
-        os<<" size " << i.first.get_size()<<std::endl;
+        os<<" size " << i->second->get_size()<<std::endl;
     }
-    else for (const std::string& str : v_data) {
-        os<<'\t'<<str<<" : ";
-        for (const uint8_t& c : mapa[str].get_data())
-            os<<std::bitset<8>(c);
-        os<<" size " << mapa[str].get_size()<<std::endl;
-    }
+
+
     return os.str();
 }
 

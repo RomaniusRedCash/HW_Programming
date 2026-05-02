@@ -15,6 +15,7 @@
 #include "sub/rle/rle.h"
 #include "sub/mtf/mtf.h"
 #include "sub/ha/ha.h"
+#include "sub/bwt/bwt.h"
 #include "sub/lz/lzw/lzw.h"
 #include "sub/lz/lzss/lzss.h"
 #include "sub/itu/itu.h"
@@ -40,7 +41,7 @@ struct some_param {
 enum eCOMMANDS : int {
     eDEFAULT = 0,
     eBYTE,
-    eCMPRE, eENWIKn7,
+    eENWIKn7,
     eTEST,
     eLOGF, eLOGC, eLOGN, eLOGH,
 
@@ -59,7 +60,6 @@ std::vector<some_param> v_someprm = {
     {"input", required_argument, nullptr, 'i', " [path]:path to input file.", eDEFAULT},
     {"output", required_argument, nullptr, 'o', " [path]:path to output file.", eDEFAULT},
     {"byte", required_argument, nullptr, 0, "[num]:custom num of byte (default 1).", eBYTE},
-    {"compare", required_argument, nullptr, 0, " [path]:compare input file with file by path.", eCMPRE},
     {"enwikn-to-enwik", no_argument, nullptr, 0, ":first 1E+7 byte from file", eENWIKn7},
 #ifndef NDEBUG
     {"test", no_argument, nullptr, 0, ":test", eTEST},
@@ -128,10 +128,6 @@ int main(const int argc, char* argv[]) {
                 if (map_translater[long_opt[long_idx].name] < eLOGF || map_translater[long_opt[long_idx].name] > eLOGH)
                     v_params.push_back(map_translater[long_opt[long_idx].name]);
                 switch (map_translater[long_opt[long_idx].name]) {
-
-                    case eCMPRE:
-                        str_cmpr = optarg;
-                        break;
                     case eBYTE:
                         num_byte = std::stoi(optarg);
                         if (num_byte == 0) {
@@ -187,6 +183,7 @@ int main(const int argc, char* argv[]) {
     for (const eCOMMANDS& ec : v_params) {
         p_ss_tmp2->str(std::string());
         p_ss_tmp2->clear();
+        p_ss_tmp2->seekp(0,std::ios::beg);
         p_ss_tmp1->clear();
         p_ss_tmp1->seekg(0,std::ios::beg);
         switch (ec) {
@@ -261,17 +258,6 @@ int main(const int argc, char* argv[]) {
         p_ss_tmp1->clear();
         p_ss_tmp1->seekg(0,std::ios::beg);
         file_out<<p_ss_tmp1->rdbuf();
-    }
-    if (!str_cmpr.empty()) {
-        file_in.clear();
-        file_in.seekg(0,std::ios::beg);
-        std::fstream file_cmpr(str_cmpr, std::ios::in | std::ios::binary);
-        if (!file_cmpr.is_open()) {
-            logger()<<"ERROR! Can't open file for compare."<<std::endl;
-            return 1;
-        }
-        start_algorithm("compare", [&]{logger() << (compare_f(file_cmpr, file_in) ? "file is equal" : "file is not equal") << std::endl;});
-        file_cmpr.close();
     }
     file_out.close();
     file_in.close();
