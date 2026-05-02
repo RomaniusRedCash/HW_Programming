@@ -22,9 +22,9 @@ logger::logger(uint8_t lvl) : lvl(lvl) {
 logger& logger::operator<<(std::ostream& (*manip)(std::ostream&)) {
     if (!check_flag()) return *this;
     if (CONS_LVL & logger_demon::lvl)
-        std::cout<<std::endl;
+        manip(std::cout);
     if (FILE_LVL & logger_demon::lvl)
-        logger_demon::logfile<<std::endl;
+        manip(logger_demon::logfile);
     return *this;
 }
 

@@ -80,15 +80,15 @@ void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out, const ui
         }
         if (read_bites < BUFFER_SIZE) break;
     }
-    stream_out << bbs_out.get_data();
+    stream_out.write(bbs_out.get_data().data(), bbs_out.get_data().size());
     stream_out.clear();
     stream_out.seekp(0, std::ios::beg);
-    stream_out << bbs_out.real_last();
+    stream_out.write(reinterpret_cast<const char*>(&bbs_out.real_last()), sizeof(bbs_out.real_last()));
 }
 
 void lzss_ns::de_lzss_1(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num_byte, size_t buffer_size) {
     uint8_t last_byte_size = 0;
-    stream_in >> last_byte_size;
+    stream_in.read(reinterpret_cast<char*>(&last_byte_size), sizeof(last_byte_size));
     if (buffer_size >= 256) throw "ERR";
     buffer_size *= num_byte;
     logger(log_ns::DEV_ONLY) <<"last byte len: "<<size_t(last_byte_size) << std::endl;
@@ -129,10 +129,11 @@ void lzss_ns::de_lzss_1(std::istream& stream_in, std::ostream& stream_out, const
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"buffer is "<<ss_buffer<<" write 0 "<<n.data<<std::endl;
                 ss_buffer+=n.data;
                 logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"n.data.size() "<<n.data.size()<<std::endl;
-                stream_out<<n.data;
+                stream_out.write(n.data.data(), n.data.size());
             } else {
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"buffer is "<<ss_buffer<<" write 1 "<< std::string_view(ss_buffer.data() + ss_buffer.size() - n.pos * num_byte, n.len * num_byte)<<std::endl;
-                stream_out << std::string_view(ss_buffer.data() + ss_buffer.size() - n.pos * num_byte, n.len * num_byte);
+                std::string_view str_vw(ss_buffer.data() + ss_buffer.size() - n.pos * num_byte, n.len * num_byte);
+                stream_out.write(str_vw.data(), str_vw.size());
                 ss_buffer += std::string_view(ss_buffer.data() + ss_buffer.size() - n.pos * num_byte, n.len * num_byte);
             }
             if (ss_buffer.size() > buffer_size) {

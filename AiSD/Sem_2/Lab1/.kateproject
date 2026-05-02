@@ -3,7 +3,7 @@
     "files": [
         {
             "recursive": true,
-            "filters": ["*.cpp", "*.hpp", "*.cxx", "*.cc", "*.h", "Makefile"]
+            "filters": ["*.cpp", "*.hpp", "*.cxx", "*.cc", "*.h", "Makefile", "*.sh"]
         }
     ],
     "build": {

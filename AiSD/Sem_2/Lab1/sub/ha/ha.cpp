@@ -36,14 +36,15 @@ void ha_ns::ha_1(std::istream& stream_in, std::ostream& stream_out, const uint8_
     }
     if (size_t ost = read_bites % num_byte)
         bbs_out<<calc[buffer.substr(read_bites - ost, ost)];
-    stream_out << bbs_out.get_data();
+    const std::string& str_tmp = bbs_out.get_data();
+    stream_out.write(str_tmp.data(), str_tmp.size());
     stream_out.clear();
     stream_out.seekp(0, std::ios::beg);
-    stream_out << bbs_out.real_last();
+    stream_out.write(reinterpret_cast<const char*>(&bbs_out.real_last()), sizeof(bbs_out.real_last()));
 }
 
 void ha(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num_byte) {
-    std::map<std::string, size_t> mapa;
+    std::unordered_map<std::string, size_t> mapa;
     std::string buffer(BUFFER_SIZE, 0);
     size_t read_bites = 0;
     while(stream_in) {
@@ -75,12 +76,12 @@ void ha(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num_by
 void de_ha(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num_byte) {
     uint8_t last_byte_size = 0;
     size_t model_size = 0;
-    stream_in >> last_byte_size;
+    stream_in.read(reinterpret_cast<char*>(&last_byte_size), sizeof(last_byte_size));
     read_shift_size(stream_in, model_size);
     logger(log_ns::DEV_ONLY) <<"last byte len: "<<size_t(last_byte_size) << " model size: "<<model_size<<std::endl;
     std::map<size_t, std::vector<std::string>> mapa;
     uint8_t node_size;
-    stream_in >> node_size;
+    stream_in.read(reinterpret_cast<char*>(&node_size), sizeof(last_byte_size));
     read_shift_size(stream_in, mapa, model_size, num_byte, node_size);
     size_t max_size_sim = std::prev(mapa.end())->first;
     calculator calc(mapa);
@@ -98,24 +99,32 @@ void de_ha(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL).write(buffer.data(), read_bites);
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<" size "<<read_bites<<std::endl;
 
-#ifndef NDEBUG
-        logger(log_ns::DEV_ONLY)<<"new buffer is ";
-        for (const char& c : buffer)
-            logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
-        logger(log_ns::DEV_ONLY)<<std::endl;
-#endif
         if (stream_in.eof()){
             sstrtobb ssbb_tmp(buffer);
             ssbb_tmp.set_buffer_sdvig_size(last_byte_size);
             ssbb << ssbb_tmp;
         } else ssbb<<buffer;
+
+#ifndef NDEBUG
+        logger(log_ns::DEV_ONLY)<<"new buffer size " << (ssbb.get_data().size() - 1) * 8 + ssbb.get_buffer_sdvig_size() << std::endl;;
+        for (const char& c : ssbb.get_data())
+            logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
+        logger(log_ns::DEV_ONLY)<<std::endl;
+#endif
+
         while (ssbb.get_data().size()) {
             ha_code hc;
             if (!hc.read_hacode(ssbb, calc, max_size_sim)) {
+                if (((ssbb.get_data().size() - 1) * 8 + ssbb.get_buffer_sdvig_size()) >= max_size_sim) {
+                    logger() <<"ERROR! unknown hacode"<<std::endl;
+                    // throw "ERR";
+                    return;
+                }
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"next buffer"<<std::endl;
                 break;
             }
-            stream_out<<calc[hc];
+            const std::string& str_tmp = calc[hc];
+            stream_out.write(str_tmp.data(), str_tmp.size());
         }
     }
 }

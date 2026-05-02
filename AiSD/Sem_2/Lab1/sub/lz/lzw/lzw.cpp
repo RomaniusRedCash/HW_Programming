@@ -29,7 +29,7 @@ std::istream& lzw_ns::operator>>(std::istream& is, node& n) {
     return is;
 }
 
-std::string lzw_ns::lzw_0(const std::string& str, size_t buffer_size, const uint8_t& num_byte, std::vector<std::string> v_slovar) {
+std::string lzw_ns::lzw_0(const std::string& str, const size_t& buffer_size, const uint8_t& num_byte, std::vector<std::string> v_slovar) {
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "chunk size "<<str.size()<<" buffer size "<<buffer_size<<" num_byte "<< size_t(num_byte)<<std::endl;
     size_t slov_szie_start = v_slovar.size();
     if (num_byte > 1) throw "hz";
@@ -40,38 +40,65 @@ std::string lzw_ns::lzw_0(const std::string& str, size_t buffer_size, const uint
     for(size_t i = 0; i < str.size() - num_byte; ) {
         std::vector<std::string>::iterator it = std::find(v_slovar.begin(), v_slovar.end(), std::string_view(str.data() + i, 1));
         for (size_t j = i + num_byte * 2; j < std::min(i + buffer_size, str.size()); j+=num_byte) {
-            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"searc "<<std::string_view(str.data() + i, j - i)<<std::endl;
-            std::vector<std::string>::iterator it1 = std::find(it, v_slovar.end(), std::string_view(str.data() + i, j - i));
+            std::string_view str_vw(str.data() + i, j - i);
+#ifndef NDEBUG
+            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"search ";
+            for(const char& c : str_vw)
+                logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
+            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::endl;
+#endif
+            std::vector<std::string>::iterator it1 = std::find(it, v_slovar.end(), str_vw);
             if(it1 == v_slovar.end())
                 break;
             if(it->size() < it1->size())
                 it = it1;
-            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"find "<<*it<<std::endl;
+#ifndef NDEBUG
+            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"find ";
+            for(const char& c : *it)
+                logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<(static_cast<int>(c) & 0xFF);
+            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::endl;
         }
+#endif
         if (it == v_slovar.end()) throw "ERR";
         n.pos = it - v_slovar.begin();
         size_t size_tmp = it->size();
         if(v_slovar.size() > 1 << (node::size * 8))
             node::size++;
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "find " << *it;
+#ifndef NDEBUG
+        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "ready find ";
+        for(const char& c : *it)
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF);
+        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
+#endif
         i+=size_tmp;
+        std::string str_new = *it;
         if (last.size()) {
             v_slovar.push_back(last + *it);
-            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) <<" to slovar "<<v_slovar.back();
+#ifndef NDEBUG
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) <<" to slovar ";
+            for (const char& c : v_slovar.back())
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::endl;
         }
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::endl;
-        last = *it;
+#endif
+        last = str_new;
         ss<<n;
     }
     n.pos = (std::find(v_slovar.begin(), v_slovar.end(), std::string_view(str.data() + str.size() - 1, num_byte)) - v_slovar.begin());
     ss<<n;
+#ifndef NDEBUG
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"slovar extend: "<<std::endl;
-    for (size_t i = slov_szie_start; i < v_slovar.size(); i++)
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<v_slovar[i]<<std::endl;
+    for (size_t i = slov_szie_start; i < v_slovar.size(); i++) {
+        for (const char& c : v_slovar[i])
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
+        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
+    }
+#endif
     return ss.str();
 }
 
-std::string lzw_ns::de_lzw_0(const std::string& str, size_t buffer_size, const uint8_t& num_byte, std::vector<std::string> v_slovar) {
+std::string lzw_ns::de_lzw_0(const std::string& str, const size_t& buffer_size, const uint8_t& num_byte, std::vector<std::string> v_slovar) {
     std::stringstream ss;
     ss<<str;
     node n;
@@ -93,11 +120,11 @@ std::string lzw_ns::de_lzw_0(const std::string& str, size_t buffer_size, const u
     return str_out;
 }
 
-std::string lzw_ns::lzw_1(const std::string& str, size_t buffer_size, const uint8_t& num_byte) {
+std::string lzw_ns::lzw_1(const std::string& str, const size_t& buffer_size, const uint8_t& num_byte) {
     return lzw_0(str,buffer_size,num_byte, create_slovar_byte(num_byte));
 }
 
-std::string lzw_ns::lzw_2(const std::string& str, size_t buffer_size, const uint8_t& num_byte) {
+std::string lzw_ns::lzw_2(const std::string& str, const size_t& buffer_size, const uint8_t& num_byte) {
     std::set<std::string> s_slovar;
     for (size_t i = 0; i < str.size(); i+=num_byte) s_slovar.insert(str.substr(i, num_byte));
     std::vector<std::string> v_slovar(s_slovar.begin(), s_slovar.end());
@@ -111,11 +138,11 @@ std::string lzw_ns::lzw_2(const std::string& str, size_t buffer_size, const uint
     return str_out+=lzw_0(str,buffer_size,num_byte,v_slovar);
 }
 
-std::string lzw_ns::de_lzw_1(const std::string& str, size_t buffer_size, const uint8_t& num_byte) {
+std::string lzw_ns::de_lzw_1(const std::string& str, const size_t& buffer_size, const uint8_t& num_byte) {
     return de_lzw_0(str,buffer_size,num_byte, create_slovar_byte(num_byte));
 }
 
-std::string lzw_ns::de_lzw_2(const std::string& str, size_t buffer_size, const uint8_t& num_byte) {
+std::string lzw_ns::de_lzw_2(const std::string& str, const size_t& buffer_size, const uint8_t& num_byte) {
     size_t size;
     std::memcpy(&size, str.data(), sizeof(size));
     std::vector<std::string> v_slovar(size, std::string(num_byte, 0));
@@ -125,13 +152,14 @@ std::string lzw_ns::de_lzw_2(const std::string& str, size_t buffer_size, const u
     return de_lzw_0(str_in,buffer_size,num_byte,v_slovar);
 }
 
-#define BUFFER_SIZE 1024 * num_byte
+#define BUFFER_SIZE 1024 * 1024 * num_byte
 void lzw(std::istream& stream_in, std::ostream& stream_out, const uint8_t& num_byte, const size_t& buffer_size) {
     std::string buffer(BUFFER_SIZE, 0);
     while (!stream_in.eof()) {
         stream_in.read(buffer.data(), BUFFER_SIZE);
         size_t read_bites = stream_in.gcount();
         buffer.resize(read_bites);
+        node::size = 1;
         std::string new_buffer = lzw_1(buffer, buffer_size, num_byte);
         size_t size = new_buffer.size() / num_byte;
         stream_out.write(reinterpret_cast<const char*>(&size), sizeof(size));
@@ -148,7 +176,11 @@ void de_lzw(std::istream& stream_in, std::ostream& stream_out, const uint8_t& nu
         stream_in.read(buffer.data(), size);
         buffer.resize(size);
         size_t read_bites = stream_in.gcount();
-        if (read_bites < size) break;
+        if (read_bites < size) {
+            logger(log_ns::DEV_ONLY) << "ERROR! broken last chunk"<<std::endl;
+            throw "ERR";
+        };
+        node::size = 1;
         std::string new_buffer = de_lzw_1(buffer, buffer_size, num_byte);
         stream_out.write(new_buffer.data(), new_buffer.size());
     }

@@ -6,15 +6,6 @@
 #include "../bytebitstream.h"
 #include "../sub_fun.h"
 
-namespace std {
-    template <>
-    struct hash<bytebit> {
-        size_t operator()(const bytebit& b) const {
-            return hash<std::string>{}(b.get_data());
-        }
-    };
-}
-
 namespace itu_ns {
     class calculator {
     protected:
