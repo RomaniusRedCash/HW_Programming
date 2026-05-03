@@ -1,5 +1,4 @@
 #include "bwt.h"
-#include <cstdint>
 
 extern uint8_t num_byte;
 
@@ -22,12 +21,41 @@ std::string bwt_ns::bwt_1(const std::string& str) {
 #ifndef NDEBUG
     logger(log_ns::DEV_ONLY) << "str in "<<str<<std::endl;
     logger(log_ns::DEV_ONLY) << "str out "<<str_out<<" - " <<size_t(str_out.front())<<std::endl;
-    logger(log_ns::DEV_ONLY  | log_ns::NORMAL_LVL) << "matrix: "<<std::endl;
+    logger(log_ns::DEV_ONLY) << "matrix: "<<std::endl;
     for (const std::string& s : matrix)
-        logger(log_ns::DEV_ONLY  | log_ns::NORMAL_LVL) << s << std::endl;
+        logger(log_ns::DEV_ONLY) << s << std::endl;
 #endif
 
     return str_out;
+}
+
+std::string bwt_ns::bwt_2(const std::string& str) {
+    if (str.empty()) return "";
+    size_t n = str.size();
+    std::vector<size_t> sa(n);
+    for (size_t i = 0; i < n; ++i) sa[i] = i;
+    std::stable_sort(sa.begin(), sa.end(), [&](size_t a, size_t b) {
+        if (a == b) return false;
+        for (size_t k = 0; k < n; ++k) {
+            unsigned char ca = static_cast<uint8_t>(str[(a + k) % n]);
+            unsigned char cb = static_cast<uint8_t>(str[(b + k) % n]);
+            if (ca != cb) return ca < cb;
+        }
+        return false;
+    });
+    std::string last_column = "";
+    last_column.reserve(n);
+    uint8_t primary_index = 0;
+
+    for (size_t i = 0; i < n; ++i) {
+        if (sa[i] == 0) primary_index = static_cast<uint8_t>(i);
+        last_column += str[(sa[i] + n - 1) % n];
+    }
+    std::string res;
+    res.reserve(n + 1);
+    res.push_back(static_cast<char>(primary_index));
+    res.append(last_column);
+    return res;
 }
 
 std::string bwt_ns::de_bwt_1(const std::string& s_bwt, const uint8_t& bwt_pos) {
@@ -60,80 +88,29 @@ std::string bwt_ns::de_bwt_1(const std::string& s_bwt, const uint8_t& bwt_pos) {
     return v_pull[bwt_pos];
 }
 
-void bwt_ns::bwt_sort_good(std::vector<std::string>*& pv_pull1, std::vector<std::string>*& pv_pull2, const std::vector<uint8_t>& v_subpull) {
-    for (std::vector<uint8_t>::const_iterator it = v_subpull.begin(); it != v_subpull.end(); it++)
-        (*pv_pull2)[it - v_subpull.begin()] = (*pv_pull1)[*it];
-    std::swap(pv_pull1, pv_pull2);
-}
-
 std::string bwt_ns::de_bwt_2(const std::string& s_bwt, const uint8_t& bwt_pos) {
-    size_t size = s_bwt.size() / num_byte;
-    if (size > (1 << sizeof(uint8_t) * 8) - 1) throw "err";
-    std::vector<std::string> v_pull1(size, std::string(size, 0)), *pv_pull1 = &v_pull1;
-    std::vector<std::string> v_pull2(size, std::string(size, 0)), *pv_pull2 = &v_pull2;
-    std::map<std::string, uint8_t> map_bwt;
-    for (size_t i = 0; i < size; i+=num_byte) map_bwt[s_bwt.substr(i, num_byte)]++;
-    size_t pos = 0;
-    for (std::pair<const std::string, uint8_t>& i : map_bwt)
-        for (uint8_t j = 0; j < i.second; j++) {
-            std::string& str = v_pull1[pos];
-            std::string::iterator startit = str.begin() + (size - 1) * num_byte;
-            str.replace(startit, startit + num_byte, i.first);
-            str.replace(startit - num_byte, startit, std::string_view(s_bwt.data() + pos * num_byte, num_byte));
-            pos++;
-        }
-    std::vector<uint8_t> v_subpull(size);
-    pos = 0;
-    for (uint8_t& i : v_subpull) {
-        i = pos++;
+    int n = s_bwt.size();
+    if (n == 0) return "";
+    std::vector<int> count(256, 0);
+    std::vector<int> p(n);
+    for (int i = 0; i < n; i++)
+        count[static_cast<uint8_t>(s_bwt[i])]++;
+    int sum = 0;
+    for (int i = 0; i < 256; i++) {
+        int tmp = count[i];
+        count[i] = sum;
+        sum += tmp;
     }
-
-#ifndef NDEBUG
-    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< "table BWT: "<< std::endl;
-    for (const std::string str : *pv_pull1)
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< str << std::endl;
-    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< "====" << std::endl;
-#endif
-
-    std::sort(v_subpull.begin(), v_subpull.end(), [&v_pull1](const uint8_t& a, const uint8_t& b){return v_pull1[a] < v_pull1[b]; });
-
-#ifndef NDEBUG
-    pos = 0;
-    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "perenos:"<<std::endl;
-    for (const uint8_t& i : v_subpull) logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << int(i) << " -> " << int(pos++) << std::endl;
-#endif
-
-    bwt_sort_good(pv_pull1, pv_pull2, v_subpull);
-
-#ifndef NDEBUG
-    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< "table BWT: "<< std::endl;
-    for (const std::string str : *pv_pull1)
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< str << std::endl;
-    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< "====" << std::endl;
-#endif
-
-    for (uint8_t posx = 2; posx < size; posx++) {
-        for (pos = 0; pos < size; pos++) {
-            std::string& str = (*pv_pull1)[pos];
-            std::string::iterator startit = str.begin() + (size - 1 - posx) * num_byte;
-            str.replace(startit, startit + num_byte, std::string_view(s_bwt.data() + pos * num_byte, num_byte));
-        }
-        bwt_sort_good(pv_pull1, pv_pull2, v_subpull);
-
-#ifndef NDEBUG
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< "table BWT: "<< std::endl;
-        for (const std::string str : *pv_pull1)
-            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< str << std::endl;
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< "====" << std::endl;
-#endif
+    for (int i = 0; i < n; i++) {
+        p[count[static_cast<uint8_t>(s_bwt[i])]++] = i;
     }
-#ifndef NDEBUG
-    logger(log_ns::DEV_ONLY)<< "table BWT: "<< std::endl;
-    for (const std::string str : *pv_pull1)
-        logger(log_ns::DEV_ONLY)<< str << std::endl;
-    logger(log_ns::DEV_ONLY)<< "====" << std::endl;
-#endif
-    return (*pv_pull1)[bwt_pos];
+    std::string res(n, ' ');
+    int curr = p[bwt_pos];
+    for (int i = 0; i < n; i++) {
+        res[i] = s_bwt[curr];
+        curr = p[curr];
+    }
+    return res;
 }
 
 std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const size_t& bwt_pos) {
@@ -155,7 +132,7 @@ std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const size_t& bwt_pos) {
     for (--it; it != mapa.begin(); it--)
         it->second = less-=it->second;
     it->second = 0;
-#ifndef DNDEBUG
+#ifndef NDEBUG
     logger(log_ns::DEV_ONLY) << "table #1:" << std::endl;
     for (const std::pair<std::string_view, uint8_t>& i : v_pool)
         logger(log_ns::DEV_ONLY) << i.first << " : " << (int) i.second << std::endl;
@@ -188,7 +165,7 @@ void bwt(std::istream& stream_in, std::ostream& stream_out) {
         stream_in.read(buffer.data(), buffer.size());
         buffer.resize(stream_in.gcount());
         if (buffer.empty()) return;
-        std::string new_str = bwt_ns::bwt_1(buffer);
+        std::string new_str = bwt_ns::bwt_2(buffer);
         stream_out.write(new_str.data(),new_str.size());
     }
 }

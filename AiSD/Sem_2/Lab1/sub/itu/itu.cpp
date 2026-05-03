@@ -71,14 +71,14 @@ bool itu_ns::try_read_code(sstrtobb& ssbb, bytebit& bb, const calculator& calc) 
             for (const char& c : bb.get_data())
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::bitset<8>(c);
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<" size " << bb.get_size() <<" : "<<(int)calc[bb]<<std::endl;
-#ifndef DNDEBUG
+#ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "before sdvig ";
             for (uint8_t i = 0; i < std::min(size_t(2), ssbb.get_data().size()); i++)
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::bitset<8>(ssbb.get_data()[i]);
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
 #endif
             ssbb.sdvig(-bb.get_size());
-#ifndef DNDEBUG
+#ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "after sdvig ";
             for (uint8_t i = 0; i < std::min(size_t(2), ssbb.get_data().size()); i++)
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::bitset<8>(ssbb.get_data()[i]);
@@ -128,7 +128,7 @@ void itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_laye
         if(!stream_in.gcount()) break;
         int16_t now_C = ac_dc.front() - last_DC;
         uint8_t len = get_category(now_C);
-#ifndef DNDEBUG
+#ifndef NDEBUG
 
         sstrtobb ssbb_tmp;
         std::vector<uint8_t> v_pull;
@@ -156,14 +156,14 @@ void itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_laye
                 while (pov_zer > 15) {
                     ssbb << (*calc_AC)[0xF0];
                     pov_zer -= 16;
-#ifndef DNDEBUG
+#ifndef NDEBUG
                     logger(log_ns::DEV_ONLY) << "write 16 zeros"<<std::endl;
                     ssbb_tmp << (*calc_AC)[0xF0];
 #endif
                 }
                 len = get_category(*i);
                 uint8_t sim = len | pov_zer << 4;
-#ifndef DNDEBUG
+#ifndef NDEBUG
                 logger(log_ns::DEV_ONLY) << "zeros " << int(pov_zer) << " write AC step " << (int) (i - ac_dc.begin()) - pov_zer <<" sim "  << std::bitset<8>(sim) << " hac ";
                 for (const char& c : (*calc_AC)[sim].get_data()) {
                     logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
@@ -182,7 +182,7 @@ void itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_laye
         }
         if (pov_zer) {
             pov_zer = 0;
-#ifndef DNDEBUG
+#ifndef NDEBUG
             logger(log_ns::DEV_ONLY)<<"fill zeros ";
             for (const char& c : (*calc_AC)[pov_zer].get_data())
                 logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
@@ -193,7 +193,7 @@ void itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_laye
             ssbb<<(*calc_AC)[pov_zer];
         }
         ssbb.try_write(stream_out);
-#ifndef DNDEBUG // ###############################################################################
+#ifndef NDEBUG // ###############################################################################
         uint8_t delta_step = 0;
         for (uint8_t substep = 0; substep < 64;) {
             bytebit bb(0);
@@ -255,7 +255,7 @@ void de_itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_l
     sstrtobb ssbb;
     bytebit bb(0);
     int16_t previos_DC = 0;
-#ifndef DNDEBUG
+#ifndef NDEBUG
     std::fstream file("Y.tmp", std::ios::in | std::ios::binary);
 #endif
     while(true) {
@@ -279,7 +279,7 @@ void de_itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_l
         }
         previos_DC+=x;
         stream_out.write(reinterpret_cast<const char*>(&previos_DC), sizeof(previos_DC));
-#ifndef DNDEBUG
+#ifndef NDEBUG
         logger(log_ns::DEV_ONLY) << "read DC " << previos_DC << " hac ";
         for (const char& c : bb.get_data()) {
             logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
@@ -306,7 +306,7 @@ void de_itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_l
                 logger(log_ns::DEV_ONLY)<<"fill zeros "<<63 - step<<std::endl;
                 for (; step < 63; step++) {
                     stream_out.write(reinterpret_cast<const char*>(&x), sizeof(x));
-#ifndef DNDEBUG
+#ifndef NDEBUG
                     file.read(reinterpret_cast<char*>(&x), sizeof(x));
                     if (x != 0)
                         logger()<<"ERROR! fill zeros not zero"<<std::endl;
@@ -316,7 +316,7 @@ void de_itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_l
             }
             uint8_t zeros = tuple_AC >> 4;
             len = tuple_AC & 0x0F;
-#ifndef DNDEBUG
+#ifndef NDEBUG
             logger(log_ns::DEV_ONLY)<<"zeros " << int(zeros) << " read AC step " << (int) step + 1<<" sim " << std::bitset<8>((*calc_AC)[bb]) << " hac ";
             for (const char& c : bb.get_data()) {
                 logger(log_ns::DEV_ONLY)<<std::bitset<8>(c);
@@ -325,7 +325,7 @@ void de_itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_l
 #endif
             for (uint8_t i = 0; i < zeros; i++) {
                 stream_out.write(reinterpret_cast<const char*>(&x), sizeof(x));
-#ifndef DNDEBUG
+#ifndef NDEBUG
                 file.read(reinterpret_cast<char*>(&x), sizeof(x));
                 if (x != 0)
                     logger()<<"ERROR! subfill zeros not zero"<<std::endl;
@@ -338,7 +338,7 @@ void de_itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_l
                 buffer.resize(stream_in.gcount());
                 ssbb<<buffer;
             }
-#ifndef DNDEBUG
+#ifndef NDEBUG
             int16_t X = 0;
             file.read(reinterpret_cast<char*>(&X), sizeof(X));
             if (x != X)
@@ -347,7 +347,7 @@ void de_itu(std::istream& stream_in, std::ostream& stream_out, const itu_ns::e_l
             stream_out.write(reinterpret_cast<const char*>(&x), sizeof(x));
         }
     }
-#ifndef DNDEBUG
+#ifndef NDEBUG
     if(stream_in.eof()) logger(log_ns::DEV_ONLY)<<"eof"<<std::endl;
     file.close();
 #endif

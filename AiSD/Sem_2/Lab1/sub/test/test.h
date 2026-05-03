@@ -9,5 +9,6 @@
 #include "../lz/lzw/lzw.h"
 #include "../lz/lzss/lzss.h"
 #include "../logger/logger.h"
+#include "../arithmetic/arithmetic.h"
 
 void test(const std::string& str, const size_t& mc);
