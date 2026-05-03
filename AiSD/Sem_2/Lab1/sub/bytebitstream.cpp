@@ -104,7 +104,9 @@ const std::string& bytebit::get_data() const {
 const size_t& bytebit::get_size() const {
     return size;
 }
-
+void bytebit::set_size(const size_t& size) {
+    this->size = size;
+}
 
 void bytebit::add_null() {
     if (!(size%8))
@@ -223,7 +225,7 @@ const std::string& sstrtobb::get_data() const {
 
 void sstrtobb::try_write(std::ostream& os) {
     if(!buffer_sdvig_size) {
-#ifndef DNDEBUG
+#ifndef NDEBUG
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"write on file ";
         for (const char& c : data)
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::bitset<8>(c);

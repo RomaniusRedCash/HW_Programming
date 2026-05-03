@@ -37,6 +37,7 @@ public:
     bytebit& operator<<(const std::string& str);
     const std::string& get_data() const override;
     const size_t& get_size() const;
+    void set_size(const size_t& size);
     void add_null();
     void add_one();
     void pop_back();

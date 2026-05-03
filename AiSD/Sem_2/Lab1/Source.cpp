@@ -23,7 +23,7 @@
 #include "sub/logger/logger.h"
 
 uint8_t num_byte = 1;
-uint8_t buffer_size_lz = 8;
+size_t buffer_size_lz = 8;
 
 enum eCOMMANDS : int;
 bimap<std::string, eCOMMANDS> map_translater;
@@ -174,7 +174,7 @@ int main(const int argc, char* argv[]) {
     std::fstream file_out;
     if (file_in.is_open())
         ss_tmp1 << file_in.rdbuf();
-#ifdef DNDEBUG
+#ifdef NDEBUG
     else {
         std::cout<<"ERROR! Some files can't openning or creating."<<std::endl;
         return 1;
@@ -208,7 +208,7 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2, buffer_size_lz);});
                 break;
             case eLZSS:
-                start_algorithm(map_translater[ec], [&]{lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{lzss(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
 
             // NOTE: decompress
@@ -228,7 +228,7 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2, buffer_size_lz);});
                 break;
             case eDELZSS:
-                start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
 
 

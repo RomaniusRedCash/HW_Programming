@@ -21,12 +21,12 @@ std::unordered_map<std::string, size_t> lzw_ns::create_mapslovar_byte(const size
 
 sstrtobb& lzw_ns::operator<<(sstrtobb& os, node n) {
     bytebit bb(node::size);
-    uint8_t str_size = sizeof(n.pos);
+    uint8_t str_size = (node::size + 7) / 8;
     std::string str_tmp(str_size, 0);
-    n.pos <<= str_size * 8 - node::size;
+    n.pos <<= sizeof(n.pos) * 8 - node::size;
     for (size_t i = 0; i < str_size; i++)
-        str_tmp[i]=(n.pos >> ((str_size - i - 1) * 8)) & 0xFF;
-    bb << str_tmp.substr(0, (node::size + 7) / 8);
+        str_tmp[i]=(n.pos >> ((sizeof(n.pos) - i - 1) * 8)) & 0xFF;
+    bb << str_tmp;
 #ifndef NDEBUG
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "write ";
     for(const char& c : bb.get_data())
@@ -137,7 +137,7 @@ std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, const size_t& buffer_size, std::vec
                 v_slovar.push_back(last_str + v_slovar[n.pos].substr(0, num_byte));
             else
                 v_slovar.push_back(last_str + last_str.substr(0, num_byte));
-#ifndef DNDEBUG
+#ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"to slovar ";
             if (last_str.size() && last_str.size() < buffer_size) {
                 for(const char& c : v_slovar.back())
@@ -148,7 +148,7 @@ std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, const size_t& buffer_size, std::vec
         }
         last_str = v_slovar[n.pos];
         str_out+=last_str;
-#ifndef DNDEBUG
+#ifndef NDEBUG
         logger(log_ns::DEV_ONLY) << "write ";
         for (const char& c : last_str)
             logger(log_ns::DEV_ONLY) << (size_t(c) & 0xFF) << ' ';
@@ -180,7 +180,7 @@ void lzw(std::istream& stream_in, std::ostream& stream_out, const size_t& buffer
         stream_out.write(strsize_ssbb.data(), strsize_ssbb.size());
         ssbb<<new_buffer;
         ssbb.try_write(stream_out);
-#ifndef DNDEBUG
+#ifndef NDEBUG
         logger(log_ns::DEV_ONLY) << "write str with size " << size_ssbb<<std::endl;
 #endif
     }
