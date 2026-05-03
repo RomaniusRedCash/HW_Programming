@@ -23,6 +23,7 @@
 #include "sub/logger/logger.h"
 
 uint8_t num_byte = 1;
+uint8_t buffer_size_lz = 8;
 
 enum eCOMMANDS : int;
 bimap<std::string, eCOMMANDS> map_translater;
@@ -110,7 +111,6 @@ int main(const int argc, char* argv[]) {
     int opt, long_idx;
     std::string str_inp, str_out, str_cmpr;
     std::string str_itu;
-    uint8_t buffer_size_lz = 8;
     std::vector<eCOMMANDS> v_params;
     while ((opt = getopt_long(argc, argv, "hi:o:", &long_opt.front(), &long_idx)) != -1)
         switch (opt) {
@@ -205,7 +205,7 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{bwt(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eLZW:
-                start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2, buffer_size_lz);});
                 break;
             case eLZSS:
                 start_algorithm(map_translater[ec], [&]{lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
@@ -225,7 +225,7 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{de_bwt(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eDELZW:
-                start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2, buffer_size_lz);});
                 break;
             case eDELZSS:
                 start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2, num_byte, buffer_size_lz);});
