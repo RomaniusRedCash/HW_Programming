@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdint>
+#include <string_view>
 #include "../logger/logger.h"
 
 void RLE(std::istream& stream_in, std::ostream& stream_out);

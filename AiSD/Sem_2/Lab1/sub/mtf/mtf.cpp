@@ -1,10 +1,10 @@
 #include "mtf.h"
 #include <sstream>
 
-#define BUFFER_SIZE 1024 * num_byte
+#define BUFFER_SIZE (1 << 26) * num_byte
 void mtf(std::istream& stream_in, std::ostream& stream_out, const int& num_byte) {
-    std::deque<std::string> v_alph;
-    std::vector<std::string> v_alph_const;
+    std::deque<std::string_view> v_alph;
+    std::vector<std::string_view> v_alph_const;
     std::string buffer_in(BUFFER_SIZE,0);
     while (stream_in) {
         stream_in.read(buffer_in.data(), BUFFER_SIZE);
@@ -14,7 +14,7 @@ void mtf(std::istream& stream_in, std::ostream& stream_out, const int& num_byte)
         for (int i = 0; i < read_bytes / num_byte; i++) {
             std::string_view now_sim(buffer_in.data() + i * num_byte, num_byte);
             logger(log_ns::NORMAL_LVL)<<"read: "<<now_sim;
-            std::deque<std::string>::iterator iter = std::find(v_alph.begin(), v_alph.end(), now_sim);
+            std::deque<std::string_view>::iterator iter = std::find(v_alph.begin(), v_alph.end(), now_sim);
             if (iter == v_alph.end()) {
                 v_alph_const.emplace_back(now_sim);
                 v_alph.emplace_front(now_sim);
@@ -30,9 +30,9 @@ void mtf(std::istream& stream_in, std::ostream& stream_out, const int& num_byte)
             }
 #ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << "slovar const ";
-            for (const std::string& s : v_alph_const) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
+            for (const std::string_view& s : v_alph_const) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
             logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << std::endl << "slovar ";
-            for (const std::string& s : v_alph) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
+            for (const std::string_view& s : v_alph) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
             logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << std::endl;
 #endif
         }
@@ -40,8 +40,8 @@ void mtf(std::istream& stream_in, std::ostream& stream_out, const int& num_byte)
 }
 
 void de_mtf(std::istream& stream_in, std::ostream& stream_out, const int& num_byte) {
-    std::deque<std::string> v_alph;
-    std::vector<std::string> v_alph_const;
+    std::deque<std::string_view> v_alph;
+    std::vector<std::string_view> v_alph_const;
     std::string buffer(BUFFER_SIZE,0);
     while (stream_in) {
         std::stringstream buffer_out;
@@ -52,7 +52,7 @@ void de_mtf(std::istream& stream_in, std::ostream& stream_out, const int& num_by
         for (int i = 0; i < read_bytes / num_byte; i++) {
             std::string_view now_sim(buffer.data() + i * num_byte, num_byte);
             logger(log_ns::NORMAL_LVL)<<"read: "<<now_sim;
-            std::vector<std::string>::iterator iter = std::find(v_alph_const.begin(), v_alph_const.end(), now_sim);
+            std::vector<std::string_view>::iterator iter = std::find(v_alph_const.begin(), v_alph_const.end(), now_sim);
             if (iter == v_alph_const.end()) {
                 v_alph_const.emplace_back(now_sim);
                 v_alph.emplace_front(now_sim);
@@ -63,16 +63,16 @@ void de_mtf(std::istream& stream_in, std::ostream& stream_out, const int& num_by
                 stream_out<<v_alph[pos];
                 logger(log_ns::NORMAL_LVL)<<" write: "<<v_alph[pos]<<std::endl;
                 if (pos != 0) {
-                    const std::string sim = v_alph[pos];
+                    const std::string_view sim = v_alph[pos];
                     v_alph.erase(v_alph.begin() + pos);
                     v_alph.emplace_front(sim);
                 }
             }
 #ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << "slovar const ";
-            for (const std::string& s : v_alph_const) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
+            for (const std::string_view& s : v_alph_const) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
             logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << std::endl << "slovar ";
-            for (const std::string& s : v_alph) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
+            for (const std::string_view& s : v_alph) logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << s<< ' ';
             logger(log_ns::DEV_ONLY | log_ns::HARD_LVL) << std::endl;
 #endif
         }

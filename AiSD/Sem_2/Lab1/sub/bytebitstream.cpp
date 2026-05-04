@@ -174,7 +174,7 @@ sstrtobb& sstrtobb::operator>>(bytebit& bb) {
     for (const char i : bb.get_data())
         logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::bitset<8>(i) << ' ';
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::endl;
-    uint8_t size_in_byte = bb.get_size() / 8;
+    size_t size_in_byte = bb.get_size() / 8;
     logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"cut str to " << int(size_in_byte)<<std::endl;
     data.erase(data.begin(), data.begin() + size_in_byte);
     sdvig(-(bb.get_size() % 8));

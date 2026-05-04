@@ -31,31 +31,28 @@ std::string bwt_ns::bwt_1(const std::string& str) {
 
 std::string bwt_ns::bwt_2(const std::string& str) {
     if (str.empty()) return "";
-    size_t n = str.size();
-    std::vector<size_t> sa(n);
-    for (size_t i = 0; i < n; ++i) sa[i] = i;
-    std::stable_sort(sa.begin(), sa.end(), [&](size_t a, size_t b) {
+    size_t str_size = str.size();
+    std::vector<size_t> ways(str_size);
+    std::iota(ways.begin(), ways.end(), 0);
+    std::stable_sort(ways.begin(), ways.end(), [&](const size_t& a, const size_t& b) {
         if (a == b) return false;
-        for (size_t k = 0; k < n; ++k) {
-            unsigned char ca = static_cast<uint8_t>(str[(a + k) % n]);
-            unsigned char cb = static_cast<uint8_t>(str[(b + k) % n]);
+        for (size_t i = 0; i < str_size; i++) {
+            uint8_t ca = static_cast<uint8_t>(str[(a + i) % str_size]);
+            uint8_t cb = static_cast<uint8_t>(str[(b + i) % str_size]);
             if (ca != cb) return ca < cb;
         }
         return false;
     });
-    std::string last_column = "";
-    last_column.reserve(n);
-    uint8_t primary_index = 0;
-
-    for (size_t i = 0; i < n; ++i) {
-        if (sa[i] == 0) primary_index = static_cast<uint8_t>(i);
-        last_column += str[(sa[i] + n - 1) % n];
+    uint32_t bwt_pos = 0;
+    std::string str_out;
+    str_out.reserve(str_size + sizeof(bwt_pos));
+    str_out.resize(sizeof(bwt_pos));
+    for (size_t i = 0; i < str_size; i++) {
+        if (ways[i] == 0) bwt_pos = i;
+        str_out += str[(ways[i] + str_size - 1) % str_size];
     }
-    std::string res;
-    res.reserve(n + 1);
-    res.push_back(static_cast<char>(primary_index));
-    res.append(last_column);
-    return res;
+    std::memcpy(str_out.data(), &bwt_pos, sizeof(bwt_pos));
+    return str_out;
 }
 
 std::string bwt_ns::de_bwt_1(const std::string& s_bwt, const uint8_t& bwt_pos) {
@@ -88,32 +85,44 @@ std::string bwt_ns::de_bwt_1(const std::string& s_bwt, const uint8_t& bwt_pos) {
     return v_pull[bwt_pos];
 }
 
-std::string bwt_ns::de_bwt_2(const std::string& s_bwt, const uint8_t& bwt_pos) {
-    int n = s_bwt.size();
+std::string bwt_ns::de_bwt_2(const std::string& s_bwt, const uint32_t& bwt_pos) {
+    const size_t n = s_bwt.size();
     if (n == 0) return "";
-    std::vector<int> count(256, 0);
-    std::vector<int> p(n);
-    for (int i = 0; i < n; i++)
-        count[static_cast<uint8_t>(s_bwt[i])]++;
-    int sum = 0;
-    for (int i = 0; i < 256; i++) {
-        int tmp = count[i];
-        count[i] = sum;
-        sum += tmp;
+    std::string res;
+    res.reserve(n);
+    std::array<size_t, std::numeric_limits<uint8_t>::max()> counts = {0};
+    std::vector<size_t> char_order(n);
+
+    for (size_t i = 0; i < n; ++i) {
+        uint8_t c = static_cast<uint8_t>(s_bwt[i]);
+        char_order[i] = counts[c];
+        counts[c]++;
     }
-    for (int i = 0; i < n; i++) {
-        p[count[static_cast<uint8_t>(s_bwt[i])]++] = i;
+    std::array<size_t, std::numeric_limits<uint8_t>::max()> start_pos;
+    size_t sum = 0;
+    for (int i = 0; i < start_pos.size(); i++) {
+        start_pos[i] = sum;
+        sum += counts[i];
     }
-    std::string res(n, ' ');
-    int curr = p[bwt_pos];
-    for (int i = 0; i < n; i++) {
-        res[i] = s_bwt[curr];
-        curr = p[curr];
+#ifndef NDEBUG
+    logger(log_ns::DEV_ONLY) << "perehodi:" << std::endl;
+    for (size_t i = 0; i < n; ++i) {
+        uint8_t c = static_cast<uint8_t>(s_bwt[i]);
+        size_t next_idx = start_pos[c] + char_order[i];
+        logger(log_ns::DEV_ONLY)<< c << "_" << char_order[i] << " -> "<< s_bwt[next_idx] << "_" << char_order[next_idx]<< std::endl;
     }
+#endif
+    size_t curr = bwt_pos;
+    for (size_t i = 0; i < n; ++i) {
+        uint8_t c = static_cast<uint8_t>(s_bwt[curr]);
+        res += c;
+        curr = start_pos[c] + char_order[curr];
+    }
+    std::reverse(res.begin(), res.end());
     return res;
 }
 
-std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const size_t& bwt_pos) {
+std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const uint8_t& bwt_pos) {
     size_t size = s_bwt.size() / num_byte;
     if (size > (1 << sizeof(uint8_t) * 8) - 1) throw "err";
     std::string str_out(s_bwt);
@@ -156,21 +165,37 @@ std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const size_t& bwt_pos) {
 }
 
 std::string bwt_ns::de_bwt_0(const std::string& str) {
-    return bwt_ns::de_bwt_3(str.substr(1, str.size() - 1), static_cast<uint8_t>(str.front()));
+    if (num_byte > 1)
+        return bwt_ns::de_bwt_3(str.substr(1, str.size() - 1), static_cast<uint8_t>(str.front()));
+    uint32_t bwt_pos = 0;
+    std::string_view str_bwtpos(str.data(), sizeof(bwt_pos));
+    std::memcpy(&bwt_pos, str_bwtpos.data(), sizeof(bwt_pos));
+    return bwt_ns::de_bwt_2(str.substr(sizeof(bwt_pos), str.size() - sizeof(bwt_pos)), bwt_pos);
 }
 
 void bwt(std::istream& stream_in, std::ostream& stream_out) {
-    std::string buffer((1 << (sizeof(uint8_t) * 8)) - 2, 0);
+    if (window_buffer_size == 0) window_buffer_size = (1 << 26);
+    std::string buffer;
+    if (num_byte > 1)
+        buffer.resize((1 << (sizeof(uint8_t) * 8)) - 2);
+    else buffer.resize(window_buffer_size - sizeof(uint32_t) - 1);
     while (stream_in) {
         stream_in.read(buffer.data(), buffer.size());
         buffer.resize(stream_in.gcount());
         if (buffer.empty()) return;
-        std::string new_str = bwt_ns::bwt_2(buffer);
+        std::string new_str;
+        if (num_byte > 1) new_str = bwt_ns::bwt_1(buffer);
+        else new_str = bwt_ns::bwt_2(buffer);
         stream_out.write(new_str.data(),new_str.size());
     }
 }
 void de_bwt(std::istream& stream_in, std::ostream& stream_out) {
-    std::string buffer((1 << (sizeof(uint8_t) * 8)) - 1, 0);
+    if (window_buffer_size == 0) window_buffer_size = (1 << 26);
+    std::string buffer;
+    if (num_byte > 1)
+        buffer.resize((1 << (sizeof(uint8_t) * 8)) - 1);
+    else
+        buffer.resize(window_buffer_size - 1);
     while (stream_in) {
         stream_in.read(buffer.data(), buffer.size());
         buffer.resize(stream_in.gcount());
