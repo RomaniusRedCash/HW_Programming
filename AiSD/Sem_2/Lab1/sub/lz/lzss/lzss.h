@@ -4,7 +4,7 @@
 #include <string_view>
 
 extern uint8_t num_byte;
-extern size_t buffer_size_lz;
+extern size_t window_buffer_size;
 
 namespace lzss_ns {
     struct node {

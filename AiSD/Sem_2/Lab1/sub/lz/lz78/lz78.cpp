@@ -23,7 +23,7 @@ std::string lz78_ns::lz78_1(const std::string& str, size_t buffer_size, const ui
         node n;
         std::vector<std::string>::iterator it = v_slovar.begin();
         for (size_t j = i + num_byte; j < std::min(i + buffer_size, str.size()); j+=num_byte) {
-            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"searc "<<std::string_view(str.data() + i, j - i)<<std::endl;
+            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"search "<<std::string_view(str.data() + i, j - i)<<std::endl;
             std::vector<std::string>::iterator it1 = std::find(it, v_slovar.end(), std::string_view(str.data() + i, j - i));
             if(it1 == v_slovar.end())
                 break;

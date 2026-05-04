@@ -79,13 +79,13 @@ sstrtobb& lzss_ns::operator>>(sstrtobb& is, node& n) {
 #define BUFFER_SIZE 10 * num_byte * buffer_size
 void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out) {
     node::size_len = 0;
-    while ((1ULL << node::size_len) < buffer_size_lz)
+    while ((1ULL << node::size_len) < window_buffer_size)
         node::size_len++;
 // last byte
-    logger()<<"buffer size is "<<buffer_size_lz<<std::endl;
+    logger()<<"buffer size is "<<window_buffer_size<<std::endl;
     stream_out.put(0);
     // if (buffer_size >= 256) throw "ERR";
-    size_t buffer_size = buffer_size_lz * num_byte;
+    size_t buffer_size = window_buffer_size * num_byte;
     sstrtobb bbs_out;
 #ifndef NDEBUG
     sstrtobb bbs_dbg;
@@ -143,11 +143,11 @@ void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out) {
                 logger(log_ns::DEV_ONLY)<<"ERROR! data "<<n1.data<<" != " <<n_dbg.data<<std::endl;
                 throw "ERR";
             }
-            if (n1.len > buffer_size_lz) {
-                logger(log_ns::DEV_ONLY)<<"ERROR! buffer len "<<n1.pos<<" > " <<buffer_size_lz<<std::endl;
+            if (n1.len > window_buffer_size) {
+                logger(log_ns::DEV_ONLY)<<"ERROR! buffer len "<<n1.pos<<" > " <<window_buffer_size<<std::endl;
                 throw "ERR";
-            } else if (n1.pos > buffer_size_lz) {
-                logger(log_ns::DEV_ONLY)<<"ERROR! buffer pos "<<n1.pos<<" > " <<buffer_size_lz<<std::endl;
+            } else if (n1.pos > window_buffer_size) {
+                logger(log_ns::DEV_ONLY)<<"ERROR! buffer pos "<<n1.pos<<" > " <<window_buffer_size<<std::endl;
                 throw "ERR";
             }
 #endif
@@ -163,13 +163,13 @@ void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out) {
 
 void lzss_ns::de_lzss_1(std::istream& stream_in, std::ostream& stream_out) {
     node::size_len = 0;
-    while ((1ULL << node::size_len) < buffer_size_lz)
+    while ((1ULL << node::size_len) < window_buffer_size)
         node::size_len++;
     uint8_t last_byte_size = 0;
     stream_in.read(reinterpret_cast<char*>(&last_byte_size), sizeof(last_byte_size));
     // if (buffer_size >= 256) throw "ERR";
     // buffer_size *= num_byte;
-    size_t buffer_size = buffer_size_lz * num_byte;
+    size_t buffer_size = window_buffer_size * num_byte;
     logger(log_ns::DEV_ONLY) <<"last byte len: "<<size_t(last_byte_size) << std::endl;
     std::string buffer(BUFFER_SIZE, 0);
     sstrtobb ssbb;
@@ -241,8 +241,10 @@ bool lzss_ns::try_read_node(sstrtobb& ssbb_in, node& n) {
 
 
 void lzss(std::istream& stream_in, std::ostream& stream_out) {
+    if (window_buffer_size == 0) window_buffer_size = 1 << 26;
     lzss_1(stream_in, stream_out);
 }
 void de_lzss(std::istream& stream_in, std::ostream& stream_out) {
+    if (window_buffer_size == 0) window_buffer_size = 1 << 26;
     de_lzss_1(stream_in, stream_out);
 }

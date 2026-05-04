@@ -81,7 +81,8 @@ void RLE2(std::istream& stream_in, std::ostream& stream_out, const int& num_byte
                 continue;
             }
             for(len = 0; len < MASK_RLE && len * num_byte + 2< str_len; len++)
-                if (sub_buffer.substr(len * num_byte, num_byte) == sub_buffer.substr((len + 1) * num_byte, num_byte) && sub_buffer.substr(len * num_byte, num_byte) == sub_buffer.substr((len + 2) * num_byte, num_byte))
+                if (std::string_view(sub_buffer.data() + len * num_byte, num_byte) == std::string_view(sub_buffer.data() + (len + 1) * num_byte, num_byte) &&
+                    std::string_view(sub_buffer.data() + len * num_byte, num_byte) == std::string_view(sub_buffer.data() + (len + 2) * num_byte, num_byte))
                     break;
             if (str_len < 3 || str_len < SUB_BUFFER_SIZE) {
                 len = str_len;

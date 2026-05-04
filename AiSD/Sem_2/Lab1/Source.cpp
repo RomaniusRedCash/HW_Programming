@@ -23,7 +23,7 @@
 #include "sub/logger/logger.h"
 
 uint8_t num_byte = 1;
-size_t buffer_size_lz = 8;
+size_t window_buffer_size = 0;
 
 enum eCOMMANDS : int;
 bimap<std::string, eCOMMANDS> map_translater;
@@ -73,7 +73,7 @@ std::vector<some_param> v_someprm = {
     {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE},
     {"mtf", no_argument, nullptr, 0, ":use MTF.", eMTF},
     {"ha", no_argument, nullptr, 0, ":use HA.", eHA},
-    {"bwt", no_argument, nullptr, 0, ":use BWT.", eBWT},
+    {"bwt", optional_argument, nullptr, 0, ":use BWT.", eBWT},
     {"lzw", optional_argument, nullptr, 0, ":use LZW.", eLZW},
     {"lzss", optional_argument, nullptr, 0, ":use LZSS.", eLZSS},
 
@@ -81,7 +81,7 @@ std::vector<some_param> v_someprm = {
     {"de-rle", no_argument, nullptr, 0, ":extract from RLE.", eDERLE},
     {"de-mtf", no_argument, nullptr, 0, ":extract from MTF.", eDEMTF},
     {"de-ha", no_argument, nullptr, 0, ":extract from HA.", eDEHA},
-    {"de-bwt", no_argument, nullptr, 0, ":extract from BWt.", eDEBWT},
+    {"de-bwt", optional_argument, nullptr, 0, ":extract from BWt.", eDEBWT},
     {"de-lzw", optional_argument, nullptr, 0, ":extract from LZW.", eDELZW},
     {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS},
 
@@ -152,12 +152,14 @@ int main(const int argc, char* argv[]) {
                     case eDEITU:
                         str_itu = optarg;
                         break;
+                    case eBWT:
+                    case eDEBWT:
                     case eLZW:
                     case eDELZW:
                     case eLZSS:
                     case eDELZSS:
                         if (optarg != nullptr)
-                            buffer_size_lz = std::stoi(optarg);
+                            window_buffer_size = std::stoi(optarg);
                     default:
                         break;
                 }
@@ -205,7 +207,7 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{bwt(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eLZW:
-                start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eLZSS:
                 start_algorithm(map_translater[ec], [&]{lzss(*p_ss_tmp1, *p_ss_tmp2);});
@@ -225,7 +227,7 @@ int main(const int argc, char* argv[]) {
                 start_algorithm(map_translater[ec], [&]{de_bwt(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eDELZW:
-                start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2, buffer_size_lz);});
+                start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eDELZSS:
                 start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2);});
