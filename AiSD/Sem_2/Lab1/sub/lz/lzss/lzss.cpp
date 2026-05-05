@@ -7,7 +7,7 @@ sstrtobb& lzss_ns::operator<<(sstrtobb& os, const node& n) {
         logger();
     }
     bytebit bb(0);
-    if (n.len < (node::size_len + 7) / 8 + 1) {
+    if (n.len < (node::size + 7) / 8 + 1) {
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "write 0 "<<n.data << std::endl;
         bb.add_null();
         os << bb;
@@ -17,19 +17,19 @@ sstrtobb& lzss_ns::operator<<(sstrtobb& os, const node& n) {
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "write 1 "<< size_t(n.pos)<< ' ' << size_t(n.len) << std::endl;
         bb.add_one();
         os << bb;
-        bytebit bb_tmp(node::size_len);
+        bytebit bb_tmp(node::size);
         size_t tmp = n.pos;
-        uint8_t str_size = (node::size_len + 7) / 8;
+        uint8_t str_size = (node::size + 7) / 8;
         std::string str_tmp(str_size, 0);
-        tmp <<= sizeof(tmp) * 8 - node::size_len;
+        tmp <<= sizeof(tmp) * 8 - node::size;
         for (size_t i = 0; i < str_size; i++)
             str_tmp[i]=(tmp >> ((sizeof(tmp) - i - 1) * 8)) & 0xFF;
         bb_tmp << str_tmp;
         os << bb_tmp;
         bb_tmp.clear();
-        bb_tmp.set_size(node::size_len);
+        bb_tmp.set_size(node::size);
         tmp = n.len;
-        tmp <<= sizeof(tmp) * 8 - node::size_len;
+        tmp <<= sizeof(tmp) * 8 - node::size;
         for (size_t i = 0; i < str_size; i++)
             str_tmp[i]=(tmp >> ((sizeof(tmp) - i - 1) * 8)) & 0xFF;
         bb_tmp << str_tmp;
@@ -50,7 +50,7 @@ sstrtobb& lzss_ns::operator>>(sstrtobb& is, node& n) {
         // is >> n.pos >> n.len;
         n.pos = 0;
         n.len = 0;
-        bytebit bb_tmp(node::size_len);
+        bytebit bb_tmp(node::size);
         is >> bb_tmp;
         uint8_t str_size = bb_tmp.get_data().size();
         const std::string* str_tmp = &bb_tmp.get_data();
@@ -58,17 +58,17 @@ sstrtobb& lzss_ns::operator>>(sstrtobb& is, node& n) {
             n.pos<<=8;
             n.pos |= (*str_tmp)[i] & 0xFF;
         }
-        if (uint8_t tmp = node::size_len%8)
+        if (uint8_t tmp = node::size%8)
             n.pos >>= 8 - tmp;
         bb_tmp.clear();
-        bb_tmp.set_size(node::size_len);
+        bb_tmp.set_size(node::size);
         is >> bb_tmp;
         str_tmp = &bb_tmp.get_data();
         for (size_t i = 0; i < str_size; i++) {
             n.len<<=8;
             n.len |= (*str_tmp)[i] & 0xFF;
         }
-        if (uint8_t tmp = node::size_len%8)
+        if (uint8_t tmp = node::size%8)
             n.len >>= 8 - tmp;
 
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "read 1 "<< size_t(n.pos)<< ' ' << size_t(n.len) << std::endl;
@@ -77,10 +77,10 @@ sstrtobb& lzss_ns::operator>>(sstrtobb& is, node& n) {
 }
 
 #define BUFFER_SIZE 10 * num_byte * buffer_size
-void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out) {
-    node::size_len = 0;
-    while ((1ULL << node::size_len) < window_buffer_size)
-        node::size_len++;
+void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out, const size_t window_buffer_size) {
+    node::size = 1;
+    while ((1ULL << node::size) < window_buffer_size)
+        node::size++;
 // last byte
     logger()<<"buffer size is "<<window_buffer_size<<std::endl;
     stream_out.put(0);
@@ -115,7 +115,7 @@ void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out) {
             }
             n1.pos /= num_byte;
             n1.data = buffer.substr(i, num_byte);
-            i+=((n1.len < (node::size_len + 7) / 8 + 1) ? 1 : n1.len)*num_byte;
+            i+=((n1.len < (node::size + 7) / 8 + 1) ? 1 : n1.len)*num_byte;
 #ifndef NDEBUG
             if (str_vi.size() > buffer_size) {
                 logger(log_ns::DEV_ONLY)<<"ERROR! len str_vi buffer"<<std::endl;
@@ -161,10 +161,10 @@ void lzss_ns::lzss_1(std::istream& stream_in, std::ostream& stream_out) {
     stream_out.write(reinterpret_cast<const char*>(&bbs_out.real_last()), sizeof(bbs_out.real_last()));
 }
 
-void lzss_ns::de_lzss_1(std::istream& stream_in, std::ostream& stream_out) {
-    node::size_len = 0;
-    while ((1ULL << node::size_len) < window_buffer_size)
-        node::size_len++;
+void lzss_ns::de_lzss_1(std::istream& stream_in, std::ostream& stream_out, const size_t window_buffer_size) {
+    node::size = 1;
+    while ((1ULL << node::size) < window_buffer_size)
+        node::size++;
     uint8_t last_byte_size = 0;
     stream_in.read(reinterpret_cast<char*>(&last_byte_size), sizeof(last_byte_size));
     // if (buffer_size >= 256) throw "ERR";
@@ -195,7 +195,7 @@ void lzss_ns::de_lzss_1(std::istream& stream_in, std::ostream& stream_out) {
             ssbb_tmp.set_buffer_sdvig_size(last_byte_size);
             ssbb << ssbb_tmp;
         } else ssbb<<buffer;
-        while (ssbb.get_data().size() > (node::size_len + 7) / 8 * 2 || (stream_in.eof() && ssbb.get_data().size())) {
+        while (ssbb.get_data().size() > (node::size + 7) / 8 * 2 || (stream_in.eof() && ssbb.get_data().size())) {
             node n;
             if (!try_read_node(ssbb, n)){
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"next buffer"<<std::endl;
@@ -241,10 +241,8 @@ bool lzss_ns::try_read_node(sstrtobb& ssbb_in, node& n) {
 
 
 void lzss(std::istream& stream_in, std::ostream& stream_out) {
-    if (window_buffer_size == 0) window_buffer_size = 1 << 26;
-    lzss_1(stream_in, stream_out);
+    lzss_1(stream_in, stream_out, lz::get_window(sub_commands.front(), 1 << 26));
 }
 void de_lzss(std::istream& stream_in, std::ostream& stream_out) {
-    if (window_buffer_size == 0) window_buffer_size = 1 << 26;
-    de_lzss_1(stream_in, stream_out);
+    de_lzss_1(stream_in, stream_out, lz::get_window(sub_commands.front(), 1 << 26));
 }

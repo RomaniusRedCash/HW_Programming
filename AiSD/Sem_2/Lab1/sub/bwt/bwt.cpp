@@ -174,6 +174,7 @@ std::string bwt_ns::de_bwt_0(const std::string& str) {
 }
 
 void bwt(std::istream& stream_in, std::ostream& stream_out) {
+    size_t window_buffer_size = lz::get_window(sub_commands.front(), 1<<26);
     if (window_buffer_size == 0) window_buffer_size = (1 << 26);
     std::string buffer;
     if (num_byte > 1)
@@ -190,7 +191,7 @@ void bwt(std::istream& stream_in, std::ostream& stream_out) {
     }
 }
 void de_bwt(std::istream& stream_in, std::ostream& stream_out) {
-    if (window_buffer_size == 0) window_buffer_size = (1 << 26);
+    size_t window_buffer_size = lz::get_window(sub_commands.front(), 1<<26);
     std::string buffer;
     if (num_byte > 1)
         buffer.resize((1 << (sizeof(uint8_t) * 8)) - 1);

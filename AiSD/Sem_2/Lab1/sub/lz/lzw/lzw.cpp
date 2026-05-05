@@ -2,25 +2,93 @@
 
 using namespace lzw_ns;
 
-std::vector<std::string> lzw_ns::create_slovar_byte(const size_t& start, size_t const& stop) {
-    std::vector<std::string> v_slovar;
-    v_slovar.reserve(1<<(8 * num_byte));
-    for (size_t i = start; i < stop; i++){
-        std::string str(num_byte, 0);
-        std::memcpy(str.data(), &i, num_byte);
-        v_slovar.push_back(str);
+init_data lzw_ns::read_param() {
+    init_data out;
+    std::string segment;
+    std::stringstream ss(sub_commands.front());
+
+    std::getline(ss, segment, ',');
+    out.window = lz::get_window(segment, 1<<26);
+    std::getline(ss, segment, ',');
+    if (segment.size() > 1)
+        logger()<<"unknown style"<<std::endl;
+    else switch (segment.front()) {
+            case 'd':
+                out.style = defaultlzw;
+                break;
+            case 'f':
+                out.style = full;
+                break;
+            default:
+                logger()<<"unknown style"<<std::endl;
+                break;
+        }
+    std::getline(ss, segment, ',');
+    try {
+        out.size_slovar = std::stoi(segment);
+    } catch (...) {
+        logger() << "unknown parametrs: "<<sub_commands.front()<<std::endl;
+    }
+    if (out.size_slovar == 0)
+        out.size_slovar = std::numeric_limits<size_t>::max();
+    return out;
+}
+
+std::vector<std::string> lzw_ns::create_slovar_byte() {
+    std::vector<std::string> v_slovar(1 << (num_byte * 8), std::string(num_byte, 0));
+    for (size_t i = 0; i < 1 << (num_byte * 8); i++)
+        std::memcpy(v_slovar[i].data(), &i, num_byte);
+    return v_slovar;
+}
+
+std::vector<std::string> lzw_ns::create_slovar_byte(std::istream& is) {
+    size_t size = 0;
+    std::string str_tmp(num_byte, 0);
+    is.read(str_tmp.data(), num_byte);
+    std::memcpy(&size, str_tmp.data(), num_byte);
+    std::vector<std::string> v_slovar(size, std::string(num_byte, 0));
+    for (size_t i = 0; i < size; i++) {
+        is.read(str_tmp.data(), num_byte);
+        v_slovar[i]=str_tmp;
     }
     return v_slovar;
 }
 
-std::unordered_map<std::string, size_t> lzw_ns::create_mapslovar_byte(const size_t& start, size_t const& stop) {
+std::unordered_map<std::string, size_t> lzw_ns::create_mapslovar_byte() {
     std::unordered_map<std::string, size_t> map;
-    for (size_t i = start; i < stop; i++) {
+    for (size_t i = 0; i < 1 << (num_byte * 8); i++) {
         std::string str(num_byte, 0);
         std::memcpy(str.data(), &i, num_byte);
-        map[str] = i - start;
+        map[str] = i;
     }
     return map;
+}
+
+std::unordered_map<std::string, size_t> lzw_ns::create_mapslovar_byte(std::istream& is, std::ostream& os) {
+    size_t start_pos = is.tellg();
+    std::unordered_map<std::string, size_t> mapa;
+    std::vector<std::string> pool;
+    std::string str(num_byte, 0);
+    while (is.read(str.data(), num_byte))
+        if (mapa.find(str) == mapa.end()) {
+            mapa[str]=mapa.size();
+            pool.push_back(str);
+        }
+    is.clear();
+    is.seekg(start_pos);
+
+    std::string str_tmp(num_byte, 0);
+    size_t tmp_size = pool.size();
+    std::memcpy(str_tmp.data(), &tmp_size, num_byte);
+    os<<str_tmp;
+    logger(log_ns::DEV_ONLY) << "slovar gen:"<<std::endl;
+    for (size_t i = 0; i < tmp_size; i++) {
+        for (const uint8_t& c : pool[i])
+            logger(log_ns::DEV_ONLY)<<size_t(c)<<' ';
+        logger(log_ns::DEV_ONLY)<<" : " << i<<std::endl;
+        os.write(pool[i].data(), num_byte);
+    }
+    return {mapa.begin(), mapa.end()};
 }
 
 sstrtobb& lzw_ns::operator<<(sstrtobb& os, node n) {
@@ -60,8 +128,8 @@ sstrtobb& lzw_ns::operator>>(sstrtobb& is, node& n) {
     return is;
 }
 
-sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, size_t> m_slovar) {
-    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "chunk size "<<str.size()<<" buffer size "<<window_buffer_size<<" num_byte "<< size_t(num_byte)<<std::endl;
+sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, size_t>& m_slovar, const init_data& idata) {
+    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "chunk size "<<str.size()<<" buffer size "<<idata.window<<" num_byte "<< size_t(num_byte)<<std::endl;
 #ifndef NDEBUG
     size_t slov_szie_start = m_slovar.size();
 #endif
@@ -83,7 +151,7 @@ sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, s
             logger(log_ns::DEV_ONLY) << "ERROR! unknown symbol"<<std::endl;
             throw "EER";
         }
-        for (size_t j = num_byte; j < std::min(window_buffer_size * num_byte, str.size() - i); j+=num_byte) {
+        for (size_t j = num_byte; j < std::min(idata.window * num_byte, str.size() - i); j+=num_byte) {
             str_sub+=str.substr(i + j, num_byte);
             std::unordered_map<std::string, size_t>::iterator it_tmp;
             it_tmp = m_slovar.find(str_sub);
@@ -106,44 +174,41 @@ sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, s
         for(const char& c : str_tmp)
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"to slovar ";
-        for(const char& c : str_tmp + str.substr(i, num_byte))
-            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
+        if (str_tmp.size() / num_byte < idata.window && m_slovar.size() < idata.size_slovar) {
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"to slovar ";
+            for(const char& c : str_tmp + str.substr(i, num_byte))
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< ": " << m_slovar.size()<<std::endl;
+        }
 #endif
         n.pos = it->second;
         ssbb << n;
-        if (str_tmp.size() / num_byte < window_buffer_size)
+        if (str_tmp.size() / num_byte < idata.window && m_slovar.size() < idata.size_slovar)
             m_slovar[str_tmp + str.substr(i, num_byte)]=m_slovar.size();
-        if (m_slovar.size() > (1ULL << node::size))
+        if (m_slovar.size() > (1ULL << node::size)) {
             node::size++;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "node size up "<<node::size<<std::endl;
+        }
     }
     return ssbb;
 }
 
-std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, std::vector<std::string> v_slovar) {
+std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, std::vector<std::string>& v_slovar, const init_data& idata) {
     node n;
     std::string last_str;
     std::string str_out;
     node::size = 1;
     sstrtobb ssbb_buffer;
 
-    size_t TEMP = ((ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size());
-
     while ((1ULL << node::size) < v_slovar.size())
         node::size++;
     while (((ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size()) >= node::size ||
         ((ssbb_buffer.get_data().size() - (ssbb_buffer.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb_buffer.get_buffer_sdvig_size()) >= node::size
     ) {
-        if (!TEMP) {
-            logger() << "ERROR" ;
-            throw "ERR";
-        }
         if (((ssbb_buffer.get_data().size() - (ssbb_buffer.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb_buffer.get_buffer_sdvig_size()) < node::size) {
 #ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"ost ssbb_buffer "<<(ssbb_buffer.get_data().size() - (ssbb_buffer.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb_buffer.get_buffer_sdvig_size();
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<" ost ssbb "<<(ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size();
-            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl<<"TEMP "<<TEMP<<std::endl;
 #endif
             bytebit bb(std::min(node::size * 800, (ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size()));
             ssbb >> bb;
@@ -151,27 +216,20 @@ std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, std::vector<std::string> v_slovar) 
 #ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"teper ssbb_buffer "<<(ssbb_buffer.get_data().size() - (ssbb_buffer.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb_buffer.get_buffer_sdvig_size();
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<" teper ssbb "<<(ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size();
-            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl<<"bb " << bb.get_size()<<std::endl;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl<<" bb " << bb.get_size()<<std::endl;
 #endif
         }
         ssbb_buffer>>n;
-        TEMP-=node::size;
-        if (((ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0) + ssbb_buffer.get_data().size() - (ssbb_buffer.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size() + ssbb_buffer.get_buffer_sdvig_size()) != TEMP) {
-            logger() << "ERROR" ;
-            throw "ERR";
-        }
-        if (last_str.size() && last_str.size() < window_buffer_size) {
+        if (last_str.size() && last_str.size() / num_byte < idata.window && v_slovar.size() < idata.size_slovar) {
             if (n.pos < v_slovar.size())
                 v_slovar.push_back(last_str + v_slovar[n.pos].substr(0, num_byte));
             else
                 v_slovar.push_back(last_str + last_str.substr(0, num_byte));
 #ifndef NDEBUG
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"to slovar ";
-            if (last_str.size() && last_str.size() < window_buffer_size) {
-                for(const char& c : v_slovar.back())
-                    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
-                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
-            }
+            for(const char& c : v_slovar.back())
+                logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<< ": " << v_slovar.size() - 1 <<std::endl;
 #endif
         }
         last_str = v_slovar[n.pos];
@@ -182,20 +240,31 @@ std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, std::vector<std::string> v_slovar) 
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << (size_t(c) & 0xFF) << ' ';
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << std::endl;
 #endif
-        if (v_slovar.size() >= (1ULL << node::size))
+        if (v_slovar.size() >= (1ULL << node::size)) {
             node::size++;
+            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "node size up "<<node::size<<std::endl;
+        }
     }
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "buffer end"<<std::endl;
     return str_out;
 }
 
-std::string lzw_ns::lzw_1(const std::string& str) {
-    return lzw_ns::lzw_0(str, create_mapslovar_byte()).get_data();
-}
+// std::string lzw_ns::lzw_1(const std::string& str, const init_data& idata) {
+//     return lzw_ns::lzw_0(str, create_mapslovar_byte(), idata).get_data();
+// }
 
-#define BUFFER_SIZE window_buffer_size * sizeof(size_t) * num_byte
+#define BUFFER_SIZE (1<<16) * sizeof(size_t) * num_byte
 void lzw(std::istream& stream_in, std::ostream& stream_out) {
-    if (window_buffer_size == 0) window_buffer_size = 1 << 26;
+    init_data param = read_param();
+    std::unordered_map<std::string, size_t> slovar;
+    if (param.style == lzw_ns::full)
+        slovar = create_mapslovar_byte(stream_in, stream_out);
+    else
+        slovar = create_mapslovar_byte();
+    if (param.size_slovar <slovar.size()) {
+        logger()<<"slovar is very low. must be more then "<<slovar.size()<<std::endl;
+        throw "ERR";
+    }
     std::string buffer(BUFFER_SIZE, 0);
     sstrtobb ssbb;
     while (stream_in) {
@@ -203,19 +272,7 @@ void lzw(std::istream& stream_in, std::ostream& stream_out) {
         buffer.resize(stream_in.gcount());
         if (buffer.empty()) break;
         sstrtobb new_buffer;
-        uint8_t cmin = std::numeric_limits<uint8_t>::max(), cmax = 0;
-        if (num_byte == 1) {
-            std::for_each(buffer.begin(), buffer.end(), [&cmin, &cmax](const char& c){
-                cmax = std::max(cmax, static_cast<uint8_t>(c));
-                cmin = std::min(cmin, static_cast<uint8_t>(c));
-            });
-            cmax++;
-            new_buffer << cmin << cmax;
-        }
-        if (num_byte == 1)
-            new_buffer << lzw_0(buffer, create_mapslovar_byte(cmin, cmax));
-        else
-            new_buffer << lzw_0(buffer, create_mapslovar_byte());
+        new_buffer << lzw_0(buffer, slovar, param);
         std::string strsize_ssbb(sizeof(size_t), 0);
         size_t size_ssbb = (new_buffer.get_data().size() - (new_buffer.get_buffer_sdvig_size() ? 1 : 0)) * 8 + new_buffer.get_buffer_sdvig_size();
         std::memcpy(strsize_ssbb.data(), &size_ssbb, sizeof(size_ssbb));
@@ -229,19 +286,36 @@ void lzw(std::istream& stream_in, std::ostream& stream_out) {
         ssbb.try_write(stream_out);
     }
     stream_out.write(ssbb.get_data().data(), ssbb.get_data().size());
+    logger(log_ns::DEV_ONLY)<<"slovar size: "<<slovar.size()<<std::endl;
 }
 void de_lzw(std::istream& stream_in, std::ostream& stream_out) {
-    if (window_buffer_size == 0) window_buffer_size = 1 << 26;
+    init_data param = read_param();
+    std::vector<std::string> slovar;
+    if (param.style == lzw_ns::full) {
+        slovar = create_slovar_byte(stream_in);
+        logger(log_ns::DEV_ONLY) << "slovar read:"<<std::endl;
+        for (size_t i = 0; i < slovar.size(); i++) {
+            for (const uint8_t& c : slovar[i])
+                logger(log_ns::DEV_ONLY)<<size_t(c)<<' ';
+            logger(log_ns::DEV_ONLY)<<" : " << i <<std::endl;
+        }
+    }
+    else
+        slovar = create_slovar_byte();
+    if (param.size_slovar < slovar.size()) {
+        logger()<<"slovar is very low. must be more then "<<slovar.size()<<std::endl;
+        throw "ERR";
+    }
     std::string buffer(BUFFER_SIZE, 0);
     sstrtobb ssbb;
     while (stream_in) {
         stream_in.read(buffer.data(), BUFFER_SIZE);
         buffer.resize(stream_in.gcount());
+        if (buffer.empty()) break;
         ssbb << buffer;
         size_t size_ssbb = 0;
         do {
             bytebit ssbbsize_bb(sizeof(size_ssbb) * 8);
-            uint8_t cmin = std::numeric_limits<uint8_t>::max(), cmax = 0;
             ssbb >>ssbbsize_bb;
             std::memcpy(&size_ssbb, ssbbsize_bb.get_data().data(), sizeof(size_ssbb));
             bytebit bb_tmp(size_ssbb);
@@ -254,17 +328,11 @@ void de_lzw(std::istream& stream_in, std::ostream& stream_out) {
             ssbb >> bb_tmp;
             sstrtobb ssbb_tmp;
             ssbb_tmp << bb_tmp;
-            if (num_byte == 1) {
-                bytebit bbb(8);
-                ssbb_tmp >> cmin >> cmax;
-            }
             std::string str;
-            if (num_byte == 1)
-                str = de_lzw_0(ssbb_tmp, create_slovar_byte(cmin, cmax));
-            else
-                str = de_lzw_0(ssbb_tmp, create_slovar_byte());
+            str = de_lzw_0(ssbb_tmp, slovar, param);
             stream_out.write(str.data(), str.size());
         } while(buffer.size() >= BUFFER_SIZE && ((ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size()) >= sizeof(size_ssbb)*8);
     }
+    logger(log_ns::DEV_ONLY)<<"slovar size: "<<slovar.size()<<std::endl;
 }
 #undef BUFFER_SIZE

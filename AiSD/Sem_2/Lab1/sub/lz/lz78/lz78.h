@@ -6,11 +6,11 @@
 #include <string_view>
 #include <vector>
 #include <algorithm>
+#include "../lz.h"
 #include "../../logger/logger.h"
 
 namespace lz78_ns {
-    struct node {
-      size_t pos = 0;
+    struct node : public lz::node {
       std::string next;
     };
     std::ostream& operator<<(std::ostream& os, const node& n);
