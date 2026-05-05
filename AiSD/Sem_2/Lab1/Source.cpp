@@ -1,94 +1,8 @@
-#include <ios>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <utility>
-#include <vector>
-#include <iomanip>
-#include <getopt.h>
+#include "Header.h"
 
-#include "sub/sub_fun.h"
-#ifndef NDEBUG
-#include "sub/test/test.h"
-#endif
-#include "sub/rle/rle.h"
-#include "sub/mtf/mtf.h"
-#include "sub/ha/ha.h"
-#include "sub/bwt/bwt.h"
-#include "sub/lz/lzw/lzw.h"
-#include "sub/lz/lzss/lzss.h"
-#include "sub/itu/itu.h"
-
-#include "sub/logger/logger.h"
-
+std::queue<std::string> sub_commands;
+bimap<std::string, const some_param*> map_translater;
 uint8_t num_byte = 1;
-size_t window_buffer_size = 0;
-
-enum eCOMMANDS : int;
-bimap<std::string, eCOMMANDS> map_translater;
-
-struct some_param {
-    option opt;
-    std::string name, desc;
-    some_param(const char* name, const int& has_arg, int *flag, const int& val, const std::string desc, const eCOMMANDS& eC) :
-    name(name), desc(desc)
-    {
-        opt = {name,has_arg,flag,val};
-        map_translater.insert(name, eC);
-    }
-};
-
-enum eCOMMANDS : int {
-    eDEFAULT = 0,
-    eBYTE,
-    eENWIKn7,
-    eTEST,
-    eLOGF, eLOGC, eLOGN, eLOGH,
-
-    eRLE, eDERLE,
-    eMTF, eDEMTF,
-    eHA, eDEHA,
-    eBWT, eDEBWT,
-    eLZW, eDELZW,
-    eLZSS, eDELZSS,
-
-    eITU, eDEITU
-};
-
-std::vector<some_param> v_someprm = {
-    {"help", no_argument, nullptr, 'h', ":this page.", eDEFAULT},
-    {"input", required_argument, nullptr, 'i', " [path]:path to input file.", eDEFAULT},
-    {"output", required_argument, nullptr, 'o', " [path]:path to output file.", eDEFAULT},
-    {"byte", required_argument, nullptr, 0, "[num]:custom num of byte (default 1).", eBYTE},
-    {"enwikn-to-enwik", no_argument, nullptr, 0, ":first 1E+7 byte from file", eENWIKn7},
-#ifndef NDEBUG
-    {"test", no_argument, nullptr, 0, ":test", eTEST},
-#endif
-    {"log-file", no_argument, nullptr, 0, ":log in file", eLOGF},
-    {"log-console", no_argument, nullptr, 0, ":log in console", eLOGC},
-    {"log-n", no_argument, nullptr, 0, ":log in normal lvl", eLOGN},
-    {"log-h", no_argument, nullptr, 0, ":log in hard lvl", eLOGH},
-// NOTE: compress
-    {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE},
-    {"mtf", no_argument, nullptr, 0, ":use MTF.", eMTF},
-    {"ha", no_argument, nullptr, 0, ":use HA.", eHA},
-    {"bwt", optional_argument, nullptr, 0, ":use BWT.", eBWT},
-    {"lzw", optional_argument, nullptr, 0, ":use LZW.", eLZW},
-    {"lzss", optional_argument, nullptr, 0, ":use LZSS.", eLZSS},
-
-// NOTE: decompress
-    {"de-rle", no_argument, nullptr, 0, ":extract from RLE.", eDERLE},
-    {"de-mtf", no_argument, nullptr, 0, ":extract from MTF.", eDEMTF},
-    {"de-ha", no_argument, nullptr, 0, ":extract from HA.", eDEHA},
-    {"de-bwt", optional_argument, nullptr, 0, ":extract from BWt.", eDEBWT},
-    {"de-lzw", optional_argument, nullptr, 0, ":extract from LZW.", eDELZW},
-    {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS},
-
-    {"itu", required_argument, nullptr, 0, "[C/nC]:compress JPEG layer.", eITU},
-    {"de-itu", required_argument, nullptr, 0, "[C/nC]:decompress JPEG layer.", eDEITU},
-
-};
 
 void print_help() {
     for (const some_param& i : v_someprm){
@@ -104,14 +18,17 @@ int main(const int argc, char* argv[]) {
 #ifndef NDEBUG
     logger_demon::add_log_lvl(log_ns::DEV_ONLY);
 #endif
-
     std::vector<option> long_opt;
-    for (const some_param& i : v_someprm) long_opt.push_back(i.opt);
+    for (const some_param& i : v_someprm) {
+        map_translater.insert(i.name, &i);
+        long_opt.push_back(i.opt);
+    }
 
     int opt, long_idx;
     std::string str_inp, str_out, str_cmpr;
     std::string str_itu;
-    std::vector<eCOMMANDS> v_params;
+    std::vector<const some_param*> v_params;
+
     while ((opt = getopt_long(argc, argv, "hi:o:", &long_opt.front(), &long_idx)) != -1)
         switch (opt) {
             case 'h':
@@ -125,9 +42,9 @@ int main(const int argc, char* argv[]) {
                 str_out = optarg;
                 break;
             case 0:
-                if (map_translater[long_opt[long_idx].name] < eLOGF || map_translater[long_opt[long_idx].name] > eLOGH)
+                if (map_translater[long_opt[long_idx].name]->add_to_list)
                     v_params.push_back(map_translater[long_opt[long_idx].name]);
-                switch (map_translater[long_opt[long_idx].name]) {
+                switch (const eCOMMANDS ec = map_translater[long_opt[long_idx].name]->ec) {
                     case eBYTE:
                         num_byte = std::stoi(optarg);
                         if (num_byte == 0) {
@@ -150,16 +67,13 @@ int main(const int argc, char* argv[]) {
 
                     case eITU:
                     case eDEITU:
-                        str_itu = optarg;
-                        break;
                     case eBWT:
                     case eDEBWT:
                     case eLZW:
                     case eDELZW:
                     case eLZSS:
                     case eDELZSS:
-                        if (optarg != nullptr)
-                            window_buffer_size = std::stoi(optarg);
+                        sub_commands.push(optarg != nullptr ? optarg : "");
                     default:
                         break;
                 }
@@ -168,78 +82,72 @@ int main(const int argc, char* argv[]) {
                 break;
         }
 
-    if (str_inp.empty()) std::cout<<"No input path."<<std::endl;
-    if (str_out.empty()) str_out = str_inp + ".compr";
+    if (str_inp.empty()) logger()<<"No input path."<<std::endl;
+    if (str_out.empty()) logger()<<"No output path. It will continue without output file."<<std::endl;
     std::fstream file_in(str_inp, std::ios::in | std::ios::binary);
     std::stringstream ss_tmp1,ss_tmp2;
     std::stringstream *p_ss_tmp1 = &ss_tmp1, *p_ss_tmp2 = &ss_tmp2;
     std::fstream file_out;
     if (file_in.is_open())
         ss_tmp1 << file_in.rdbuf();
-#ifdef NDEBUG
-    else {
-        std::cout<<"ERROR! Some files can't openning or creating."<<std::endl;
-        return 1;
-    }
-#endif
-    for (const eCOMMANDS& ec : v_params) {
+    for (const some_param*& prm : v_params) {
         p_ss_tmp2->str(std::string());
         p_ss_tmp2->clear();
         p_ss_tmp2->seekp(0,std::ios::beg);
         p_ss_tmp1->clear();
         p_ss_tmp1->seekg(0,std::ios::beg);
-        switch (ec) {
+        switch (prm->ec) {
             case eENWIKn7:
                 enwik8_to_enwik(*p_ss_tmp1, *p_ss_tmp2);
                 break;
 
             // NOTE: compress
             case eRLE:
-                start_algorithm(map_translater[ec], [&]{RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
+                start_algorithm(prm->name, [&]{RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eMTF:
-                start_algorithm(map_translater[ec], [&]{mtf(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
+                start_algorithm(prm->name, [&]{mtf(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eHA:
-                start_algorithm(map_translater[ec], [&]{ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
+                start_algorithm(prm->name, [&]{ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eBWT:
-                start_algorithm(map_translater[ec], [&]{bwt(*p_ss_tmp1, *p_ss_tmp2);});
+                start_algorithm(prm->name, [&]{bwt(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eLZW:
-                start_algorithm(map_translater[ec], [&]{lzw(*p_ss_tmp1, *p_ss_tmp2);});
+                start_algorithm(prm->name, [&]{lzw(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eLZSS:
-                start_algorithm(map_translater[ec], [&]{lzss(*p_ss_tmp1, *p_ss_tmp2);});
+                start_algorithm(prm->name, [&]{lzss(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
 
             // NOTE: decompress
             case eDERLE:
-                start_algorithm(map_translater[ec], [&]{from_RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
+                start_algorithm(prm->name, [&]{from_RLE2(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eDEMTF:
-                start_algorithm(map_translater[ec], [&]{de_mtf(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
+                start_algorithm(prm->name, [&]{de_mtf(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eDEHA:
-                start_algorithm(map_translater[ec], [&]{de_ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
+                start_algorithm(prm->name, [&]{de_ha(*p_ss_tmp1, *p_ss_tmp2, num_byte);});
                 break;
             case eDEBWT:
-                start_algorithm(map_translater[ec], [&]{de_bwt(*p_ss_tmp1, *p_ss_tmp2);});
+                start_algorithm(prm->name, [&]{de_bwt(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eDELZW:
-                start_algorithm(map_translater[ec], [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2);});
+                start_algorithm(prm->name, [&]{de_lzw(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
             case eDELZSS:
-                start_algorithm(map_translater[ec], [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2);});
+                start_algorithm(prm->name, [&]{de_lzss(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
 
 
             // NOTE: JPEG
             case eITU:
-                start_algorithm(map_translater[ec], [&]{itu(*p_ss_tmp1, *p_ss_tmp2, itu_ns::get_layer(str_itu));});
+                start_algorithm(prm->name, [&]{itu(*p_ss_tmp1, *p_ss_tmp2, itu_ns::get_layer(str_itu));});
                 break;
             case eDEITU:
-                start_algorithm(map_translater[ec], [&]{de_itu(*p_ss_tmp1, *p_ss_tmp2, itu_ns::get_layer(str_itu));});
+                start_algorithm(prm->name, [&]{de_itu(*p_ss_tmp1, *p_ss_tmp2, itu_ns::get_layer(str_itu));});
                 break;
 
 #ifndef NDEBUG
@@ -250,6 +158,7 @@ int main(const int argc, char* argv[]) {
             default:
                 break;
         }
+        sub_commands.pop();
         std::swap(p_ss_tmp1, p_ss_tmp2);
     }
     file_out.open(str_out, std::ios::out | std::ios::binary);
@@ -266,6 +175,3 @@ int main(const int argc, char* argv[]) {
 
     return 0;
 }
-
-
-

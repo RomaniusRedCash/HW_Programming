@@ -14,8 +14,7 @@
 #include <unordered_map>
 #include <deque>
 #include "../logger/logger.h"
-
-extern size_t window_buffer_size;
+#include "../lz/lz.h"
 
 namespace bwt_ns {
     std::string bwt_1(const std::string& str);
