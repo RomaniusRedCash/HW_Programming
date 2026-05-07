@@ -26,7 +26,7 @@ namespace lzw_ns {
     struct node : public lz::node {
     };
     struct init_data {
-        size_t window, size_slovar;
+        size_t size_slovar = std::numeric_limits<size_t>::max();
         lzw_style style = defaultlzw;
     };
     init_data read_param();

@@ -4,6 +4,12 @@
 *.cmpr
 *.tmp
 *.ctxt
+*.jpg
+*.raw
+*.exe
 back/*
 build/*
 *.log
+__pycache__
+data/sh/cmpr
+enwik7

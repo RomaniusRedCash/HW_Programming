@@ -4,11 +4,11 @@ using namespace lzw_ns;
 
 init_data lzw_ns::read_param() {
     init_data out;
+    if (sub_commands.front().empty()) return out;
     std::string segment;
     std::stringstream ss(sub_commands.front());
-
-    std::getline(ss, segment, ',');
-    out.window = lz::get_window(segment, 1<<26);
+    // std::getline(ss, segment, ',');
+    // out.window = lz::get_window(segment, 1<<26);
     std::getline(ss, segment, ',');
     if (segment.size() > 1)
         logger()<<"unknown style"<<std::endl;
@@ -129,7 +129,7 @@ sstrtobb& lzw_ns::operator>>(sstrtobb& is, node& n) {
 }
 
 sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, size_t>& m_slovar, const init_data& idata) {
-    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "chunk size "<<str.size()<<" buffer size "<<idata.window<<" num_byte "<< size_t(num_byte)<<std::endl;
+    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "chunk size "<<str.size()<<" num_byte "<< size_t(num_byte)<<std::endl;
 #ifndef NDEBUG
     size_t slov_szie_start = m_slovar.size();
 #endif
@@ -138,7 +138,7 @@ sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, s
     node::size = 1;
     while ((1ULL << node::size) < m_slovar.size())
         node::size++;
-    for(size_t i = 0; i < str.size(); ) {
+    for(size_t i = 0; i < str.size() / num_byte * num_byte; ) {
         std::string str_sub = str.substr(i, num_byte);
         std::unordered_map<std::string, size_t>::iterator it = m_slovar.find(str_sub);
 #ifndef NDEBUG
@@ -151,7 +151,7 @@ sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, s
             logger(log_ns::DEV_ONLY) << "ERROR! unknown symbol"<<std::endl;
             throw "EER";
         }
-        for (size_t j = num_byte; j < std::min(idata.window * num_byte, str.size() - i); j+=num_byte) {
+        for (size_t j = num_byte; j < str.size() - i; j+=num_byte) {
             str_sub+=str.substr(i + j, num_byte);
             std::unordered_map<std::string, size_t>::iterator it_tmp;
             it_tmp = m_slovar.find(str_sub);
@@ -174,7 +174,7 @@ sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, s
         for(const char& c : str_tmp)
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
         logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
-        if (str_tmp.size() / num_byte < idata.window && m_slovar.size() < idata.size_slovar) {
+        if (m_slovar.size() < idata.size_slovar) {
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"to slovar ";
             for(const char& c : str_tmp + str.substr(i, num_byte))
                 logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<(static_cast<int>(c) & 0xFF)<<' ';
@@ -183,13 +183,16 @@ sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, s
 #endif
         n.pos = it->second;
         ssbb << n;
-        if (str_tmp.size() / num_byte < idata.window && m_slovar.size() < idata.size_slovar)
+        if (m_slovar.size() < idata.size_slovar)
             m_slovar[str_tmp + str.substr(i, num_byte)]=m_slovar.size();
         if (m_slovar.size() > (1ULL << node::size)) {
             node::size++;
             logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "node size up "<<node::size<<std::endl;
         }
     }
+    // if (size_t tmp = str.size()%num_byte) {
+        // ssbb<<str.substr(str.size() - tmp, tmp);
+    // }
     return ssbb;
 }
 
@@ -220,7 +223,7 @@ std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, std::vector<std::string>& v_slovar,
 #endif
         }
         ssbb_buffer>>n;
-        if (last_str.size() && last_str.size() / num_byte < idata.window && v_slovar.size() < idata.size_slovar) {
+        if (last_str.size() && v_slovar.size() < idata.size_slovar) {
             if (n.pos < v_slovar.size())
                 v_slovar.push_back(last_str + v_slovar[n.pos].substr(0, num_byte));
             else
@@ -261,7 +264,7 @@ void lzw(std::istream& stream_in, std::ostream& stream_out) {
         slovar = create_mapslovar_byte(stream_in, stream_out);
     else
         slovar = create_mapslovar_byte();
-    if (param.size_slovar <slovar.size()) {
+    if (param.size_slovar < slovar.size()) {
         logger()<<"slovar is very low. must be more then "<<slovar.size()<<std::endl;
         throw "ERR";
     }

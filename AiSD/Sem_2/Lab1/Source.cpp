@@ -42,8 +42,10 @@ int main(const int argc, char* argv[]) {
                 str_out = optarg;
                 break;
             case 0:
-                if (map_translater[long_opt[long_idx].name]->add_to_list)
+                if (map_translater[long_opt[long_idx].name]->add_to_list) {
                     v_params.push_back(map_translater[long_opt[long_idx].name]);
+                    sub_commands.push(optarg != nullptr ? optarg : "");
+                }
                 switch (const eCOMMANDS ec = map_translater[long_opt[long_idx].name]->ec) {
                     case eBYTE:
                         num_byte = std::stoi(optarg);
@@ -65,15 +67,6 @@ int main(const int argc, char* argv[]) {
                         logger_demon::add_log_lvl(log_ns::NORMAL_LVL);
                         break;
 
-                    case eITU:
-                    case eDEITU:
-                    case eBWT:
-                    case eDEBWT:
-                    case eLZW:
-                    case eDELZW:
-                    case eLZSS:
-                    case eDELZSS:
-                        sub_commands.push(optarg != nullptr ? optarg : "");
                     default:
                         break;
                 }
@@ -98,7 +91,7 @@ int main(const int argc, char* argv[]) {
         p_ss_tmp1->seekg(0,std::ios::beg);
         switch (prm->ec) {
             case eENWIKn7:
-                enwik8_to_enwik(*p_ss_tmp1, *p_ss_tmp2);
+                start_algorithm(prm->name, [&]{enwik8_to_enwik(*p_ss_tmp1, *p_ss_tmp2);});
                 break;
 
             // NOTE: compress

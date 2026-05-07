@@ -7,23 +7,25 @@ using namespace bwt_ns;
 std::string bwt_ns::bwt_1(const std::string& str) {
     std::string str_out;
     size_t size = str.size()/num_byte;
-    if (size > (1 << sizeof(uint8_t) * 8) - 1) throw "err";
+    // if (size > (1 << sizeof(uint8_t) * 8) - 1) throw "err";
     std::vector<std::string> matrix(size);
-    for (uint8_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
         for (size_t j = i; j < size + i; j++)
             matrix[i]+=str.substr((j%size)*num_byte, num_byte);
     std::sort(matrix.begin(), matrix.end());
     std::vector<std::string>::iterator it = std::find(matrix.begin(), matrix.end(), str);
-    str_out+= uint8_t(it - matrix.begin());
+    uint32_t pos = (it - matrix.begin());
+    str_out.resize(sizeof(pos));
+    std::memcpy(str_out.data(), &pos, sizeof(pos));
     for (const std::string& s : matrix)
         str_out+=s.substr(s.size() - num_byte, num_byte);
 
 #ifndef NDEBUG
-    logger(log_ns::DEV_ONLY) << "str in "<<str<<std::endl;
-    logger(log_ns::DEV_ONLY) << "str out "<<str_out<<" - " <<size_t(str_out.front())<<std::endl;
-    logger(log_ns::DEV_ONLY) << "matrix: "<<std::endl;
+    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "str in "<<str<<std::endl;
+    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "str out "<<str_out<<" - " <<size_t(str_out.front())<<std::endl;
+    logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "matrix: "<<std::endl;
     for (const std::string& s : matrix)
-        logger(log_ns::DEV_ONLY) << s << std::endl;
+        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << s << std::endl;
 #endif
 
     return str_out;
@@ -34,12 +36,15 @@ std::string bwt_ns::bwt_2(const std::string& str) {
     size_t str_size = str.size();
     std::vector<size_t> ways(str_size);
     std::iota(ways.begin(), ways.end(), 0);
-    std::stable_sort(ways.begin(), ways.end(), [&](const size_t& a, const size_t& b) {
+    std::sort(ways.begin(), ways.end(), [&](size_t a, size_t b) {
         if (a == b) return false;
-        for (size_t i = 0; i < str_size; i++) {
-            uint8_t ca = static_cast<uint8_t>(str[(a + i) % str_size]);
-            uint8_t cb = static_cast<uint8_t>(str[(b + i) % str_size]);
-            if (ca != cb) return ca < cb;
+        for (size_t i = 0; i < str_size; ) {
+            size_t len = std::min(str_size - a, str_size - b);
+            auto cmp = std::string_view(str.data() + a, len) <=> std::string_view(str.data() + b, len);
+            if (cmp != 0) return cmp < 0;
+            a = (a + len) % str_size;
+            b = (b + len) % str_size;
+            i += len;
         }
         return false;
     });
@@ -53,6 +58,32 @@ std::string bwt_ns::bwt_2(const std::string& str) {
     }
     std::memcpy(str_out.data(), &bwt_pos, sizeof(bwt_pos));
     return str_out;
+}
+std::string bwt_ns::bwt_3(const std::string& str) {
+    if (str.empty()) return "";
+    const size_t n = str.size();
+    const size_t num_symbols = n / num_byte;
+    std::string double_str = str + str;
+    const char* d_ptr = double_str.data();
+    std::vector<size_t> ways(num_symbols);
+    for(size_t i = 0; i < num_symbols; ++i) ways[i] = i * num_byte;
+
+    std::sort(ways.begin(), ways.end(), [&](size_t a, size_t b) {
+        int cmp = memcmp(d_ptr + a, d_ptr + b, n);
+        if (cmp != 0) return cmp < 0;
+        return a < b;
+    });
+    uint32_t bwt_pos = 0;
+    std::string res;
+    res.reserve(n + 4);
+    res.resize(4);
+    for (size_t i = 0; i < num_symbols; ++i) {
+        if (ways[i] == 0) bwt_pos = (uint32_t)i;
+        size_t last_idx = (ways[i] + n - num_byte) % n;
+        res.append(str.data() + last_idx, num_byte);
+    }
+    std::memcpy(res.data(), &bwt_pos, 4);
+    return res;
 }
 
 std::string bwt_ns::de_bwt_1(const std::string& s_bwt, const uint8_t& bwt_pos) {
@@ -122,20 +153,20 @@ std::string bwt_ns::de_bwt_2(const std::string& s_bwt, const uint32_t& bwt_pos) 
     return res;
 }
 
-std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const uint8_t& bwt_pos) {
+std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const uint32_t& bwt_pos) {
     size_t size = s_bwt.size() / num_byte;
-    if (size > (1 << sizeof(uint8_t) * 8) - 1) throw "err";
+    // if (size > (1 << sizeof(uint8_t) * 8) - 1) throw "err";
     std::string str_out(s_bwt);
-    std::vector<std::pair<std::string_view, uint8_t>> v_pool(size);
-    std::map<std::string_view, uint8_t> mapa;
+    std::vector<std::pair<std::string_view, uint32_t>> v_pool(size);
+    std::map<std::string_view, uint32_t> mapa;
     for (size_t i = 0; i < size; i++) {
         std::string_view s_tmp(s_bwt.data() + i * num_byte, num_byte);
-        uint8_t& num_s = mapa[s_tmp];
+        uint32_t& num_s = mapa[s_tmp];
         v_pool[i] = {s_tmp, num_s};
         num_s++;
     }
-    std::map<std::string_view, uint8_t>::iterator it;
-    uint8_t less = 0;
+    std::map<std::string_view, uint32_t>::iterator it;
+    uint32_t less = 0;
     for (it = mapa.begin();it != mapa.end(); it++)
         less+=it->second;
     for (--it; it != mapa.begin(); it--)
@@ -151,7 +182,7 @@ std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const uint8_t& bwt_pos) {
 #endif
 
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << "WORK: "<<std::endl;
-    std::pair<std::string_view, uint8_t>& pr = v_pool[bwt_pos];
+    std::pair<std::string_view, uint32_t>& pr = v_pool[bwt_pos];
     logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL) << size_t(bwt_pos) << " : " << pr.first << std::endl;
     str_out.replace((size - 1) * num_byte, num_byte, pr.first);
     less = pr.second + mapa[pr.first];
@@ -164,39 +195,90 @@ std::string bwt_ns::de_bwt_3(const std::string& s_bwt, const uint8_t& bwt_pos) {
     return str_out;
 }
 
+std::string bwt_ns::de_bwt_4(const std::string& s_bwt, const uint32_t& bwt_pos) {
+    size_t total_bytes = s_bwt.size();
+    size_t num_symbols = total_bytes / num_byte;
+    if (num_symbols == 0) return "";
+
+    // 1. Считаем вхождения каждого "символа"
+    // Используем unordered_map, чтобы не тормозить на поиске в дереве
+    std::unordered_map<std::string_view, uint32_t> counts;
+    std::vector<uint32_t> char_occurrence_index(num_symbols);
+
+    for (size_t i = 0; i < num_symbols; ++i) {
+        std::string_view sym(s_bwt.data() + i * num_byte, num_byte);
+        char_occurrence_index[i] = counts[sym]++;
+    }
+
+    // 2. Создаем отсортированный список уникальных символов для кумулятивной суммы
+    std::vector<std::string_view> alphabet;
+    alphabet.reserve(counts.size());
+    for (auto const& [sym, count] : counts) {
+        alphabet.push_back(sym);
+    }
+    std::sort(alphabet.begin(), alphabet.end());
+
+    // 3. Вычисляем стартовые позиции в отсортированном массиве (C[c])
+    std::unordered_map<std::string_view, uint32_t> start_pos;
+    uint32_t current_sum = 0;
+    for (auto const& sym : alphabet) {
+        start_pos[sym] = current_sum;
+        current_sum += counts[sym];
+    }
+
+    // 4. Восстанавливаем строку с конца
+    std::string res;
+    res.resize(total_bytes);
+
+    uint32_t curr = bwt_pos;
+    for (size_t i = 0; i < num_symbols; ++i) {
+        std::string_view sym(s_bwt.data() + curr * num_byte, num_byte);
+
+        // Записываем в обратном порядке
+        size_t write_pos = (num_symbols - 1 - i) * num_byte;
+        std::memcpy(res.data() + write_pos, sym.data(), num_byte);
+
+        // Переход: T[i] = C[L[i]] + Rank(L[i], i)
+        curr = start_pos[sym] + char_occurrence_index[curr];
+    }
+
+    return res;
+}
+
 std::string bwt_ns::de_bwt_0(const std::string& str) {
-    if (num_byte > 1)
-        return bwt_ns::de_bwt_3(str.substr(1, str.size() - 1), static_cast<uint8_t>(str.front()));
     uint32_t bwt_pos = 0;
     std::string_view str_bwtpos(str.data(), sizeof(bwt_pos));
     std::memcpy(&bwt_pos, str_bwtpos.data(), sizeof(bwt_pos));
+    if (num_byte > 1)
+        return bwt_ns::de_bwt_4(str.substr(sizeof(bwt_pos), str.size() - sizeof(bwt_pos)), bwt_pos);
     return bwt_ns::de_bwt_2(str.substr(sizeof(bwt_pos), str.size() - sizeof(bwt_pos)), bwt_pos);
 }
 
 void bwt(std::istream& stream_in, std::ostream& stream_out) {
-    size_t window_buffer_size = lz::get_window(sub_commands.front(), 1<<26);
-    if (window_buffer_size == 0) window_buffer_size = (1 << 26);
+    size_t window_buffer_size = lz::get_window(sub_commands.front(), 1<<16);
+    // if (window_buffer_size == 0) window_buffer_size = (1<<16);
     std::string buffer;
-    if (num_byte > 1)
-        buffer.resize((1 << (sizeof(uint8_t) * 8)) - 2);
-    else buffer.resize(window_buffer_size - sizeof(uint32_t) - 1);
+    // if (num_byte > 1)
+        buffer.resize(window_buffer_size - sizeof(uint32_t));
+    // else buffer.resize(window_buffer_size - sizeof(uint32_t));
     while (stream_in) {
         stream_in.read(buffer.data(), buffer.size());
         buffer.resize(stream_in.gcount());
         if (buffer.empty()) return;
         std::string new_str;
-        if (num_byte > 1) new_str = bwt_ns::bwt_1(buffer);
+        if (num_byte > 1) new_str = bwt_ns::bwt_3(buffer);
         else new_str = bwt_ns::bwt_2(buffer);
         stream_out.write(new_str.data(),new_str.size());
     }
 }
 void de_bwt(std::istream& stream_in, std::ostream& stream_out) {
-    size_t window_buffer_size = lz::get_window(sub_commands.front(), 1<<26);
+    size_t window_buffer_size = lz::get_window(sub_commands.front(), 1<<16);
+    // if (window_buffer_size == 0) window_buffer_size = (1<<16);
     std::string buffer;
-    if (num_byte > 1)
-        buffer.resize((1 << (sizeof(uint8_t) * 8)) - 1);
-    else
-        buffer.resize(window_buffer_size - 1);
+    // if (num_byte > 1)
+        // buffer.resize((1 << (sizeof(uint8_t) * num_byte * 8)) - num_byte);
+    // else
+        buffer.resize(window_buffer_size);
     while (stream_in) {
         stream_in.read(buffer.data(), buffer.size());
         buffer.resize(stream_in.gcount());
