@@ -5,9 +5,9 @@ SOURCES = $(shell find . -name "*.cpp" -not -path "./back/*" )
 OBJECTS = $(patsubst ./%.cpp, build/%.o, $(SOURCES))
 
 all: release
-debug: CXXFLAGS += -ggdb -O0
+debug: CXXFLAGS += -g -O0 -std=c++20
 debug: $(TARGET)
-release: CXXFLAGS += -O3 -DNDEBUG
+release: CXXFLAGS += -O3 -DNDEBUG -std=c++20
 release: $(TARGET)
 
 # Создаём целевой исполняемый файл из всех объектных

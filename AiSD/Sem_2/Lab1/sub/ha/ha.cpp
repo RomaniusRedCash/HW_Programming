@@ -34,7 +34,7 @@ void ha_ns::ha_1(std::istream& stream_in, std::ostream& stream_out, const uint8_
         }
         if (read_bites < BUFFER_SIZE) break;
     }
-    if (size_t ost = read_bites % num_byte)
+    if (size_t ost = read_bites % num_byte && num_byte != 1)
         bbs_out<<calc[buffer.substr(read_bites - ost, ost)];
     const std::string& str_tmp = bbs_out.get_data();
     stream_out.write(str_tmp.data(), str_tmp.size());

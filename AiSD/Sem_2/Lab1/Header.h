@@ -61,14 +61,14 @@ const some_param v_someprm[] = {
     {"output", required_argument, nullptr, 'o', " [path]:path to output file.", eDEFAULT, false},
     {"byte", required_argument, nullptr, 0, "[num]:custom num of byte (default 1).", eBYTE, false},
     {"enwikn-to-enwik", no_argument, nullptr, 0, ":first 1E+7 byte from file", eENWIKn7, true},
-    #ifndef NDEBUG
+#ifndef NDEBUG
     {"test", no_argument, nullptr, 0, ":test", eTEST, true},
-    #endif
+#endif
     {"log-file", no_argument, nullptr, 0, ":log in file", eLOGF, false},
     {"log-console", no_argument, nullptr, 0, ":log in console", eLOGC, false},
     {"log-n", no_argument, nullptr, 0, ":log in normal lvl", eLOGN, false},
     {"log-h", no_argument, nullptr, 0, ":log in hard lvl", eLOGH, false},
-    // NOTE: compress
+// NOTE: compress
     {"rle", no_argument, nullptr, 0, ":use RLE.", eRLE, true},
     {"mtf", no_argument, nullptr, 0, ":use MTF.", eMTF, true},
     {"ha", no_argument, nullptr, 0, ":use HA.", eHA, true},
@@ -76,13 +76,13 @@ const some_param v_someprm[] = {
     {"lzw", optional_argument, nullptr, 0, ":use LZW.", eLZW, true},
     {"lzss", optional_argument, nullptr, 0, ":use LZSS.", eLZSS, true},
 
-    // NOTE: decompress
+// NOTE: decompress
     {"de-rle", no_argument, nullptr, 0, ":extract from RLE.", eDERLE, true},
     {"de-mtf", no_argument, nullptr, 0, ":extract from MTF.", eDEMTF, true},
     {"de-ha", no_argument, nullptr, 0, ":extract from HA.", eDEHA, true},
-    {"de-bwt", optional_argument, nullptr, 0, ":extract from BWt.", eDEBWT, true},
-    {"de-lzw", optional_argument, nullptr, 0, ":extract from LZW.", eDELZW, true},
-    {"de-lzss", optional_argument, nullptr, 0, ":extract from LZSS.", eDELZSS, true},
+    {"de-bwt", optional_argument, nullptr, 0, "[buffer_size]:extract from BWt.", eDEBWT, true},
+    {"de-lzw", optional_argument, nullptr, 0, "[style,slovar_size]:extract from LZW. \"f\" -- write slovar, \"d\" -- not write (default).", eDELZW, true},
+    {"de-lzss", optional_argument, nullptr, 0, "[buffer_size]:extract from LZSS.", eDELZSS, true},
 
     {"itu", required_argument, nullptr, 0, "[C/nC]:compress JPEG layer.", eITU, true},
     {"de-itu", required_argument, nullptr, 0, "[C/nC]:decompress JPEG layer.", eDEITU, true},
