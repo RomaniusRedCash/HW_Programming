@@ -199,9 +199,6 @@ std::string bwt_ns::de_bwt_4(const std::string& s_bwt, const uint32_t& bwt_pos) 
     size_t total_bytes = s_bwt.size();
     size_t num_symbols = total_bytes / num_byte;
     if (num_symbols == 0) return "";
-
-    // 1. Считаем вхождения каждого "символа"
-    // Используем unordered_map, чтобы не тормозить на поиске в дереве
     std::unordered_map<std::string_view, uint32_t> counts;
     std::vector<uint32_t> char_occurrence_index(num_symbols);
 
@@ -209,36 +206,26 @@ std::string bwt_ns::de_bwt_4(const std::string& s_bwt, const uint32_t& bwt_pos) 
         std::string_view sym(s_bwt.data() + i * num_byte, num_byte);
         char_occurrence_index[i] = counts[sym]++;
     }
-
-    // 2. Создаем отсортированный список уникальных символов для кумулятивной суммы
     std::vector<std::string_view> alphabet;
     alphabet.reserve(counts.size());
     for (auto const& [sym, count] : counts) {
         alphabet.push_back(sym);
     }
     std::sort(alphabet.begin(), alphabet.end());
-
-    // 3. Вычисляем стартовые позиции в отсортированном массиве (C[c])
     std::unordered_map<std::string_view, uint32_t> start_pos;
     uint32_t current_sum = 0;
     for (auto const& sym : alphabet) {
         start_pos[sym] = current_sum;
         current_sum += counts[sym];
     }
-
-    // 4. Восстанавливаем строку с конца
     std::string res;
     res.resize(total_bytes);
 
     uint32_t curr = bwt_pos;
     for (size_t i = 0; i < num_symbols; ++i) {
         std::string_view sym(s_bwt.data() + curr * num_byte, num_byte);
-
-        // Записываем в обратном порядке
         size_t write_pos = (num_symbols - 1 - i) * num_byte;
         std::memcpy(res.data() + write_pos, sym.data(), num_byte);
-
-        // Переход: T[i] = C[L[i]] + Rank(L[i], i)
         curr = start_pos[sym] + char_occurrence_index[curr];
     }
 

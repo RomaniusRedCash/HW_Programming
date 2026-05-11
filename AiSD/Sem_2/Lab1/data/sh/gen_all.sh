@@ -11,7 +11,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 mkdir -p cmpr
-export EXE=../exe
+export EXE=../../exe
 
 # Определение функции
 run_test() {
@@ -27,13 +27,13 @@ run_test() {
     echo "Processing: $FILE (Bytes: $BYTE_SIZE, Size: $ORIG_SIZE)"
 
     # Локальные массивы настроек
-    local BWT_BUFFERS=(102400 512000 921600)
-    local LZSS_BUFFERS=(4096 16384 32768)
-    local LZW_BUFFERS=(4096 16384 65536)
+    local BWT_BUFFERS=(921600)
+    local LZSS_BUFFERS=(65536)
+    local LZW_BUFFERS=(524288)
     local METODS=(
-        "--ha" "--rle" "--bwt --rle" "--bwt --mtf --ha"
-        "--bwt --rle --mtf --ha" "--lzss" "--lzss --ha"
-        "--lzss" "--lzss --ha"
+        # "--ha" "--rle" "--bwt --rle" "--bwt --mtf --ha"
+        # "--bwt --rle --mtf --ha" "--lzss" "--lzss --ha"
+        # "--lzss" "--lzss --ha"
         "--lzw" "--lzw --ha"
     )
     echo $FILE
@@ -49,7 +49,7 @@ run_test() {
         if [ "$BUF" != "0" ]; then
             CMD_FLAGS=${CMD_FLAGS//--bwt/--bwt=$BUF}
             CMD_FLAGS=${CMD_FLAGS//--lzss/--lzss=$BUF}
-            CMD_FLAGS=${CMD_FLAGS//--lzw/--lzw=d,$BUF}
+            CMD_FLAGS=${CMD_FLAGS//--lzw/--lzw=f,$BUF}
         fi
 
         local TAG=${CMD_FLAGS//--/}
@@ -101,12 +101,12 @@ run_test() {
 # --- ИСПОЛЬЗОВАНИЕ ---
 
 # run_test "rus.txt" 1
-# run_test "rus.txt" 2
+run_test "rus.txt" 2
 # run_test "enwik7" 1
 # run_test "xrEngine.exe" 1
 # run_test "color.raw" 1
-run_test "chb.raw" 1
-run_test "gray.raw" 1
+# run_test "chb.raw" 1
+# run_test "gray.raw" 1
 # run_test "color.raw" 3
-# run_test "chb.raw" 3
+run_test "chb.raw" 3
 # run_test "gray.raw" 3

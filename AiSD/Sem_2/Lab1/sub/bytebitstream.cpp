@@ -223,13 +223,19 @@ const std::string& sstrtobb::get_data() const {
     return data;
 }
 
+size_t sstrtobb::get_len_in_bit() {
+    if (get_data().empty())
+        return 0;
+    return (get_data().size() - (get_buffer_sdvig_size() ? 1 : 0)) * 8 + get_buffer_sdvig_size();
+}
+
 void sstrtobb::try_write(std::ostream& os) {
     if(!buffer_sdvig_size) {
 #ifndef NDEBUG
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<"write on file ";
+        logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<"write on file ";
         for (const char& c : data)
-            logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::bitset<8>(c);
-        logger(log_ns::DEV_ONLY | log_ns::NORMAL_LVL)<<std::endl;
+            logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::bitset<8>(c);
+        logger(log_ns::DEV_ONLY | log_ns::HARD_LVL)<<std::endl;
 #endif
         os.write(data.data(), data.size());
         data.clear();
