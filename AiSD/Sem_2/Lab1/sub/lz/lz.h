@@ -3,6 +3,7 @@
 #include <iostream>
 #include <queue>
 #include "../logger/logger.h"
+#include "../bytebitstream.h"
 
 extern std::queue<std::string> sub_commands;
 

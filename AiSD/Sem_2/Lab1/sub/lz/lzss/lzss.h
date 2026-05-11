@@ -16,6 +16,7 @@ namespace lzss_ns {
     sstrtobb& operator<<(sstrtobb& os, const node& n);
     sstrtobb& operator>>(sstrtobb& is, node& n);
     void lzss_1(std::istream& stream_in, std::ostream& stream_out, const size_t window_buffer_size);
+    void lzss_2(std::istream& stream_in, std::ostream& stream_out, const size_t window_buffer_size);
     void de_lzss_1(std::istream& stream_in, std::ostream& stream_out, const size_t window_buffer_size);
     // std::string de_lzss_0(const std::string& str, size_t buffer_size, const uint8_t& num_byte);
     bool try_read_node(sstrtobb& ssbb_in, node& n);

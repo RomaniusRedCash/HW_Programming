@@ -136,7 +136,7 @@ sstrtobb lzw_ns::lzw_0(const std::string& str, std::unordered_map<std::string, s
     sstrtobb ssbb;
     node n;
     node::size = 1;
-    while ((1ULL << node::size) < m_slovar.size())
+    while (((1ULL << node::size) - 1) < m_slovar.size())
         node::size++;
     for(size_t i = 0; i < str.size() / num_byte * num_byte; ) {
         std::string str_sub = str.substr(i, num_byte);
@@ -203,7 +203,7 @@ std::string lzw_ns::de_lzw_0(sstrtobb& ssbb, std::vector<std::string>& v_slovar,
     node::size = 1;
     sstrtobb ssbb_buffer;
 
-    while ((1ULL << node::size) < v_slovar.size())
+    while (((1ULL << node::size) - 1) < v_slovar.size())
         node::size++;
     while (((ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size()) >= node::size ||
         ((ssbb_buffer.get_data().size() - (ssbb_buffer.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb_buffer.get_buffer_sdvig_size()) >= node::size
@@ -317,10 +317,11 @@ void de_lzw(std::istream& stream_in, std::ostream& stream_out) {
         if (buffer.empty()) break;
         ssbb << buffer;
         size_t size_ssbb = 0;
+        std::string str_size(sizeof(size_ssbb) * 8, 0);
         do {
-            bytebit ssbbsize_bb(sizeof(size_ssbb) * 8);
-            ssbb >>ssbbsize_bb;
-            std::memcpy(&size_ssbb, ssbbsize_bb.get_data().data(), sizeof(size_ssbb));
+            // bytebit ssbbsize_bb(sizeof(size_ssbb) * 8);
+            ssbb >> str_size;
+            std::memcpy(&size_ssbb, str_size.data(), sizeof(size_ssbb));
             bytebit bb_tmp(size_ssbb);
             if (size_ssbb > ((ssbb.get_data().size() - (ssbb.get_buffer_sdvig_size() ? 1 : 0)) * 8 + ssbb.get_buffer_sdvig_size())) {
                 if (stream_in.eof()) throw "ERR";

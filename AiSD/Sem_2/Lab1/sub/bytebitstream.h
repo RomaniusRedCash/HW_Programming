@@ -58,6 +58,7 @@ public:
     sstrtobb& operator>>(uint8_t& c);
     sstrtobb& operator<<(const uint8_t& c);
     const std::string& get_data() const override;
+    size_t get_len_in_bit();
     void try_write(std::ostream& os);
 };
 
