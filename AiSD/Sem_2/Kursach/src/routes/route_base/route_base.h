@@ -1,9 +1,12 @@
 #pragma once
 
 #include <mutex>
+#include <chrono>
+#include <ctime>
 
 #include "../../kdtree/kdtree.h"
 #include "../../space/space.h"
+#include "planer/planer.h"
 
 namespace route_ns {
     struct node {
@@ -52,13 +55,19 @@ namespace route_ns {
         int finish_id = 0;
         float w,h;
         route_base* routes = nullptr;
+        planer plnr;
+        std::chrono::time_point<std::chrono::steady_clock> start_time;
     public:
         route_base_hendler(const space &spc, float w, float h, route_base* routes);
         virtual bool add(float x, float y) = 0;
+        void resize(float w, float h);
         virtual void set_start(float x, float y);
         virtual void set_end(float x, float y);
+        void set_dist_way(float dist_way);
+        std::pair<float, float> get_start();
+        std::pair<float, float> get_end();
         const route_base* get_routes();
-        void start_routing(int iters);
+        virtual void start_routing(int iters);
         void clear();
         virtual ~route_base_hendler();
     };
