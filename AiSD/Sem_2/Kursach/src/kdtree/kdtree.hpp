@@ -48,26 +48,20 @@ void kdtree<T>::add(const T &t, float x, float y) {
 template <typename T>
 void kdtree_ns::kdtree<T>::find_in_radius(node<T> *n_current, float target_x, float target_y, float radius, std::vector<T> &result, bool is_x) {
     if (!n_current) return;
-
-    // Считаем квадрат расстояния (так быстрее, без std::sqrt)
     float dx = target_x - n_current->x;
     float dy = target_y - n_current->y;
     float dist_sq = dx * dx + dy * dy;
 
-    // Если узел попал в радиус — добавляем его ID (data) в результат
     if (dist_sq <= radius * radius) {
         result.push_back(n_current->data);
     }
 
-    // Решаем, в какую ветку идти сначала
     bool go_left = is_x ? (target_x < n_current->x) : (target_y < n_current->y);
     node<T> *n_c_1 = go_left ? n_current->left : n_current->right;
     node<T> *n_c_2 = go_left ? n_current->right : n_current->left;
 
-    // Обязательно обыскиваем основную ветку
     find_in_radius(n_c_1, target_x, target_y, radius, result, !is_x);
 
-    // Проверяем, может ли вторая ветка ТЕОРЕТИЧЕСКИ пересекать наш круг поиска
     float axis_dist = is_x ? (target_x - n_current->x) : (target_y - n_current->y);
     if ((axis_dist * axis_dist) <= radius * radius) {
         find_in_radius(n_c_2, target_x, target_y, radius, result, !is_x);

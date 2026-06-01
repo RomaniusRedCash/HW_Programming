@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include <utility>
+// #include <ctime>
 
 route_ns::route::route(const std::pair<float, float> &start, const std::pair<float, float> &end, const std::vector<node>& v_nodes) : route_base(start, end, v_nodes) {}
 
@@ -30,11 +31,9 @@ void route_ns::route::render(SDL_Renderer *renderer) const {
     c_root.set_color(color_of_point);
     c_root.render(renderer);
 
-    // if (start != end) {
-        circle c_end(end.first, end.second, radius_of_point * 2);
-        c_end.set_color(color_of_point);
-        c_end.render(renderer);
-    // }
+    circle c_end(end.first, end.second, radius_of_point * 2);
+    c_end.set_color(color_of_point);
+    c_end.render(renderer);
 
     for (std::vector<SDL_FPoint> v : v_points) {
         set_color(renderer, color_of_path);
@@ -45,6 +44,7 @@ void route_ns::route::render(SDL_Renderer *renderer) const {
             c.render(renderer);
         }
     }
+
     if(goal_id == 0) return;
 
     std::vector<SDL_FPoint> finish_way(1, {v_nodes[goal_id].x, v_nodes[goal_id].y});
@@ -77,7 +77,7 @@ bool route_ns::route_hendler::add(float x, float y) {
 
     float dx = x - near_x;
     float dy = y - near_y;
-
+    // get_distance2(x, y, near_x, near_y)
     float distance = std::sqrt(dx * dx + dy * dy);
 
     float new_x = x;
@@ -98,10 +98,7 @@ bool route_ns::route_hendler::add(float x, float y) {
     kdt.add(new_id, new_x, new_y);
     routes->add(v_nodes.back());
 
-
-    float to_goal_x = end.first - new_x;
-    float to_goal_y = end.second - new_y;
-    float dist_to_goal = std::sqrt(to_goal_x * to_goal_x + to_goal_y * to_goal_y);
+    float dist_to_goal = std::sqrt(get_distance2(end.first, end.second, new_x, new_y));
 
     if (dist_to_goal <= dist_way) {
         if (!spc.line_collision(new_x, new_y, end.first, end.second)) {
@@ -115,7 +112,7 @@ bool route_ns::route_hendler::add(float x, float y) {
                 routes->add(v_nodes.back());
             }
             routes->set_goal_id(finish_id);
-            std::cout << "SUCCESS! Goal reached. Finish Node ID: " << finish_id << std::endl;
+            std::cout << "SUCCESS! Goal reached. Finish Node ID: " << finish_id << " Cost: " << finish_cost << std::endl;
             return true;
         }
     }

@@ -154,7 +154,6 @@ public:
 #undef NAME
 #define NAME CONCAT(rrt, _word)
 class NAME : public command {
-    size_t iterations;
 public:
     NAME() : command({"rrt"}) {}
     void get(const std::vector<token> &tokens, size_t &iter) override {
@@ -169,13 +168,45 @@ public:
 #undef NAME
 #define NAME CONCAT(rrtz, _word)
 class NAME : public command {
-    size_t iterations;
 public:
     NAME() : command({"rrt*"}) {}
     void get(const std::vector<token> &tokens, size_t &iter) override {
     }
     void do_work(world& wrld) override {
         wrld.turn(rrt_type::zvezda);
+    }
+    std::unique_ptr<command> clone() const override {
+        return std::make_unique<NAME>(*this);
+    }
+} CONCAT(base,NAME);
+#undef NAME
+#define NAME CONCAT(fastrrt, _word)
+class NAME : public command {
+public:
+    NAME() : command({"fastrrt"}) {}
+    void get(const std::vector<token> &tokens, size_t &iter) override {
+    }
+    void do_work(world& wrld) override {
+        wrld.turn(rrt_type::fast);
+    }
+    std::unique_ptr<command> clone() const override {
+        return std::make_unique<NAME>(*this);
+    }
+} CONCAT(base,NAME);
+#undef NAME
+#define NAME CONCAT(setdist, _word)
+class NAME : public command {
+    float dist_way;
+public:
+    NAME() : command({"step"}) {}
+    void get(const std::vector<token> &tokens, size_t &iter) override {
+        if (tokens[iter+1].type != toke_type::number)
+            throw error_parse(gen_err("Failed getting id."));
+        dist_way = std::stof(tokens[iter+1].str);
+        iter++;
+    }
+    void do_work(world& wrld) override {
+        wrld.rth->set_dist_way(dist_way);
     }
     std::unique_ptr<command> clone() const override {
         return std::make_unique<NAME>(*this);

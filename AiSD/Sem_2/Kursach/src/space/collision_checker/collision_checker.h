@@ -16,7 +16,8 @@ public:
 
     template <typename T, typename U>
     bool operator()(const T &, const U &) const {
-        std::cerr << "ERROR! can't check collision.";
-        throw "ERROR!";
+        return false;
+        // std::cerr << "ERROR! can't check collision.";
+        // throw "ERROR!";
     }
 };

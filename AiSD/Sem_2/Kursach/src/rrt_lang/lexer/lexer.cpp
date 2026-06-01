@@ -7,6 +7,7 @@ std::istream& operator>>(std::istream& is, lexer& lx) {
         lexer::n_line++;
         str+=' ';
         for (size_t i = 0; i < str.size(); i++) {
+            if (str[i] == '#') break;
             if (str[i] == '"') {
                 if (cur_str.size()) {
                     std::cerr<<"ERROR! Can't parce "<<cur_str<<'.'<<std::endl;
@@ -14,7 +15,7 @@ std::istream& operator>>(std::istream& is, lexer& lx) {
                 }
                 size_t end_str = str.find('"', i+1);
                 if (end_str == str.npos) {
-                    std::cerr<<"["<<lexer::n_line<<':'<<i<<"]"<<"ERROR! Can't parce string. lost \"."<<std::endl;
+                    std::cerr<<"["<<lexer::n_line<<':'<<i<<"] "<<"ERROR! Can't parce string. lost \"."<<std::endl;
                     break;
                 }
                 cur_str+=str.substr(i+1, end_str - i - 1);
@@ -35,7 +36,7 @@ std::istream& operator>>(std::istream& is, lexer& lx) {
                         } else throw ;
                     } catch(...){
                         lx.add_token({toke_type::unknown, cur_str, i, lexer::n_line});
-                        std::cerr<<"["<<lexer::n_line<<':'<<i<<"]"<<"ERROR! Unknown word: "<<cur_str<<'.'<<std::endl;
+                        std::cerr<<"["<<lexer::n_line<<':'<<i<<"] "<<"ERROR! Unknown word: "<<cur_str<<'.'<<std::endl;
                     }
                     cur_str.clear();
                 }

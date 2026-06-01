@@ -20,10 +20,10 @@ void route_ns::routez::render(SDL_Renderer *renderer) const {
         cr.set_color(color_of_point);
         cr.render(renderer);
     }
-    circle cr_start(start.first, start.second, radius_of_point);
+    circle cr_start(start.first, start.second, radius_of_point * 2);
     cr_start.set_color(color_of_point);
     cr_start.render(renderer);
-    circle cr_end(end.first, end.second, radius_of_point);
+    circle cr_end(end.first, end.second, radius_of_point * 2);
     cr_end.set_color(color_of_point);
     cr_end.render(renderer);
 
@@ -126,8 +126,7 @@ bool route_ns::routez_hendler::add(float x, float y) {
 
                 std::vector<int>& old_parent_children = v_nodes[neighbor.parant_id].children_ids;
                 old_parent_children.erase(
-                    std::remove(old_parent_children.begin(), old_parent_children.end(), neighbor_id),
-                                          old_parent_children.end()
+                    std::remove(old_parent_children.begin(), old_parent_children.end(), neighbor_id),old_parent_children.end()
                 );
 
                 neighbor.parant_id = new_id;
@@ -146,25 +145,37 @@ bool route_ns::routez_hendler::add(float x, float y) {
 
     static float best_finish_cost = std::numeric_limits<float>::max();
 
-    if (dist_to_goal <= dist_way && !spc.line_collision(new_x, new_y, end.first, end.second)) {
-        float potential_finish_cost = min_cost + dist_to_goal;
+   if (dist_to_goal <= dist_way && !spc.line_collision(new_x, new_y, end.first, end.second)) {
+    float potential_finish_cost = min_cost + dist_to_goal;
 
-        if (potential_finish_cost < best_finish_cost) {
-            best_finish_cost = potential_finish_cost;
+    if (potential_finish_cost < best_finish_cost) {
+        best_finish_cost = potential_finish_cost;
 
-            if (finish_id == 0) {
-                finish_id = v_nodes.size();
-                routes->set_goal_id(finish_id);
-                v_nodes.push_back({finish_id, end.first, end.second, best_finish_cost, new_id});
-                kdt.add(finish_id, end.first, end.second);
-            } else {
-                v_nodes[finish_id].parant_id = new_id;
-                v_nodes[finish_id].cost = best_finish_cost;
-            }
+        if (finish_id == 0) {
+            finish_id = v_nodes.size();
+            routes->set_goal_id(finish_id);
+            v_nodes.push_back({finish_id, end.first, end.second, best_finish_cost, new_id});
+            kdt.add(finish_id, end.first, end.second);
 
-            std::cout << "NEW BEST RRT* Cost: " << best_finish_cost << std::endl;
+            v_nodes[new_id].children_ids.push_back(finish_id);
+        } else {
+            int old_parent_id = v_nodes[finish_id].parant_id;
+            std::vector<int>& old_parent_children = v_nodes[old_parent_id].children_ids;
+            old_parent_children.erase(
+                std::remove(old_parent_children.begin(), old_parent_children.end(), finish_id),
+                old_parent_children.end()
+            );
+
+            v_nodes[finish_id].parant_id = new_id;
+            v_nodes[finish_id].cost = best_finish_cost;
+
+            v_nodes[new_id].children_ids.push_back(finish_id);
         }
+
+        std::cout << "NEW BEST RRT* Cost: " << best_finish_cost << std::endl;
+        std::cout << "Spent time: " << (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start_time ).count()) / 1000 << " ms." << std::endl;
     }
+}
 
     return false;
 }
