@@ -1,0 +1,22 @@
+{
+    "name": "RRT",
+    "files": [
+        {
+            "recursive": true,
+            "filters": ["*.cpp", "*.h", "*.hpp", "CMakeLists.txt"]
+        }
+    ],
+    "build": {
+        "directory": "build",
+        "targets": [
+            {
+                "name": "build",
+                "build_cmd": "cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -j12"
+            },
+            {
+                "name": "clear",
+                "build_cmd": "rm -rf *"
+            }
+        ]
+    }
+}
