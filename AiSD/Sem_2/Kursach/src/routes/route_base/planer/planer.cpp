@@ -1,0 +1,10 @@
+#include "planer.h"
+
+std::pair<float, float> planer::get_random_point() const {
+    return std::pair<float, float>{dis_x(gen), dis_y(gen)};
+}
+
+void planer::resize(float width, float height) {
+    dis_x = std::uniform_real_distribution<float>(0.0f, width);
+    dis_y = std::uniform_real_distribution<float>(0.0f, height);
+}
