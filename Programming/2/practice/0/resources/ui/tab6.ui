@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <template class="Tab6" parent="GtkBox">
+        <property name="tooltip-text">Задание 6</property>
+        <property name="hexpand">TRUE</property>
+        <property name="vexpand">TRUE</property>
+        <property name="orientation">horizontal</property>
+        <child>
+            <object class="GtkBox">
+                <property name="hexpand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+
+                <child>
+                    <object class="GtkLabel" id="label">
+                        <property name="label">Не трогай.</property>
+                        <property name="xalign">0.5</property>
+                        <property name="yalign">0.5</property>
+                        <child>
+                            <object class="GtkEventControllerMotion">
+                                <signal name="enter" handler="on_label_mouse_hover" swapped="no"/>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

@@ -1,0 +1,22 @@
+{
+    "name": "Practice",
+    "files": [
+        {
+            "recursive": true,
+            "filters": ["*.c", "*.cpp", "*.h", "*.hpp", "*.ui", "*.xml", "*.css", "CMakeLists.txt"]
+        }
+    ],
+    "build": {
+        "directory": "build",
+        "targets": [
+            {
+                "name": "build",
+                "build_cmd": "cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -j12"
+            },
+            {
+                "name": "clear",
+                "build_cmd": "rm -rf *"
+            }
+        ]
+    }
+}

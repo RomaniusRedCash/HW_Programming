@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/org/gtkal/kakoyto/resources">
+        <file preprocess="xml-stripblanks">ui/builder.ui</file>
+        <file preprocess="xml-stripblanks">ui/tab1.ui</file>
+        <file preprocess="xml-stripblanks">ui/tab2.ui</file>
+        <file preprocess="xml-stripblanks">ui/tab3.ui</file>
+        <file preprocess="xml-stripblanks">ui/tab4.ui</file>
+        <file preprocess="xml-stripblanks">ui/tab5.ui</file>
+        <file preprocess="xml-stripblanks">ui/tab6.ui</file>
+        <file preprocess="xml-stripblanks">ui/tab7.ui</file>
+        <file>ui/style.css</file>
+        <file>img/абдулоикона.jpg</file>
+        <file>img/svidetel iz friazino.png</file>
+        <file>img/предусилитель.PNG</file>
+        <file>img/епифанцев.png</file>
+        <file>img/background.png</file>
+    </gresource>
+</gresources>

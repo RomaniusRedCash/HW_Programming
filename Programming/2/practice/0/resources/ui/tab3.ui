@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <template class="Tab3" parent="GtkBox">
+        <property name="tooltip-text">Задание 3</property>
+        <property name="orientation">vertical</property>
+        <style>
+            <class name="tab3-bg"/>
+        </style>
+        <child>
+            <object class="GtkGrid">
+                <property name="row-spacing">12</property>
+                <property name="column-spacing">12</property>
+                <property name="margin-top">12</property>
+                <property name="margin-bottom">12</property>
+                <property name="margin-start">12</property>
+                <property name="margin-end">12</property>
+
+                <child>
+                    <object class="GtkAspectFrame" id="aspect_frame">
+                        <property name="ratio">1.7778</property>
+                        <property name="obey-child">FALSE</property>
+                        <property name="xalign">0.5</property>
+                        <property name="yalign">0.5</property>
+                        <property name="hexpand">FALSE</property>
+                        <property name="vexpand">TRUE</property>
+                        <child>
+                            <object class="GtkOverlay" id="overlay">
+                                <child>
+                                    <object class="GtkPicture" id="img">
+                                        <property name="can-shrink">TRUE</property>
+                                        <property name="content-fit">GTK_CONTENT_FIT_CONTAIN</property>
+                                    </object>
+                                </child>
+                                <child type="overlay">
+                                    <object class="GtkLabel" id="ltext">
+                                        <property name="wrap">TRUE</property>
+                                        <property name="wrap-mode">word-char</property>
+                                        <property name="halign">GTK_ALIGN_START</property>
+                                        <property name="valign">GTK_ALIGN_START</property>
+                                        <style>
+                                            <class name="drawn-text"/>
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <layout>
+                            <property name="column">0</property>
+                            <property name="row">0</property>
+                        </layout>
+                    </object>
+                </child>
+                <child>
+                    <object id="label" class="GtkLabel">
+                        <property name="label">Пусто</property>
+                        <style>
+                            <class name="custom-label"/>
+                        </style>
+                        <property name="hexpand">FALSE</property>
+                        <property name="vexpand">FALSE</property>
+                        <property name="halign">GTK_ALIGN_CENTER</property>
+                        <property name="valign">GTK_ALIGN_END</property>
+                        <layout>
+                            <property name="column">0</property>
+                            <property name="row">1</property>
+                        </layout>
+                    </object>
+                </child>
+
+                <child>
+                    <object class="GtkGrid">
+                        <property name="row-spacing">12</property>
+                        <property name="column-spacing">12</property>
+                        <child>
+                            <object id="dd" class="GtkDropDown">
+                                <property name="model">
+                                    <object class="GtkStringList">
+                                        <items>
+                                            <item>абдулоикона</item>
+                                            <item>svidetel iz friazino</item>
+                                            <item>предусилитель</item>
+                                            <item>епифанцев</item>
+                                        </items>
+                                    </object>
+                                </property>
+                                <property name="hexpand">FALSE</property>
+                                <property name="vexpand">FALSE</property>
+                                <property name="halign">GTK_ALIGN_END</property>
+                                <property name="valign">GTK_ALIGN_START</property>
+                                <layout>
+                                    <property name="column">0</property>
+                                    <property name="row">0</property>
+                                </layout>
+                                <signal name="notify::selected" handler="on_activate" swapped="yes"/>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkScrolledWindow" id="text_scroller">
+                                <property name="hscrollbar-policy">GTK_POLICY_NEVER</property>
+                                <property name="vscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                                <property name="min-content-width">200</property>
+                                <property name="min-content-height">100</property>
+                                <property name="hexpand">TRUE</property>
+                                <property name="vexpand">TRUE</property>
+                                <child>
+                                    <object class="GtkTextView" id="txt_view">
+                                        <property name="wrap-mode">GTK_WRAP_WORD_CHAR</property>
+                                        <property name="left-margin">8</property>
+                                        <property name="right-margin">8</property>
+                                        <property name="top-margin">8</property>
+                                        <property name="bottom-margin">8</property>
+                                        <!--                                 <property name="placeholder-text">Введите многострочный текст здесь...</property> -->
+                                    </object>
+                                </child>
+                                <property name="hexpand">TRUE</property>
+                                <property name="vexpand">TRUE</property>
+                                <property name="halign">GTK_ALIGN_FILL</property>
+                                <property name="valign">GTK_ALIGN_FILL</property>
+                                <layout>
+                                    <property name="column">0</property>
+                                    <property name="row">1</property>
+                                </layout>
+                            </object>
+                        </child>
+                        <property name="hexpand">TRUE</property>
+                        <property name="vexpand">TRUE</property>
+                        <property name="halign">GTK_ALIGN_FILL</property>
+                        <property name="valign">GTK_ALIGN_FILL</property>
+                        <layout>
+                            <property name="column">1</property>
+                            <property name="row">0</property>
+                        </layout>
+                    </object>
+                </child>
+
+                <child>
+                    <object id="button" class="GtkButton">
+                        <property name="label">Рисовать</property>
+                        <property name="hexpand">FALSE</property>
+                        <property name="vexpand">FALSE</property>
+                        <property name="halign">GTK_ALIGN_FILL</property>
+                        <property name="valign">GTK_ALIGN_FILL</property>
+                        <signal name="clicked" handler="on_button_clicked" swapped="yes"/>
+                        <layout>
+                            <property name="column">1</property>
+                            <property name="row">1</property>
+                        </layout>
+
+                        <style>
+                            <class name="custom-button"/>
+                        </style>
+
+                    </object>
+                </child>
+
+            </object>
+        </child>
+    </template>
+</interface>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <object id="window" class="GtkWindow">
+        <property name="title">Практика</property>
+        <property name="default-width">400</property>
+        <property name="default-height">300</property>
+        <child>
+            <object id="notebook" class="GtkNotebook">
+            </object>
+        </child>
+    </object>
+</interface>

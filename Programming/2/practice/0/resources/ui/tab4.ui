@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <menu id="main_menu">
+        <submenu>
+            <attribute name="label">Файл</attribute>
+            <section>
+                <item>
+                    <attribute name="label">Открыть</attribute>
+                    <attribute name="action">tab4.open</attribute>
+                </item>
+                <item>
+                    <attribute name="label">Сохранить как</attribute>
+                    <attribute name="action">tab4.save_as</attribute>
+                </item>
+            </section>
+        </submenu>
+    </menu>
+
+    <template class="Tab4" parent="GtkBox">
+        <property name="tooltip-text">Задание 4</property>
+        <property name="orientation">vertical</property>
+        <child>
+            <object class="GtkPopoverMenuBar" id="menu_bar">
+                <property name="menu-model">main_menu</property>
+            </object>
+        </child>
+        <child>
+            <object class="GtkScrolledWindow" id="scroller">
+                <property name="hscrollbar-policy">GTK_POLICY_NEVER</property>
+                <property name="vscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+                <property name="hexpand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="halign">GTK_ALIGN_FILL</property>
+                <property name="valign">GTK_ALIGN_FILL</property>
+                <child>
+                    <object class="GtkTextView" id="text_view">
+                        <property name="wrap-mode">GTK_WRAP_WORD_CHAR</property>
+                        <property name="left-margin">8</property>
+                        <property name="right-margin">8</property>
+                        <property name="top-margin">8</property>
+                        <property name="bottom-margin">8</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

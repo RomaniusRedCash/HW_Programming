@@ -1,0 +1,28 @@
+.custom-label {
+    font-family: "FreeMono";
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #ff0000;
+    padding: 5px;
+}
+
+.tab3-bg {
+    background-image: url('resource:///org/gtkal/kakoyto/resources/img/background.png');
+/*     background-repeat: no-repeat; */
+    background-size: contain;
+    background-position: center;
+    background-color: #cccccc;
+}
+
+.drawn-text {
+    font-family: "FreeMono";
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff0000;
+}
+
+.custom-button {
+    background-image: none;
+    background-color: #eee8aa; /* PaleGoldenrod */
+    color: #000000; /* Черный текст для читаемости */
+}
