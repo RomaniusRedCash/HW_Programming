@@ -9,7 +9,7 @@ struct _Tab6 {
 
 G_DEFINE_TYPE(Tab6, tab6, GTK_TYPE_BOX)
 
-static void on_label_mouse_hover(GtkEventControllerMotion *controller, double x, double y, gpointer user_data) {
+static void on_label_mouse_hover(double x, double y, gpointer user_data) {
     Tab6 *self = (Tab6*)user_data;
     if (self->is_activate) return;
     self->is_activate = TRUE;

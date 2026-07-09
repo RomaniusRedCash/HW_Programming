@@ -6,9 +6,11 @@ struct _Tab5 {
     GtkEntry *entry_y1;
     GtkEntry *entry_x2;
     GtkEntry *entry_y2;
+    GtkEntry *entry_x3;
+    GtkEntry *entry_y3;
     GtkWidget *drawing_area;
 
-    int m_p[4];
+    int m_p[6];
 };
 
 G_DEFINE_TYPE(Tab5, tab5, GTK_TYPE_BOX)
@@ -22,6 +24,16 @@ static void on_drawing_area_draw(GtkDrawingArea *drawing_area, cairo_t *cr, int 
     cairo_move_to(cr, self->m_p[0], self->m_p[1]);
     cairo_line_to(cr, self->m_p[2], self->m_p[3]);
     cairo_stroke(cr);
+    cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, self->m_p[2], self->m_p[3]);
+    cairo_line_to(cr, self->m_p[4], self->m_p[5]);
+    cairo_stroke(cr);
+    cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, self->m_p[4], self->m_p[5]);
+    cairo_line_to(cr, self->m_p[0], self->m_p[1]);
+    cairo_stroke(cr);
 }
 
 static void on_draw_button_clicked(gpointer user_data) {
@@ -30,21 +42,23 @@ static void on_draw_button_clicked(gpointer user_data) {
     self->m_p[1] = atoi(gtk_entry_buffer_get_text(gtk_entry_get_buffer(self->entry_y1)));
     self->m_p[2] = atoi(gtk_entry_buffer_get_text(gtk_entry_get_buffer(self->entry_x2)));
     self->m_p[3] = atoi(gtk_entry_buffer_get_text(gtk_entry_get_buffer(self->entry_y2)));
+    self->m_p[4] = atoi(gtk_entry_buffer_get_text(gtk_entry_get_buffer(self->entry_x3)));
+    self->m_p[5] = atoi(gtk_entry_buffer_get_text(gtk_entry_get_buffer(self->entry_y3)));
     gtk_widget_queue_draw(self->drawing_area);
-    int height = abs(self->m_p[0] - self->m_p[2]), width = abs(self->m_p[1] - self->m_p[3]), max_size = height > width ? height : width;
-    if (max_size > 720) {
-        for (char i = 0; i < 4; i+=2) {
-            self->m_p[i] = self->m_p[i] * 720 / max_size;
-            self->m_p[i+1] = self->m_p[i+1] * 720 / max_size;
-        }
-        max_size=720;
-    }
-    gtk_widget_set_size_request(self->drawing_area, max_size, max_size);
+    // int height = abs(self->m_p[0] - self->m_p[2]), width = abs(self->m_p[1] - self->m_p[3]), max_size = height > width ? height : width;
+    // if (max_size > 720) {
+    //     for (char i = 0; i < 4; i+=2) {
+    //         self->m_p[i] = self->m_p[i] * 720 / max_size;
+    //         self->m_p[i+1] = self->m_p[i+1] * 720 / max_size;
+    //     }
+    //     max_size=720;
+    // }
+    // gtk_widget_set_size_request(self->drawing_area, max_size, max_size);
 }
 
 static void tab5_init(Tab5 *self) {
     gtk_widget_init_template(GTK_WIDGET (self));
-    for(char i = 0; i < 4; i++) self->m_p[i] = 0;
+    for(char i = 0; i < 6; i++) self->m_p[i] = 0;
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(self->drawing_area), on_drawing_area_draw, self, NULL);
 }
 
@@ -55,6 +69,8 @@ static void tab5_class_init(Tab5Class *klass) {
     gtk_widget_class_bind_template_child(widget_class, Tab5, entry_y1);
     gtk_widget_class_bind_template_child(widget_class, Tab5, entry_x2);
     gtk_widget_class_bind_template_child(widget_class, Tab5, entry_y2);
+    gtk_widget_class_bind_template_child(widget_class, Tab5, entry_x3);
+    gtk_widget_class_bind_template_child(widget_class, Tab5, entry_y3);
     gtk_widget_class_bind_template_child(widget_class, Tab5, drawing_area);
     gtk_widget_class_bind_template_callback(widget_class, on_draw_button_clicked);
 }

@@ -30,7 +30,7 @@ static void on_drawing_area_draw(GtkDrawingArea *drawing_area, cairo_t *cr, int 
     cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     cairo_paint(cr);
     if (self->current_points_count > 1) {
-        cairo_set_source_rgb(cr, 1.0, 0.0, 0.0); // Красный
+        cairo_set_source_rgb(cr, 1.0, 0.0, 0.0);
         cairo_set_line_width(cr, 1.5);
         cairo_move_to(cr, self->p[0].x, self->p[0].y);
         for (int j = 1; j < self->current_points_count; j++) {
