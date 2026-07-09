@@ -21,6 +21,7 @@
 #include "sub/lz/lzw/lzw.h"
 #include "sub/lz/lzss/lzss.h"
 #include "sub/itu/itu.h"
+#include "sub/entrop/entrop.h"
 
 #include "sub/logger/logger.h"
 

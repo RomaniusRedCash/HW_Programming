@@ -6,7 +6,7 @@
 #include <random>
 #include <iostream>
 
-route_ns::fast_route_hendler::fast_route_hendler(const space &spc, float w, float h) : route_base_hendler(spc, w, h, new routez(start, end, v_nodes)) {
+route_ns::fast_route_hendler::fast_route_hendler(const space &spc, float w, float h) : route_base_hendler(spc, w, h, new fast_route(start, end, v_nodes)) {
 }
 
 std::vector<route_ns::node> route_ns::fast_route_hendler::extract_path(int f_id) {
@@ -81,6 +81,7 @@ std::vector<route_ns::node> route_ns::fast_route_hendler::path_fusion(
 
             if (len_A <= len_B) {
                 for (size_t k = i + 1; k <= next_i; ++k) {
+                    // path_A[k].parant_id=fused_path.back().id;
                     fused_path.push_back(path_A[k]);
                 }
             } else {
@@ -101,8 +102,9 @@ std::vector<route_ns::node> route_ns::fast_route_hendler::path_fusion(
 
     return fused_path;
 }
-std::vector<route_ns::node> route_ns::fast_route_hendler::path_fine_tuning(
-    const std::vector<node> &intermediate_path) {
+std::vector<route_ns::node> route_ns::fast_route_hendler::path_fine_tuning(const std::vector<node> &intermediate_path) {
+    const std::lock_guard<std::mutex> lock(routes->get_mutex());
+
     if (intermediate_path.size() <= 2)
         return intermediate_path;
 
@@ -114,15 +116,12 @@ std::vector<route_ns::node> route_ns::fast_route_hendler::path_fine_tuning(
         size_t best_visible_index = current + 1;
 
         for (size_t look_ahead = current + 2; look_ahead < intermediate_path.size(); ++look_ahead) {
-            bool collision = spc.line_collision(
-                intermediate_path[current].x, intermediate_path[current].y,
-                intermediate_path[look_ahead].x, intermediate_path[look_ahead].y);
-
-            if (!collision) {
+            if (!spc.line_collision(intermediate_path[current].x, intermediate_path[current].y,
+                intermediate_path[look_ahead].x, intermediate_path[look_ahead].y)) {
                 best_visible_index = look_ahead;
             }
         }
-
+        // v_nodes[intermediate_path[best_visible_index].id].parant_id=optimized_path.back().id;
         optimized_path.push_back(intermediate_path[best_visible_index]);
 
         current = best_visible_index;
@@ -239,6 +238,40 @@ void route_ns::fast_route_hendler::start_routing(int iters) {
         float dy = final_smooth_path[i+1].y - final_smooth_path[i].y;
         final_cost += std::sqrt(dx * dx + dy * dy);
     }
+
+    static_cast<fast_route*>(routes)->finalv = final_smooth_path;
+
     std::cout << "Fast-RRT Complete! Optimal Cost: " << final_cost << std::endl;
     std::cout<<"Spent time: "<< std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start_time ).count() / 1000 <<" ms."<<std::endl;
 }
+void route_ns::fast_route::render(SDL_Renderer *renderer) const {
+    const std::lock_guard<std::mutex> lock(get_mutex());
+    for (const node& n : v_nodes) {
+        if (n.parant_id < 0) continue;
+        line ln(n.x, n.y, v_nodes[n.parant_id].x, v_nodes[n.parant_id].y);
+        ln.set_color(color_of_path);
+        ln.render(renderer);
+        circle cr(n.x, n.y, radius_of_point);
+        cr.set_color(color_of_point);
+        cr.render(renderer);
+    }
+    circle cr_start(start.first, start.second, radius_of_point * 2);
+    cr_start.set_color(color_of_point);
+    cr_start.render(renderer);
+    circle cr_end(end.first, end.second, radius_of_point * 2);
+    cr_end.set_color(color_of_point);
+    cr_end.render(renderer);
+
+    if(goal_id == 0) return;
+
+    for (size_t i = 0; i < finalv.size() - 1; i++){
+        line ln(finalv[i].x, finalv[i].y, finalv[i+1].x, finalv[i+1].y);
+        ln.set_color(color_of_goal_path);
+        ln.render(renderer);
+        circle cr(finalv[i+1].x, finalv[i+1].y, radius_of_point);
+        cr.set_color(color_of_point);
+        cr.render(renderer);
+        if (finalv[i+1].x == end.first && finalv[i+1].y ==end.second) break;
+    }
+}
+route_ns::fast_route::fast_route(const std::pair<float, float> &start, const std::pair<float, float> &end, const std::vector<node> &v_nodes)  : routez(start,end,v_nodes) {}

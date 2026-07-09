@@ -145,7 +145,10 @@ int main(const int argc, char* argv[]) {
 
 #ifndef NDEBUG
             case eTEST:
-                test("abacabacabadaca", num_byte);
+                // test("abacabacabadaca", num_byte);
+
+                logger() << "Entrop " << calc_entrop(p_ss_tmp1->str(), num_byte) << std::endl;
+
                 break;
 #endif
             default:

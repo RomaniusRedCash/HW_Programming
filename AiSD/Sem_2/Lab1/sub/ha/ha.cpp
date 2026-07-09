@@ -20,7 +20,7 @@ void ha_ns::ha_1(std::istream& stream_in, std::ostream& stream_out, const uint8_
 // model size
     write_shift_size(stream_out, calc.get_size());
     write_shift_size(stream_out, calc);
-
+return;
     sstrtobb bbs_out;
     std::string buffer(BUFFER_SIZE, 0);
     size_t read_bites = 0;

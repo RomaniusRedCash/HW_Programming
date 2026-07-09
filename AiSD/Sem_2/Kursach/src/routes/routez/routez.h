@@ -7,7 +7,7 @@ namespace route_ns {
     public:
         routez(const std::pair<float, float> &start, const std::pair<float, float> &end, const std::vector<node> &v_nodes);
         void add(const node &n) override;
-        void render(SDL_Renderer *renderer) const override;
+        virtual void render(SDL_Renderer *renderer) const override;
         void clear() override {}
     };
 

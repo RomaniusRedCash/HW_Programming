@@ -1,8 +1,16 @@
 #pragma once
 
 #include "../route_base/route_base.h"
+#include "../routez/routez.h"
 
 namespace route_ns {
+    class fast_route : public routez {
+    public:
+      fast_route(const std::pair<float, float> &start, const std::pair<float, float> &end, const std::vector<node> &v_nodes);
+      void render(SDL_Renderer *renderer) const override;
+      std::vector<node> finalv;
+    };
+
     class fast_route_hendler : public route_base_hendler {
         float r_exclusion = dist_way * 0.8f;
 
