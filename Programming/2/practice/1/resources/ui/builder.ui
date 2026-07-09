@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <template class="MainWindow" parent="GtkApplicationWindow">
+        <property name="title">Практика</property>
+        <property name="default-width">720</property>
+        <property name="default-height">720</property>
+        <child><object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-top">5</property>
+                <property name="margin-bottom">5</property>
+                <child><object class="GtkDrawingArea" id="drawing_area">
+                        <property name="hexpand">TRUE</property>
+                        <property name="vexpand">TRUE</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="content-width">600</property>
+                        <property name="content-height">600</property>
+                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                <child><object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">5</property>
+                        <property name="hexpand">TRUE</property>
+                        <property name="halign">GTK_ALIGN_FILL</property>
+                        <property name="valign">GTK_ALIGN_CENTER</property>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                        <child><object class="GtkGrid">
+                                <property name="hexpand">TRUE</property>
+                                <property name="halign">GTK_ALIGN_FILL</property>
+                                <property name="column-spacing">5</property>
+                                <property name="row-spacing">5</property>
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Радиус</property>
+                                        <layout><property name="column">0</property><property name="row">0</property></layout>
+                                </object></child>
+<!--====================================================================================-->
+                                <child><object id="a_param_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">300</property>
+                                                <property name="value">150</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">0</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Диагональ 1</property>
+                                        <layout><property name="column">0</property><property name="row">1</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="diag1_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">300</property>
+                                                <property name="value">100</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">1</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Диагональ 2</property>
+                                        <layout><property name="column">0</property><property name="row">2</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="diag2_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">300</property>
+                                                <property name="value">50</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">2</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Скорость движения&#10;по траектории</property>
+                                        <layout><property name="column">0</property><property name="row">3</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="speed_trajectory_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">10</property>
+                                                <property name="value">1</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">3</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Скорость движения&#10;по орбите</property>
+                                        <layout><property name="column">0</property><property name="row">4</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="speed_orb_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">50</property>
+                                                <property name="value">10</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">4</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Амплитуда</property>
+                                        <layout><property name="column">0</property><property name="row">5</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="ampl_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">5</property>
+                                                <property name="value">0</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">5</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Скорость пульсации</property>
+                                        <layout><property name="column">0</property><property name="row">6</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="speed_ampl_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">5</property>
+                                                <property name="value">0</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">6</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Толщина обводки</property>
+                                        <layout><property name="column">0</property><property name="row">7</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="obvodka_scale" class="GtkScale">
+                                        <property name="hexpand">TRUE</property>
+                                        <property name="halign">GTK_ALIGN_FILL</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">5</property>
+                                                <property name="value">1</property>
+                                                <property name="step-increment">1</property>
+                                                <signal name="value-changed" handler="parce_param" swapped="yes"/>
+                                            </object>
+                                        </property>
+                                        <layout><property name="column">1</property><property name="row">7</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+                            </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                        <child><object class="GtkGrid">
+                                <property name="hexpand">TRUE</property>
+                                <property name="halign">GTK_ALIGN_FILL</property>
+                                <property name="column-spacing">5</property>
+                                <property name="row-spacing">5</property>
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Контур</property>
+                                        <layout><property name="column">0</property><property name="row">0</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="color_contur_button" class="GtkColorDialogButton">
+                                        <property name="rgba">#ff0000</property>
+                                        <property name="dialog">
+                                            <object class="GtkColorDialog">
+                                                <property name="with-alpha">False</property>
+                                            </object>
+                                        </property>
+                                        <signal name="notify::rgba" handler="parce_param" swapped="yes"/>
+                                        <layout><property name="column">1</property><property name="row">0</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                            <property name="label">Заливка</property>
+                                            <layout><property name="column">0</property><property name="row">1</property></layout>
+                                        </object></child>
+<!--====================================================================================-->
+                                <child><object id="color_zalivka_button" class="GtkColorDialogButton">
+                                        <property name="rgba">#0000ff</property>
+                                        <property name="dialog">
+                                            <object class="GtkColorDialog">
+                                                <property name="with-alpha">False</property>
+                                            </object>
+                                        </property>
+                                        <signal name="notify::rgba" handler="parce_param" swapped="yes"/>
+                                        <layout><property name="column">1</property><property name="row">1</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                        <property name="label">Вспомогательный контур</property>
+                                        <layout><property name="column">0</property><property name="row">2</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+                                <child><object id="color_sub_contur_button" class="GtkColorDialogButton">
+                                        <property name="rgba">#888888</property>
+                                        <property name="dialog">
+                                            <object class="GtkColorDialog">
+                                                <property name="with-alpha">False</property>
+                                            </object>
+                                        </property>
+                                        <signal name="notify::rgba" handler="parce_param" swapped="yes"/>
+                                        <layout><property name="column">1</property><property name="row">2</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                            <property name="label">Траектория</property>
+                                            <layout><property name="column">0</property><property name="row">3</property></layout>
+                                        </object></child>
+<!--====================================================================================-->
+                                <child><object id="color_trajectory_button" class="GtkColorDialogButton">
+                                        <property name="rgba">#000000</property>
+                                        <property name="dialog">
+                                            <object class="GtkColorDialog">
+                                                <property name="with-alpha">False</property>
+                                            </object>
+                                        </property>
+                                        <signal name="notify::rgba" handler="parce_param" swapped="yes"/>
+                                        <layout><property name="column">1</property><property name="row">3</property></layout>
+                                    </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                            <property name="label">В обратную сторону</property>
+                                            <layout><property name="column">0</property><property name="row">4</property></layout>
+                                        </object></child>
+<!--====================================================================================-->
+                            <child><object id="napr_switcher" class="GtkSwitch">
+                                    <layout><property name="column">1</property><property name="row">4</property></layout>
+                                    <signal name="notify::active" handler="parce_param" swapped="yes"/>
+                                </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                                <child><object class="GtkLabel">
+                                            <property name="label">Окружность-орбита</property>
+                                            <layout><property name="column">0</property><property name="row">5</property></layout>
+                                        </object></child>
+<!--====================================================================================-->
+                            <child><object id="orb_switcher" class="GtkSwitch">
+                                    <layout><property name="column">1</property><property name="row">5</property></layout>
+                                    <signal name="notify::active" handler="parce_param" swapped="yes"/>
+                                </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+                            </object></child>
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+<!--====================================================================================-->
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>
