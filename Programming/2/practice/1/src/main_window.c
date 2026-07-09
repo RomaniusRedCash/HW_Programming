@@ -161,7 +161,7 @@ static void on_drawing_area_draw(GtkDrawingArea *drawing_area, cairo_t *cr, int 
         cairo_scale(cr, scale, scale);
 
         cairo_set_line_width(cr, self->obvodka);
-        cairo_arc(cr, 0, 0, self->a_param, 0, 2 * G_PI);
+        cairo_arc(cr, 0, 0, self->a_param / 2.0, 0, 2 * G_PI);
         set_color(cr, color_zalivka);
         cairo_fill_preserve(cr);
         set_color(cr, color_contur);
@@ -169,12 +169,19 @@ static void on_drawing_area_draw(GtkDrawingArea *drawing_area, cairo_t *cr, int 
         cairo_restore(cr);
 
 // ТРАЕКТОРИЯ ДЛЯ РОМБА
-        phi = self->cur_deg * G_PI / 180.0 * self->speed_trajectory;
+        phi = self->cur_deg * G_PI * self->speed_trajectory / 180.0;
         r = self->a_param * sin(3.0 * phi);
         x = r * sin(phi);
         y = r * cos(phi);
         cairo_translate(cr, x, y);
-        cairo_rotate(cr, -phi);
+
+        double next_phi = phi + 0.001;
+        double next_r = self->a_param * sin(3.0 * next_phi);
+        double next_x = next_r * sin(next_phi);
+        double next_y = next_r * cos(next_phi);
+        phi = atan2(next_y - y, next_x - x);
+        cairo_rotate(cr, phi);
+
         cairo_scale(cr, scale, scale);
         cairo_set_line_width(cr, self->obvodka);
         double sub_diag1 = self->diag1 / 2.0;
