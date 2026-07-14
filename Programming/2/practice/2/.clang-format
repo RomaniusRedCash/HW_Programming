@@ -1,0 +1,27 @@
+---
+Language: Cpp
+# BasedOnStyle: LLVM
+
+# Длина строки и отступы
+ColumnLimit: 0
+IndentWidth: 4
+TabWidth: 4
+# UseTab: Never
+
+# Перенос фигурных скобок на новую строку
+# BreakBeforeBraces: Allman
+
+# Выравнивание указателей и ссылок по левому краю: int* ptr;
+PointerAlignment: Right
+
+# Сортировка #include директив по алфавиту
+SortIncludes: true
+
+# Пробелы внутри конструкций
+SpaceBeforeParens: ControlStatements # пробел после if, for, while, но не при вызове функций
+
+NamespaceIndentation: All
+FixNamespaceComments: false
+
+IndentCaseLabels: true
+...
