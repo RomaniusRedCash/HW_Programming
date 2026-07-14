@@ -31,4 +31,4 @@ add_custom_command(
 
 add_executable(EXE ${SRC_FILES} ${RESOURCES_SRC})
 
-target_link_libraries(EXE PRIVATE PkgConfig::GTK m)
+target_link_libraries(EXE PRIVATE PkgConfig::GTK)

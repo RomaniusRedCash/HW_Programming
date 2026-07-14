@@ -11,6 +11,7 @@ struct node {
     int num_sub;
     int level;
     point points[4];
+    point c_n;
 };
 static node *node_new(node *parent);
 
@@ -19,7 +20,6 @@ struct tree {
     node *root;
     int typ;
     int level;
-    double x, y;
 };
 tree *tree_new();
 void tree_clear(tree *tr);

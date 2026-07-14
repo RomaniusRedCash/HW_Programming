@@ -27,6 +27,7 @@ static void points_translate(point points[4], double dx, double dy) {
 }
 
 static void node_init(node *n) {
+    n->c_n = (point){300, 350.0 / 2};
     n->num_sub = 0;
     n->is_rotate = 0;
     if (n->parent == NULL) return;

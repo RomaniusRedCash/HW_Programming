@@ -1,7 +1,5 @@
 #include "main_window.h"
 
-#include <math.h>
-
 #include "header.h"
 #include "tree.h"
 
@@ -54,36 +52,53 @@ static void on_drawing_area_draw(GtkDrawingArea *drawing_area, cairo_t *cr, int 
     cairo_restore(cr);
 }
 
+void draw_node_recursive(cairo_t *cr, node *curr) {
+    if (curr == NULL) return;
+    if (curr->parent != NULL) {
+        cairo_set_source_rgb(cr, 0, 0, 0);
+        cairo_move_to(cr, curr->parent->c_n.x, curr->parent->c_n.y);
+        cairo_line_to(cr, curr->c_n.x, curr->c_n.y);
+        cairo_stroke(cr);
+    }
+    cairo_new_sub_path(cr);
+    cairo_arc(cr, curr->c_n.x, curr->c_n.y, 5, 0, 2 * G_PI);
+    color c = clr[(curr->level + 0) % 6];
+    set_color(c);
+    cairo_fill_preserve(cr);
+    set_color(clr[(curr->level + 2) % 6]);
+    cairo_stroke(cr);
+    for (int i = 0; i < curr->num_sub; i++) {
+        draw_node_recursive(cr, curr->sub[i]);
+    }
+}
+
 static void on_drawing_area_tree_draw(GtkDrawingArea *drawing_area, cairo_t *cr, int width, int height, gpointer user_data) {
     MainWindow *self = MAIN_WINDOW(user_data);
     gtk_drawing_area_set_content_height(drawing_area, self->depth * (self->tr->root->points[2].y + 50));
     cairo_save(cr);
     cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     cairo_paint(cr);
-    for (int i = 0; i < self->depth; i++) {
-        int n = pow(4, i), n_previos = pow(4, (i-1));
-        for (int j = 0; j < n; j++) {
-            double x = ((double)(j) + 0.5) / n * 600, y = (self->tr->root->points[2].y + 50) / 2;
-            if (i > 0) {
-                cairo_new_sub_path(cr);
-                cairo_move_to(cr, x, y);
-                cairo_line_to(cr, ((double)(int)(j / 4) + 0.5) / n_previos * 600, y - self->tr->root->points[2].y - 50);
-            }
-            cairo_new_sub_path(cr);
-            cairo_arc(cr, x, y, 5, 0, 2 * G_PI);
-        }
-        cairo_set_line_width(cr, 1.5);
-        color c = clr[(i + 1) % 6];
-        set_color(c);
-        cairo_fill_preserve(cr);
-        c = clr[(i + 3) % 6];
-        set_color(c);
-        cairo_stroke(cr);
-        cairo_translate(cr, 0, self->tr->root->points[2].y + 50);
-    }
+    draw_node_recursive(cr, self->tr->root);
     cairo_restore(cr);
 }
 #undef set_color
+
+void calculate_node_coordinates(node *curr, double x, double y, double width) {
+    if (curr == NULL) return;
+    curr->c_n.x = x;
+    curr->c_n.y = y;
+    if (curr->num_sub > 0) {
+        double sub_width = width / curr->num_sub;
+        double start_x = x - width / 2.0 + sub_width / 2.0;
+        for (int i = 0; i < curr->num_sub; i++) {
+            if (curr->sub[i] != NULL) {
+                double child_x = start_x + (i * sub_width);
+                double child_y = y + 350;
+                calculate_node_coordinates(curr->sub[i], child_x, child_y, sub_width);
+            }
+        }
+    }
+}
 
 G_DEFINE_TYPE(MainWindow, main_window, GTK_TYPE_APPLICATION_WINDOW)
 
@@ -94,7 +109,7 @@ static void change_param(GtkButton *button, gpointer user_data) {
         if (self->depth >= 15) gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(self->button_minus), TRUE);
         if (self->depth > self->tr->level) tree_increase(self->tr);
-    } else /*if (button == self->button_minus)*/ {
+    } else {
         self->depth--;
         if (self->depth <= 1)
             gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
@@ -105,6 +120,7 @@ static void change_param(GtkButton *button, gpointer user_data) {
     gtk_label_set_text(self->depth_label, str);
     gtk_widget_queue_draw(self->drawing_area);
     gtk_widget_queue_draw(self->drawing_area_tree);
+    calculate_node_coordinates(self->tr->root, 600.0/2, 350.0/2, 600);
 }
 
 static void main_window_finalize(GObject *object) {
