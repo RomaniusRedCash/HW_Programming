@@ -31,6 +31,8 @@
                     <property name="content-height">350</property>
                 </object></child>
             </object></child>
+            <property name="width-request">600</property>
+            <property name="height-request">350</property>
         </object></child>
     </object></child>
     <child><object class="GtkBox">
@@ -53,6 +55,13 @@
             <property name="halign">center</property>
             <property name="valign">center</property>
             <signal name="clicked" handler="change_param" swapped="no"/>
+        </object></child>
+        <child><object class="GtkPicture">
+            <property name="file">resource:///org/gtkal/kakoyto/resources/img/pic.png</property>
+            <property name="width-request">100</property>
+            <property name="height-request">100</property>
+            <property name="halign">end</property>
+            <property name="valign">center</property>
         </object></child>
     </object></child>
 </object></child>
