@@ -1,0 +1,19 @@
+{
+    "name": "OCOS",
+    "files": [
+        {
+            "recursive": true,
+            "filters": ["*.jl"]
+        }
+    ],
+    "build": {
+        "directory": ".",
+        "targets": [
+            {
+                "name": "start",
+                "build_cmd": "kitty julia main.jl"
+            }
+        ],
+        "default_target": "Собрать"
+    }
+}
