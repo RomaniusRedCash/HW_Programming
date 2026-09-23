@@ -1,66 +1,71 @@
-_t = -1:0.01:4
-# x_A(n)=0
 T_s(f_s)=1/f_s
-M=0
-
-x_D(n,f_s,U_min,U_max,M,x_A)=floor(x_A(n*T_s(f_s))/(U_max - U_min)*2^M) # 1
-X_D_z(n,f_s,U_min,U_max,M,x_A)=min(max(x_D(n,f_s,U_min,U_max,M,x_A),0),2^M-1) # 1*
-
-x(n,f_s,U_min,U_max,M,x_A)=x_D(n,f_s,U_min,U_max,M,x_A)*(U_max - U_min)/2^M # 2
-
 L(M)=2^M # 3
 dU(U_min,U_max,M)=(U_max - U_min)/2^M # 4
 
+x_D(n,f_s,U_min,U_max,M,x_A)=floor((x_A(n*T_s(f_s)))/(U_max - U_min)*2^M) # 1
+X_D_z(n,f_s,U_min,U_max,M,x_A)=min(max(x_D(n,f_s,U_min,U_max,M,x_A),0),2^M-1) # 1*
+
+x(n,f_s,U_min,U_max,M,x_A)=x_D(n,f_s,U_min,U_max,M,x_A)*(U_max - U_min)/2^M # 2
+x_D_z2(n,f_s,U_min,U_max,M,x_A)=min(max(x(n,f_s,U_min,U_max,M,x_A),0),U_max-dU(U_min,U_max,M)) # 2*
+
+# =Графики=
 # 1
-function d(t)
-    return t == 0 ? Inf : 0
-end
+d(t) = t == 0 ? Inf : 0
+d_digit(t) = t == 0 ? 1 : 0
 
 # 2
-function x_const(a, t)
-    return t >= 0 ? a : 0
-end
+x_const(a, t) = t >= 0 ? a : 0
 A_1=[1,2]
 
 # 3
-x_e(a,lambda,t)=a*exp(lambda*t)
+x_e(a,lambda,t) = a * exp(lambda*t)
 A_2=[[2,-0.5],[4,0.5]]
 
 # 4
-x_garm(a,f,fi,t)=a*sin(2*pi*f*t+fi)
+x_garm(a,f,fi,t)= a * sin(2*pi*f*t+fi)
 A_3=[[0.5,1,0],[5,100,0],[1,0.1,pi/4]]
 
 # 5
-x_poligarm(t)=cos(2*pi*t)+0.5*cos(2*pi*3*t)+0.2*cos(2*pi*5*t)
+x_poligarm(t) = cos(2*pi*t) + 0.5 * cos(2*pi*3*t) + 0.2 * cos(2*pi*5*t)
 
 # 6
 T_max=2
-function w_1(t)
-    return 0<=abs(t)<=T_max/2 ? 1 : 0
-end
+w_1(t) = 0 <= abs(t) <= T_max/2 ? 1 : 0
 
-function w_2(t)
-    return 0<=abs(t)<=T_max/2 ? 0.5*(1+cos(2*pi*t/T_max)) : 0
-end
+w_2(t) = 0 <= abs(t) <= T_max/2 ? 0.5*(1+cos(2*pi*t/T_max)) : 0
 
-function w_3(t)
-    return 0<=abs(t)<=T_max/2 ? 0.54+0.46*cos(2*pi*t/T_max) : 0
-end
+w_3(t) = 0 <= abs(t) <= T_max/2 ? 0.54+0.46 * cos(2*pi*t/T_max) : 0
 
 F=[[1000,-5,5,16],[10,0,3,3]]
 
 using Plots
-function zprint(x_A,F)
-    display(scatter(_t, [X_D_z(n,F...,x_A) for n in _t],markerstrokewidth = 0, color = :blue, markersize=1, titlefontsize = 9,guidefontsize = 8,tickfontsize = 7,legendfontsize = 7,
-        legend=false,
-        title = "Выходные коды АЦП",
-        xlabel = "Номер отсчета",
-        ylabel = "Код АЦП"))
-    readline()
+Setting=(markerstrokewidth=0,color = :blue,markersize=2,titlefontsize=9,guidefontsize=8,tickfontsize=7,legendfontsize=7,legend=false)
+function zprint1(x_A,F,_t,name)
+    n_range = Int(_t[1]*F[1]):Int(_t[end]*F[1])
+    return scatter(n_range, [x_D(n,F...,x_A) for n in n_range];
+                       Setting...,
+                       title = name, xlabel = "Шаг", ylabel = "Код")
+end
+function zprint2(x_A,F,_t,name)
+    n_range = Int(_t[1]*F[1]):Int(_t[end]*F[1])
+    t_vals = n_range ./ F[1]
+    return scatter(t_vals, [x(n,F...,x_A) for n in n_range];
+                        Setting...,
+                        title = name,xlabel = "t,с",ylabel = "U,В")
 end
 
-for i in 1:4
-zprint(t -> x_garm(A_3[i]..., t),F[1]) end
-zprint(t -> d(t),F[1])
-zprint(t -> d(t),F[1])
+function zprint(x_A,F,_t,name)
+    display(plot(zprint2(x_A,F,_t,name),zprint1(x_A,F,_t,name),layout = (1,2)))
+    strip(readline()) == "q" && exit(0)
+end
 
+for i in F
+    zprint(t -> d_digit(t), i, -2:2, "Дельта") # 1
+    for j in A_1 zprint(t -> x_const(j, t), i, -2:2, "Константа, $j") end # 2
+    for j in A_2 zprint(t -> x_e(j..., t), i, -1:10, "Экспонента, $(join(j, ", "))") end # 3
+    for j in A_3 zprint(t -> x_garm(j..., t), i, -5:5, "Гармонические колебания, $(join(j, ", "))") end # 4
+    zprint(t -> x_poligarm(t), i, -5:5, "Полигармонические") # 5
+    for (w,j) in [[w_1, "прямоугольное"], [w_2, "Ханна"], [w_3, "Хэмминга"]] zprint(t -> w(t), i, -5:2, "Окно $j") end # 6
+end
+
+# zprint(t -> x_garm(A_3[2]..., t), F[1], -0.01:0.001:0.01, "Гармонические колебания, $(join(A_3[2], ", "))") # fix очень высокая частота у синуса
