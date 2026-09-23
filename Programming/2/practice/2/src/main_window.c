@@ -52,8 +52,8 @@ static void on_drawing_area_draw(GtkDrawingArea *drawing_area, cairo_t *cr, int 
     cairo_restore(cr);
 }
 
-void draw_node_recursive(cairo_t *cr, node *curr) {
-    if (curr == NULL) return;
+void draw_node_recursive(cairo_t *cr, node *curr, MainWindow *self) {
+    if (curr == NULL || curr->level > self->depth) return;
     if (curr->parent != NULL) {
         cairo_set_source_rgb(cr, 0, 0, 0);
         cairo_move_to(cr, curr->parent->c_n.x, curr->parent->c_n.y);
@@ -68,7 +68,7 @@ void draw_node_recursive(cairo_t *cr, node *curr) {
     set_color(clr[(curr->level + 2) % 6]);
     cairo_stroke(cr);
     for (int i = 0; i < curr->num_sub; i++) {
-        draw_node_recursive(cr, curr->sub[i]);
+        draw_node_recursive(cr, curr->sub[i], self);
     }
 }
 
@@ -78,7 +78,7 @@ static void on_drawing_area_tree_draw(GtkDrawingArea *drawing_area, cairo_t *cr,
     cairo_save(cr);
     cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     cairo_paint(cr);
-    draw_node_recursive(cr, self->tr->root);
+    draw_node_recursive(cr, self->tr->root,self);
     cairo_restore(cr);
 }
 #undef set_color
