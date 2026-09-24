@@ -53,13 +53,13 @@ function zprint(x_A,F,_t,name)
 end
 
 function Zad11()
-    for i in F
-        zprint(t -> d_digit(t), i, -2:2, "Дельта") # 1
-        for j in A_1 zprint(t -> x_const(j, t), i, -2:2, "Константа, $j") end # 2
-        for j in A_2 zprint(t -> x_e(j..., t), i, -1:10, "Экспонента, $(join(j, ", "))") end # 3
-        for j in A_3 zprint(t -> x_garm(j..., t), i, -5:5, "Гармонические колебания, $(join(j, ", "))") end # 4
-        zprint(t -> x_poligarm(t), i, -5:5, "Полигармонические") # 5
-        for (w,j) in [[w_1, "прямоугольное"], [w_2, "Ханна"], [w_3, "Хэмминга"]] zprint(t -> w(t), i, -5:2, "Окно $j") end # 6
+    for (n,i) in enumerate(F)
+        zprint(t -> d_digit(t), i, -2:2, "Дельта, F_$n") # 1
+        for j in A_1 zprint(t -> x_const(j, t), i, -2:2, "Константа, $j, F_$n") end # 2
+        for j in A_2 zprint(t -> x_e(j..., t), i, -1:10, "Экспонента, $(join(j, ", ")), F_$n") end # 3
+        for j in A_3 zprint(t -> x_garm(j..., t), i, -5:5, "Гармонические колебания, $(join(j, ", ")), F_$n") end # 4
+        zprint(t -> x_poligarm(t), i, -5:5, "Полигармонические, F_$n") # 5
+        for (w,j) in [[w_1, "прямоугольное"], [w_2, "Ханна"], [w_3, "Хэмминга"]] zprint(t -> w(t), i, -5:2, "Окно $j, F_$n") end # 6
     end
     # zprint(t -> x_garm(A_3[2]..., t), F[1], -0.01:0.001:0.01, "Гармонические колебания, $(join(A_3[2], ", "))") # fix очень высокая частота у синуса
 end
