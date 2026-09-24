@@ -23,7 +23,7 @@ function Zad12()
         e_q_t = t_vals .- x_q_t
         plot!(t_vals, e_q_t, label = "Ошибка")
         if i[end] < 5 hline!([k * dU(i[2:4]...) for k in 0:(2^i[end])], color=:gray, linestyle=:dot, label="Уровни квантования") end
-        if saveZad == "y" savefig(p, "1.2,F_$n.svg")
+        if saveZad == "y" savefig(p, "1.2F$n.png")
         else
             display(p)
             readline()
