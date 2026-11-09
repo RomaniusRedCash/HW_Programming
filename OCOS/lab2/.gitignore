@@ -1,2 +1,4 @@
 *.lua
 lua/*
+plt/*
+*.png

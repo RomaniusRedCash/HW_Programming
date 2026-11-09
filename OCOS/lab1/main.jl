@@ -11,6 +11,7 @@ elseif zad == "1.2"
 elseif zad == "2.1"
     include("$zad.jl")
     Zad21()
+elseif zad == "2.2"
+    include("$zad.jl")
+    Zad22()
 end
-
-

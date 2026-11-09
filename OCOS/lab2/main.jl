@@ -1,5 +1,3 @@
-#!/bin/jl
-
+#!/bin/julia
 print("task: ")
-zad = strip(readline())
-include("$zad.jl")
+include("$(strip(readline())).jl")
