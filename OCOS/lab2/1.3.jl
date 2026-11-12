@@ -82,7 +82,7 @@ function poly_to_string(coeffs)
         sign_str = i < 0 ? "-" : (isempty(res) ? "" : " + ")
         val = abs(i)
         if power > 0
-            term = "$(val)*z^{-$power}"
+            term = "$(val)z^{-$power}"
         else
             term = "$(val)"
         end
@@ -97,11 +97,11 @@ open("lua/1/3/rootsZ.lua", "w") do io
 end
 
 open("lua/1/3/disk.lua", "w") do io
-    println(io, "return \"\$H(z) = \\\\div{$(poly_to_string(b_coeffs))}{$(poly_to_string(a_coeffs))}\$\"")
+    println(io, "return \"H(z) = \\\\frac{$(poly_to_string(b_coeffs))}{$(poly_to_string(a_coeffs))}\"")
 end
 
 open("lua/1/3/recur.lua", "w") do io
-    println(io, "return \"\$y[n] = $(join(["$(round(i, sigdigits=4))*x[n$(k - 1 == 0 ? "" : "-$(k-1)")]" for (k, i) in enumerate(b_coeffs)], " + ")) + $(join(["$(round(-i, sigdigits=4))*y[n-$k]" for (k, i) in enumerate(a_coeffs[1:end-1])], " + "))\$\"")
+    println(io, "return \"y[n] = $(join(["$(round(i, sigdigits=4))x[n$(k - 1 == 0 ? "" : "-$(k-1)")]" for (k, i) in enumerate(b_coeffs)], " + ")) -\\\\\\\\- $(join(["$(round(-i, sigdigits=4))y[n-$k]" for (k, i) in enumerate(a_coeffs[1:end-1])], " + "))\"")
 end
 
 
@@ -136,8 +136,6 @@ function take_zeros_coeffs(pool, count)
         z_taken = [popfirst!(pool) for _ in 1:count]
         if count == 2
             z1, z2 = z_taken[1], z_taken[2]
-            # (z - z1)(z - z2) = z^2 - (z1 + z2)z + z1*z2
-            # Перевод в коэффициенты z^-1 дает: b0=1.0, b1=real(-(z1+z2)), b2=real(z1*z2)
             return [1.0, real(-(z1 + z2)), real(z1 * z2)]
         elseif count == 1
             z1 = z_taken[1]

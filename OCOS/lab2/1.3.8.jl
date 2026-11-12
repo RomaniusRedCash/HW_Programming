@@ -4,7 +4,7 @@ using Polynomials
 mkpath("lua/1/3")
 
 function foo(name, sys)
-    Hs = tf(sys...)
+    Hs = tf(reverse.(sys)...)
     Ts = 0.1
     Hz = c2d(Hs, Ts, :tustin)
     num_p = numpoly(Hz)[1]
@@ -23,7 +23,7 @@ function foo(name, sys)
             sign_str = i < 0 ? "-" : (isempty(res) ? "" : " + ")
             val = abs(i)
             if power > 0
-                term = "$(val)*z^{-$power}"
+                term = "$(val)z^{-$power}"
             else
                 term = "$(val)"
             end
@@ -33,7 +33,7 @@ function foo(name, sys)
     end
 
     open("lua/1/3/sys_$name.lua", "w") do io
-        println(io, "return \"\$$name(z) = \\\\div{$(poly_to_string(b_coeffs))}{$(poly_to_string(a_coeffs))}\$\"")
+        println(io, "return \"\$$name(z) = \\\\frac{$(poly_to_string(b_coeffs))}{$(poly_to_string(a_coeffs))}\$\"")
     end
 end
 
@@ -42,12 +42,12 @@ end
 systems_s = Dict(
     "H_1" => [[1.0], [1.0]],
     "H_2" => [[1.0], [0.0, 0.5]],
-    "H_3" => [[0.0, 0.5], [1.0]],
+#     "H_3" => [[0.0, 0.5], [1.0]],
     "H_4" => [[0.0, 0.1], [1.0, 0.5]],
     "H_5" => [[1.0], [1.0, 0.5]],
 )
 for (n, a) in [1=>0.0, 2=>0.5, 3=>1.5]
-    systems_s["H6_a$a"] = [[1.0], [1.0, a*0.5, 0.25]]
+    systems_s["H_{6,a$n}"] = [[1.0], [1.0, a*0.5, 0.25]]
 end
 
 for (name,sys) in systems_s

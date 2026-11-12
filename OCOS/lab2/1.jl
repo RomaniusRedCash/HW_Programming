@@ -5,7 +5,7 @@ mkpath("lua/1/2")
 
 function format_complex(arr)
     if isempty(arr)
-        return "\"\$\\\\emptyset\$\""
+        return "{\"\$\\\\emptyset\$\"}"
     end
     formatted = map(arr) do x
         re = round(real(x), digits=4)
@@ -35,30 +35,30 @@ function write_sys(sys, path, syst)
             elseif syst == "z"
                 is_stable = isempty(poles_sys) ? true : all(abs.(poles_sys) .< 1)
             end
-            println(io, "$(name) = { poles = $(format_complex(poles_sys)), zeros = $(format_complex(zeros_sys)), is_stable = $is_stable},\n")
+            println(io, "[\"$(name)\"] = { poles = $(format_complex(poles_sys)), zeros = $(format_complex(zeros_sys)), is_stable = $is_stable},\n")
         end
         println(io, "}")
     end
 end
 
 systems_s = Dict(
-    "H1" => [[1.0], [1.0]],
-    "H2" => [[1.0], [0.0, 0.5]],
-    "H3" => [[0.0, 0.5], [1.0]],
-    "H4" => [[0.0, 0.1], [1.0, 0.5]],
-    "H5" => [[1.0], [1.0, 0.5]],
+    "H_1" => [[1.0], [1.0]],
+    "H_2" => [[1.0], [0.0, 0.5]],
+    "H_3" => [[0.0, 0.5], [1.0]],
+    "H_4" => [[0.0, 0.1], [1.0, 0.5]],
+    "H_5" => [[1.0], [1.0, 0.5]],
 )
 for (n, a) in [1=>0.0, 2=>0.5, 3=>1.5]
     systems_s["H6_a$a"] = [[1.0], [1.0, a*0.5, 0.25]]
 end
 
 systems_z = Dict(
-    "H1" => [[1.0], [1.0]],
-    "H2" => [[0.0, 1.0], [-100.0, 100.0]],
-    "H3" => [[-100.0, 100.0], [0.0, 1.0]],
-    "H5" => [[100.0], [101.0, 1.0]],
-    "H6" => [[1.0], [1.0, 100.0, 10000]],
-    "H7" => [[1.0], [zeros(99); 1.0]],
+    "H_1" => [[1.0], [1.0]],
+    "H_2" => [[0.0, 1.0], [-100.0, 100.0]],
+    "H_3" => [[-100.0, 100.0], [0.0, 1.0]],
+    "H_5" => [[100.0], [101.0, 1.0]],
+    "H_6" => [[1.0], [1.0, 100.0, 10000]],
+    "H_7" => [[1.0], [zeros(100); 1.0]],
 )
 
 write_sys(systems_s, "lua/1/1/sys.lua", "s")
@@ -66,26 +66,34 @@ write_sys(systems_z, "lua/1/2/sys.lua", "z")
 
 function generate_recurrence(name, sys)
     num, den = sys
-    num = reverse(num)
-    den = reverse(den)
-#     if num[1] != 0 && num[1] != 1
-#         den = den ./ num[1]
-#         num = num ./ den[1]
-#     end
+    a0 = den[1]
+    if a0 != 0 && a0 != 1
+        num = num ./ a0
+        den = den ./ a0
+    end
     rhs_terms = String[]
-    for i in 1:length(den)
-        if den[i] == 0; continue; end
-        push!(rhs_terms, "$(round(den[i], digits=4))*$(i-1 == 0 ? "x[n]" : "x[n-$(i-1)]")")
+    for i in 1:length(num)
+        if num[i] == 0; continue; end
+        val = round(num[i], digits=4)
+        term = (i-1 == 0) ? "x[n]" : "x[n-$(i-1)]"
+        push!(rhs_terms, val == 1.0 ? term : "$(val)$term")
     end
     lhs_terms = String[]
-    for i in 2:length(num)
-        if num[i] == 0; continue; end
-        push!(lhs_terms, "$(round(-num[i], digits=4))*y[n-$(i-1)]")
+    for j in 2:length(den)
+        if den[j] == 0; continue; end
+        val = round(-den[j], digits=4)
+        term = "y[n-$(j-1)]"
+        if val > 0
+            push!(lhs_terms, val == 1.0 ? term : "$(val)$term")
+            elseif val < 0
+            push!(lhs_terms, val == -1.0 ? "- $term" : "- $(abs(val))$term")
+        end
     end
-    return "$name = {\"y[n] = $(isempty(rhs_terms) ? "0" : join(rhs_terms, " + "))$(isempty(lhs_terms) ? "" : " + " * join(lhs_terms, " + "))\"},"
+    all_terms = vcat(rhs_terms, lhs_terms)
+    return "[\"$name\"] = \"y[n] = $(isempty(all_terms) ? "0" : join(all_terms, " + "))\","
 end
 
-open("lua/rec.lua", "w") do io
+open("lua/1/rec.lua", "w") do io
     println(io, "return {")
     for (name, sys) in systems_z
         println(io, generate_recurrence(name,sys))

@@ -7,7 +7,7 @@ systems_z = Dict(
     "H_3" => [[-100.0, 100.0], [0.0, 1.0]],
     "H_5" => [[100.0], [101.0, 1.0]],
     "H_6" => [[1.0], [1.0, 100.0, 10000]],
-    "H_7" => [[1.0], [zeros(99); 1.0]],
+    "H_7" => [[1.0], [zeros(100); 1.0]],
 )
 
 
@@ -24,9 +24,9 @@ function exp_poly_to_string(coeffs)
         if power == 0
             term = "$v"
         elseif power == 1
-            term = "$(v)e^{-j\\\\omega}"
+            term = "$(v)e^{j\\\\omega}"
         else
-            term = "$(v)e^{-j$(power)\\\\omega}"
+            term = "$(v)e^{j$(power)\\\\omega}"
         end
         res *= sign_str * term
     end
@@ -36,7 +36,7 @@ end
 for (name, sys) in systems_z
     num_str = exp_poly_to_string(sys[1])
     den_str = exp_poly_to_string(sys[2])
-    open("lua/2/1/sys_$name.lua", "w") do io
+    open("lua/2/2/sys_$name.lua", "w") do io
         println(io, "return \"\$$name(e^{j\\\\omega}) = \\\\frac{$num_str}{$den_str}\$\"")
     end
 end
@@ -82,6 +82,9 @@ function compute_freq_resp_z(num_coeffs, den_coeffs, omega)
 end
 
 for name in ["H_$i" for i in 1:7]
+    if name == "H_4"
+        continue
+    end
     sys = systems_z[name]
     A, Phi = compute_freq_resp_z(sys[1], sys[2], omega)
     L = 20 .* log10.(max.(A, 1e-12))
@@ -99,4 +102,36 @@ for name in ["H_$i" for i in 1:7]
         scatter!(p_lachh, [w_cut, -w_cut], [target_L], label = false, color = :black, markersize = 4)
     end
     savefig(plot(p_lachh, p_ph, layout=(2, 1)), "plt/2/2/$name.png")
+end
+for fs in (100.0, 10_000.0)
+    f = omega ./ (2π) .* fs            # Гц
+    tag = fs == 100.0 ? "fs100" : "fs10k"
+
+    for name in ["H_$i" for i in 1:7]
+        name == "H_4" && continue
+        sys = systems_z[name]
+        A, Phi = compute_freq_resp_z(sys[1], sys[2], omega)
+        L = 20 .* log10.(max.(A, 1e-12))
+
+        p_lachh = plot(title = "ЛАЧХ ($name), \$f_s = $fs\$ Гц",
+                       xlabel = "\$f\$ (Гц)", ylabel = "дБ", lw = 2, grid = true,
+                       ylims = (min(minimum(L), 0.0) - 5.0, max(maximum(L), 0.0) + 5.0))
+        p_ph = plot(title = "ФЧХ ($name), \$f_s = $fs\$ Гц",
+                    xlabel = "\$f\$ (Гц)", ylabel = "\$\\Phi(\\omega)\$ (град)", lw = 2, grid = true)
+
+        plot!(p_lachh, f, L,   label = name)
+        plot!(p_ph,    f, Phi, label = name)
+
+        if name == "H_3"
+            pos_mask = f .>= 0
+            f_pos = f[pos_mask];  L_pos = L[pos_mask]
+            target_L = maximum(L_pos) - 3.01
+            f_cut = f_pos[argmin(abs.(L_pos .- target_L))]
+            vline!(p_lachh, [f_cut, -f_cut], label = false, linestyle = :dash, color = :gray)
+            scatter!(p_lachh, [f_cut, -f_cut], [target_L], label = false, color = :black, markersize = 4)
+        end
+
+        savefig(plot(p_lachh, p_ph, layout = (2, 1)),
+                "plt/2/2/$(name)_$tag.png")
+    end
 end

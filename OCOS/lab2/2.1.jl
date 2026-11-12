@@ -49,7 +49,7 @@ systems_s = Dict(
     "H_5" => [[1.0], [1.0, 0.5]],
 )
 for (n, a) in [1=>0.0, 2=>0.5, 3=>1.5]
-    systems_s["H6_a$a"] = [[1.0], [1.0, a*0.5, 0.25]]
+    systems_s["H_{6,a$n}"] = [[1.0], [1.0, a*0.5, 0.25]]
 end
 
 function exp_poly_to_string(coeffs)
@@ -144,8 +144,8 @@ end
 
 p_h6_lachh = plot(title = "ЛАЧХ", xlabel = "\$ω\$", ylabel = "дБ", xscale = :log10, lw = 2, grid = true)
 p_h6_ph = plot(title = "ФЧХ", xlabel = "\$\\omega\$", ylabel = "\$\\Phi(\\omega)\$", xscale = :log10, lw = 2, grid = true)
-for a in [0.0, 0.5, 1.5]
-    sys = systems_s["H6_a$a"]
+for a in [1,2,3]
+    sys = systems_s["H_{6,a$a}"]
     A, Phi = compute_freq_resp(sys..., omega)
     L = 20 .* log10.(max.(A, 1e-12))
     plot!(p_h6_lachh, omega, L, label = "\$H_6 (a = $a)\$")
